@@ -72,9 +72,9 @@
         .digit.active { color: var(--accent); font-weight: bold; transform: scale(1.3); text-shadow: 0 0 10px var(--accent); }
         #status { margin-top: 1rem; font-size: 0.75rem; color: var(--text-dim); min-height: 1.5rem; }
         
-        /* BPM 입력창 스타일 */
-        #bpm-num {
-            width: 50px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent);
+        /* BPM 및 이동 입력창 스타일 */
+        #bpm-num, #jump-index {
+            width: 60px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent);
             color: white; border-radius: 4px; padding: 2px 5px; text-align: center;
             font-family: inherit; font-weight: bold;
         }
@@ -99,8 +99,15 @@
             <div class="control-item">
                 <label>BPM (속도)</label>
                 <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
-                    <input type="number" id="bpm-num" min="15" max="240" value="60">
-                    <input type="range" id="bpm-range" min="15" max="240" step="1" value="60">
+                    <input type="number" id="bpm-num" min="15" max="300" value="120">
+                    <input type="range" id="bpm-range" min="15" max="300" step="1" value="120">
+                </div>
+            </div>
+            <div class="control-item" style="grid-column: span 2;">
+                <label>시작 자릿수 (Jump to Digit)</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;">
+                    <input type="number" id="jump-index" min="0" value="0">
+                    <button onclick="jump()" style="padding: 4px 12px; font-size: 0.75rem; background: var(--text-dim);">이동</button>
                 </div>
             </div>
         </div>
@@ -168,7 +175,7 @@ function playChord(chord, t) {
     });
 }
 
-let piBuffer = "", fetchIndex = 0, scheduleIndex = 0, displayIndex = 0, nextTime = 0, chordTick = 0;
+let piBuffer = "", currentStartDigit = 0, fetchIndex = 0, scheduleIndex = 0, displayIndex = 0, nextTime = 0, chordTick = 0;
 
 async function fetchPi(start, count) {
     try {
@@ -186,12 +193,14 @@ async function fillBuffer() {
 
 function updateDisplay(idx) {
     const display = document.getElementById("pi-display");
-    const end = idx + 15;
+    const relativeIdx = idx;
+    const end = relativeIdx + 15;
     const slice = piBuffer.slice(0, end);
     let html = "";
     for (let i = 0; i < slice.length; i++) {
-        const isActive = i === idx;
-        html += `<span class="digit ${isActive ? 'active' : ''}">${i === 0 ? '3.' : slice[i]}</span>`;
+        const isActive = i === relativeIdx;
+        const globalIdx = currentStartDigit + i;
+        html += `<span class="digit ${isActive ? 'active' : ''}">${globalIdx === 0 ? '3.' : slice[i]}</span>`;
     }
     display.innerHTML = html;
     display.scrollTop = display.scrollHeight;
@@ -206,23 +215,32 @@ function showPattern(msg, type) {
 function scheduler() {
     if (!isPlaying) return;
     
-    // BPM을 박자 간격(초)으로 변환
     const bpm = parseFloat(document.getElementById('bpm-range').value);
     const beatInterval = 60 / bpm;
 
-    while (nextTime < ctx.currentTime + 1.5) {
-        if (scheduleIndex + 50 >= piBuffer.length) fillBuffer();
+    // 만약 다음 재생 시간이 현재보다 너무 뒤처졌다면 현재 시점으로 보정 (버스트 방지)
+    if (nextTime < ctx.currentTime) {
+        nextTime = ctx.currentTime + 0.05;
+    }
+
+    while (nextTime < ctx.currentTime + 1.2) {
+        if (scheduleIndex + 50 >= piBuffer.length) {
+            // 버퍼가 없으면 루프를 탈출하고 대기
+            fillBuffer();
+            break;
+        }
 
         const s3 = piBuffer.slice(scheduleIndex, scheduleIndex + 3);
         const s2 = piBuffer.slice(scheduleIndex, scheduleIndex + 2);
         let cellBeats = 1, notes = [], msg = "", type = "";
 
+        // 리듬 분석 로직
         if (s3[0] === s3[1] && s3[1] === s3[2]) {
-            cellBeats = 3; notes = [{o:0, i:0}, {o:1.5, i:1}, {o:2, i:2}]; msg = "Grand Triple";
+            cellBeats = 2; notes = [{o:0, i:0}, {o:0.66, i:1}, {o:1.33, i:2}]; msg = "Triple (2 Beats)";
         } else if (s2[0] === s2[1]) {
-            cellBeats = 2; notes = [{o:0, i:0}, {o:1.5, i:1}]; msg = "Dotted Double";
+            cellBeats = 1.5; notes = [{o:0, i:0}, {o:1, i:1}]; msg = "Dotted (1.5 Beats)";
         } else if (Number(s3[0])+1 === Number(s3[1]) && Number(s3[1])+1 === Number(s3[2])) {
-            cellBeats = 1; notes = [{o:0, i:0}, {o:0.25, i:1}, {o:0.5, i:2}]; msg = "Graceful Run"; type = "fast";
+            cellBeats = 1; notes = [{o:0, i:0}, {o:0.33, i:1}, {o:0.66, i:2}]; msg = "Grace Run (1 Beat)"; type = "fast";
         } else {
             cellBeats = 1; notes = [{o:0, i:0}];
         }
@@ -243,7 +261,7 @@ function scheduler() {
                     displayIndex = baseIdx + n.i;
                     updateDisplay(displayIndex);
                     if (msg) showPattern(msg, type);
-                    else document.getElementById("status").textContent = `Position: ${displayIndex}`;
+                    else document.getElementById("status").textContent = `Position: ${currentStartDigit + displayIndex}`;
                 }
             }, Math.max(0, (t - ctx.currentTime) * 1000));
         });
@@ -259,11 +277,18 @@ async function start() {
     initAudio(); if (isPlaying) return;
     document.getElementById("btn-start").disabled = true;
     document.getElementById("btn-stop").disabled = false;
+    
     if (!piBuffer) {
-        piBuffer = await fetchPi(0, 1000);
-        fetchIndex = piBuffer.length;
+        const startIdx = parseInt(document.getElementById('jump-index').value) || 0;
+        currentStartDigit = startIdx;
+        piBuffer = await fetchPi(startIdx, 1000);
+        fetchIndex = startIdx + piBuffer.length;
     }
-    isPlaying = true; nextTime = ctx.currentTime + 0.1; chordTick = 0; scheduler();
+    
+    isPlaying = true; 
+    nextTime = ctx.currentTime + 0.1; 
+    chordTick = 0; 
+    scheduler();
 }
 
 function stop() {
@@ -271,6 +296,19 @@ function stop() {
     document.getElementById("btn-start").disabled = false;
     document.getElementById("btn-stop").disabled = true;
     document.getElementById("status").textContent = "Stopped";
+}
+
+async function jump() {
+    const wasPlaying = isPlaying;
+    stop();
+    piBuffer = "";
+    scheduleIndex = 0;
+    displayIndex = 0;
+    chordTick = 0;
+    const startIdx = parseInt(document.getElementById('jump-index').value) || 0;
+    currentStartDigit = startIdx;
+    document.getElementById("status").textContent = `Jumping to ${startIdx}...`;
+    if (wasPlaying) start();
 }
 
 // UI 이벤트 리스너
@@ -281,7 +319,7 @@ const bpmRange = document.getElementById('bpm-range');
 
 bpmNum.addEventListener('input', (e) => {
     let val = parseInt(e.target.value);
-    if (val < 15) val = 15; if (val > 240) val = 240;
+    if (val < 15) val = 15; if (val > 300) val = 300;
     bpmRange.value = val;
 });
 
