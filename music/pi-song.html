@@ -97,17 +97,25 @@
                 <input type="range" id="volume" min="0" max="2" step="0.01" value="1.0">
             </div>
             <div class="control-item">
-                <label>BPM (속도)</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
-                    <input type="number" id="bpm-num" min="15" max="300" value="120">
-                    <input type="range" id="bpm-range" min="15" max="300" step="1" value="120">
-                </div>
+                <label>비트 트리거 숫자</label>
+                <select id="beat-digit" style="background: rgba(255,255,255,0.1); border: 1px solid var(--accent); color: white; border-radius: 4px; padding: 2px 5px; font-weight: bold;">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                </select>
             </div>
-            <div class="control-item" style="grid-column: span 2;">
-                <label>시작 자릿수 (Jump to Digit)</label>
+            <div class="control-item" style="grid-column: span 1;">
+                <label>시작 자릿수 (Jump)</label>
                 <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;">
-                    <input type="number" id="jump-index" min="0" value="0">
-                    <button onclick="jump()" style="padding: 4px 12px; font-size: 0.75rem; background: var(--text-dim);">이동</button>
+                    <input type="number" id="jump-index" min="0" value="0" style="width: 50px;">
+                    <button onclick="jump()" style="padding: 4px 8px; font-size: 0.7rem; background: var(--text-dim); margin: 0;">이동</button>
                 </div>
             </div>
         </div>
@@ -121,7 +129,7 @@
 let ctx = null, masterGain = null, reverb = null;
 let isPlaying = false, rafId = null;
 
-const scale = { '1': 261.63, '2': 293.66, '3': 329.63, '4': 349.23, '5': 392.00, '6': 440.00, '7': 493.88, '8': 523.25, '9': 587.33 };
+const scale = { '1': 261.63, '2': 293.66, '3': 329.63, '4': 349.23, '5': 392.00, '6': 440.00, '7': 493.88, '8': 523.25, '9': 587.33, '0': 130.81 };
 const chords = [
   [261.63, 329.63, 392.00], // C
   [220.00, 261.63, 329.63], // Am
@@ -161,6 +169,17 @@ function playNote(freq, t, dur) {
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 3.5);
     o.connect(g); g.connect(masterGain);
     o.start(t); o.stop(t + dur * 3.5);
+}
+
+function playKick(t) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(0.01, t + 0.3);
+    g.gain.setValueAtTime(1.5, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    o.connect(g); g.connect(masterGain);
+    o.start(t); o.stop(t + 0.3);
 }
 
 function playChord(chord, t) {
@@ -208,7 +227,7 @@ function updateDisplay(idx) {
 
 function showPattern(msg, type) {
     const s = document.getElementById("status");
-    const color = type === 'fast' ? '#38bdf8' : '#fbbf24';
+    const color = type === 'beat' ? '#f472b6' : (type === 'fast' ? '#38bdf8' : '#fbbf24');
     s.innerHTML = `<b style="color:${color}">✨ ${msg} ✨</b>`;
 }
 
@@ -218,24 +237,34 @@ function scheduler() {
     const bpm = parseFloat(document.getElementById('bpm-range').value);
     const beatInterval = 60 / bpm;
 
-    // 만약 다음 재생 시간이 현재보다 너무 뒤처졌다면 현재 시점으로 보정 (버스트 방지)
     if (nextTime < ctx.currentTime) {
         nextTime = ctx.currentTime + 0.05;
     }
 
     while (nextTime < ctx.currentTime + 1.2) {
         if (scheduleIndex + 50 >= piBuffer.length) {
-            // 버퍼가 없으면 루프를 탈출하고 대기
             fillBuffer();
             break;
         }
 
+        const currentDigit = piBuffer[scheduleIndex];
+        const triggerDigit = document.getElementById('beat-digit').value;
         const s3 = piBuffer.slice(scheduleIndex, scheduleIndex + 3);
         const s2 = piBuffer.slice(scheduleIndex, scheduleIndex + 2);
+        
         let cellBeats = 1, notes = [], msg = "", type = "";
 
-        // 리듬 분석 로직
-        if (s3[0] === s3[1] && s3[1] === s3[2]) {
+        // 비트 트리거 로직 (가장 높은 우선순위)
+        if (currentDigit === triggerDigit) {
+            cellBeats = 1; 
+            notes = [
+                {o:0, i:0, kick: true}, 
+                {o:0.25, i:0}, 
+                {o:0.5, i:0, kick: true}, 
+                {o:0.75, i:0}
+            ]; 
+            msg = "HEAVY BEAT (16th)"; type = "beat";
+        } else if (s3[0] === s3[1] && s3[1] === s3[2]) {
             cellBeats = 2; notes = [{o:0, i:0}, {o:0.66, i:1}, {o:1.33, i:2}]; msg = "Triple (2 Beats)";
         } else if (s2[0] === s2[1]) {
             cellBeats = 1.5; notes = [{o:0, i:0}, {o:1, i:1}]; msg = "Dotted (1.5 Beats)";
@@ -254,7 +283,9 @@ function scheduler() {
             const t = nextTime + (n.o * beatInterval);
             const dur = ((notes[i+1] ? notes[i+1].o : cellBeats) - n.o) * beatInterval;
             const d = piBuffer[baseIdx + n.i];
-            if (d && d !== '0') playNote(scale[d], t, dur);
+            
+            if (n.kick) playKick(t);
+            if (d && (d !== '0' || currentDigit === triggerDigit)) playNote(scale[d], t, dur);
 
             setTimeout(() => {
                 if (isPlaying) {
