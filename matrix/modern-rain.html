@@ -37,25 +37,21 @@
         let drops = [];
 
         function initDrops() {
-            const columns = Math.floor(canvas.width / 10); // Base on smallest font size
+            const columns = Math.floor(canvas.width / 10);
             drops = [];
             for (let i = 0; i < columns; i++) {
-                // Randomly assign a layer for depth
-                // Layer 0: Small, slow, dim (Background)
-                // Layer 1: Medium, medium speed, medium brightness (Middle)
-                // Layer 2: Large, fast, bright (Foreground)
-                const layer = Math.floor(Math.random() * 3);
-                const size = [10, 16, 22][layer];
-                const speed = [0.5, 1, 1.5][layer];
-                const opacity = [0.3, 0.7, 1][layer];
+                // Individual column settings for depth
+                const fontSize = Math.floor(Math.random() * 15) + 10; // 10px to 25px
+                const speed = (fontSize / 15) * 1.5; // Larger is faster
+                const opacity = (fontSize / 25) * 0.8 + 0.2; // Larger is brighter
                 
                 drops.push({
-                    x: i * 10,
-                    y: Math.random() * -100, // Randomize initial Y to prevent simultaneous start
-                    size: size,
+                    x: i * 15,
+                    y: Math.random() * -100, // Staggered start
+                    fontSize: fontSize,
                     speed: speed,
                     opacity: opacity,
-                    layer: layer
+                    history: [] // To track the trail for the white tip
                 });
             }
         }
@@ -63,23 +59,44 @@
         resizeCanvas();
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            // Semi-transparent black for the trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Sort drops by layer to draw background first (optional, but good for consistent layering)
-            // But since we use simple text, drawing order doesn't matter as much unless they overlap.
-            
             drops.forEach(drop => {
-                ctx.fillStyle = `rgba(0, 255, 0, ${drop.opacity})`;
-                ctx.font = drop.size + 'px monospace';
-
-                const text = charArray[Math.floor(Math.random() * charArray.length)];
-                ctx.fillText(text, drop.x, drop.y * 16); // Scale y by a factor for visibility
-
-                if (drop.y * 16 > canvas.height && Math.random() > 0.975) {
-                    drop.y = 0;
+                // Update history for the trail
+                const char = charArray[Math.floor(Math.random() * charArray.length)];
+                drop.history.push({ char: char, y: drop.y * 20 });
+                
+                // Keep only the last 20 characters for the trail
+                if (drop.history.length > 20) {
+                    drop.history.shift();
                 }
-                drop.y += drop.speed;
+
+                // Draw the trail
+                drop.history.forEach((point, index) => {
+                    const isLast = index === drop.history.length - 1;
+                    
+                    if (isLast) {
+                        ctx.fillStyle = '#fff'; // White tip
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#fff';
+                    } else {
+                        ctx.fillStyle = `rgba(0, 255, 70, ${drop.opacity * (index / drop.history.length)})`;
+                        ctx.shadowBlur = 0;
+                    }
+
+                    ctx.font = drop.fontSize + 'px monospace';
+                    ctx.fillText(point.char, drop.x, point.y);
+                });
+
+                // Reset drop
+                if (drop.y * 20 > canvas.height && Math.random() > 0.975) {
+                    drop.y = -5;
+                    drop.history = [];
+                }
+                
+                drop.y += drop.speed * 0.5;
             });
         }
 
