@@ -31,23 +31,41 @@
         
         window.addEventListener('resize', resizeCanvas);
 
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ';
-        const charArray = chars.split('');
+        // Generate a broad range of safe Unicode characters
+        const charArray = [];
+        const ranges = [
+            [0x0021, 0x007E], // Basic Latin
+            [0x00A1, 0x00FF], // Latin-1 Supplement
+            [0x0100, 0x017F], // Latin Extended-A
+            [0x0370, 0x03FF], // Greek and Coptic
+            [0x0400, 0x04FF], // Cyrillic
+            [0x30A0, 0x30FF], // Katakana
+            [0xAC00, 0xD7A3], // Hangul Syllables
+            [0x2100, 0x214F], // Letterlike Symbols
+            [0x2200, 0x22FF], // Mathematical Operators
+            [0x25A0, 0x25FF]  // Geometric Shapes
+        ];
+
+        for (const [start, end] of ranges) {
+            for (let i = start; i <= end; i++) {
+                charArray.push(String.fromCharCode(i));
+            }
+        }
 
         let drops = [];
 
         function initDrops() {
-            // Calculate columns based on width and a fixed step to prevent overlap
-            const step = 15;
+            // Denser columns
+            const step = 12; 
             const columns = Math.floor(canvas.width / step);
             drops = [];
             for (let i = 0; i < columns; i++) {
-                const fontSize = Math.floor(Math.random() * 12) + 12; // 12px to 24px
-                const speed = (fontSize / 15) * 2; 
+                const fontSize = Math.floor(Math.random() * 10) + 12; // 12px to 22px
+                const speed = (fontSize / 15) * 3; // Faster overall speed
                 
                 drops.push({
                     x: i * step,
-                    y: Math.random() * -100,
+                    y: Math.random() * -150, // Wider range for more staggered but frequent entry
                     fontSize: fontSize,
                     speed: speed,
                     history: []
@@ -58,50 +76,43 @@
         resizeCanvas();
 
         function draw() {
-            // Clear screen completely for maximum sharpness
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             drops.forEach(drop => {
-                // Update position
-                drop.y += drop.speed * 0.2;
+                // Faster update
+                drop.y += drop.speed * 0.15;
 
-                // Add to history
-                if (Math.random() > 0.5) { // Slow down char update slightly for readability
-                    const char = charArray[Math.floor(Math.random() * charArray.length)];
-                    drop.history.push({ char: char, y: Math.floor(drop.y * 20) });
-                }
+                // Update history more frequently
+                const char = charArray[Math.floor(Math.random() * charArray.length)];
+                drop.history.push({ char: char, y: Math.floor(drop.y * 20) });
                 
                 if (drop.history.length > 25) {
                     drop.history.shift();
                 }
 
-                // Draw each point in the history
                 drop.history.forEach((point, index) => {
                     const isLast = index === drop.history.length - 1;
                     const alpha = (index / drop.history.length);
                     
                     if (isLast) {
-                        ctx.fillStyle = '#fff'; // Sharp white tip
+                        ctx.fillStyle = '#fff';
                     } else {
-                        // Vary green based on position in trail
                         ctx.fillStyle = `rgba(0, 255, 70, ${alpha})`;
                     }
 
                     ctx.font = drop.fontSize + 'px monospace';
-                    // Math.floor for sharp pixel-perfect rendering
                     ctx.fillText(point.char, Math.floor(drop.x), point.y);
                 });
 
-                // Reset drop when it goes off screen
-                if (drop.y * 20 > canvas.height + 500) {
-                    drop.y = -10;
+                // Faster reset cycle
+                if (drop.y * 20 > canvas.height + 100) {
+                    drop.y = Math.random() * -10;
                     drop.history = [];
                 }
             });
         }
 
-        // Increase FPS for smoother animation
         setInterval(draw, 20);
     </script>
 </body>
