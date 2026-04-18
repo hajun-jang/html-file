@@ -26,37 +26,61 @@
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            initDrops();
         }
         
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ';
         const charArray = chars.split('');
 
-        const fontSize = 16;
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = Array(columns).fill(1);
+        let drops = [];
+
+        function initDrops() {
+            const columns = Math.floor(canvas.width / 10); // Base on smallest font size
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                // Randomly assign a layer for depth
+                // Layer 0: Small, slow, dim (Background)
+                // Layer 1: Medium, medium speed, medium brightness (Middle)
+                // Layer 2: Large, fast, bright (Foreground)
+                const layer = Math.floor(Math.random() * 3);
+                const size = [10, 16, 22][layer];
+                const speed = [0.5, 1, 1.5][layer];
+                const opacity = [0.3, 0.7, 1][layer];
+                
+                drops.push({
+                    x: i * 10,
+                    y: Math.random() * -100, // Randomize initial Y to prevent simultaneous start
+                    size: size,
+                    speed: speed,
+                    opacity: opacity,
+                    layer: layer
+                });
+            }
+        }
+
+        resizeCanvas();
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
+            // Sort drops by layer to draw background first (optional, but good for consistent layering)
+            // But since we use simple text, drawing order doesn't matter as much unless they overlap.
+            
+            drops.forEach(drop => {
+                ctx.fillStyle = `rgba(0, 255, 0, ${drop.opacity})`;
+                ctx.font = drop.size + 'px monospace';
 
-            for (let i = 0; i < drops.length; i++) {
                 const text = charArray[Math.floor(Math.random() * charArray.length)];
-                const x = i * fontSize;
-                const y = drops[i] * fontSize;
+                ctx.fillText(text, drop.x, drop.y * 16); // Scale y by a factor for visibility
 
-                ctx.fillText(text, x, y);
-
-                if (y > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+                if (drop.y * 16 > canvas.height && Math.random() > 0.975) {
+                    drop.y = 0;
                 }
-                drops[i]++;
-            }
+                drop.y += drop.speed;
+            });
         }
 
         setInterval(draw, 33);
