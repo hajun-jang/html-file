@@ -31,45 +31,38 @@
         
         window.addEventListener('resize', resizeCanvas);
 
-        // Curated symbolic and ancient-style character ranges
+        // Broad Unicode generation similar to unicode.html, but curated
         const charArray = [];
-        const ranges = [
-            [0x0021, 0x007E], // Basic Latin (English, Numbers, Symbols)
-            [0x00A1, 0x00FF], // Latin-1 Symbols
-            [0x0370, 0x03FF], // Greek
-            [0x16A0, 0x16EA], // Runic (Hieroglyph-like)
-            [0x2C00, 0x2C5E], // Glagolitic (Ancient symbolic look)
-            [0x2100, 0x214F], // Letterlike Symbols
-            [0x2200, 0x22FF], // Mathematical Operators
-            [0x2500, 0x259F], // Box Drawing & Blocks
-            [0x25A0, 0x25FF], // Geometric Shapes
-            [0x2600, 0x26FF], // Miscellaneous Symbols
-            [0x2700, 0x27BF], // Dingbats
-            [0x30A0, 0x30FF], // Katakana
-            [0xFF01, 0xFF5E]  // Full-width Roman & Symbols
-        ];
-
-        for (const [start, end] of ranges) {
-            for (let i = start; i <= end; i++) {
-                charArray.push(String.fromCharCode(i));
-            }
+        for (let i = 0x21; i <= 0x3000; i++) {
+            // Exclude large blocks of non-symbolic/hieroglyphic letters like Hangul (0xAC00-0xD7AF) 
+            // and Chinese (0x3400+), and focus on the requested symbols/ancient scripts.
+            if (i >= 0x0E00 && i <= 0x169F) continue; // Various SE Asian scripts
+            if (i >= 0x3400) break; // Start of Chinese blocks
+            
+            const ch = String.fromCharCode(i);
+            // Skip empty/whitespace/control chars
+            if (ch.trim() === '') continue;
+            
+            charArray.push(ch);
+        }
+        // Add Full-width Roman and Symbols
+        for (let i = 0xFF01; i <= 0xFF5E; i++) {
+            charArray.push(String.fromCharCode(i));
         }
 
         let drops = [];
 
         function initDrops() {
-            // Higher density (smaller step)
-            const step = 10; 
+            const step = 9; // Even denser
             const columns = Math.floor(canvas.width / step);
             drops = [];
             for (let i = 0; i < columns; i++) {
-                // Smaller font sizes
-                const fontSize = Math.floor(Math.random() * 10) + 8; // 8px to 18px
-                const speed = (fontSize / 12) * 4; // Higher speed
+                const fontSize = Math.floor(Math.random() * 8) + 7; // 7px to 15px (smaller)
+                const speed = (fontSize / 10) * 4.5; // Fast
                 
                 drops.push({
                     x: i * step,
-                    y: Math.random() * -200, // More staggered entry
+                    y: Math.random() * -300, // Very staggered
                     fontSize: fontSize,
                     speed: speed,
                     history: []
@@ -84,13 +77,12 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             drops.forEach(drop => {
-                drop.y += drop.speed * 0.12;
+                drop.y += drop.speed * 0.15;
 
-                // Constant updates for more activity
                 const char = charArray[Math.floor(Math.random() * charArray.length)];
                 drop.history.push({ char: char, y: Math.floor(drop.y * 20) });
                 
-                if (drop.history.length > 20) {
+                if (drop.history.length > 18) {
                     drop.history.shift();
                 }
 
@@ -108,14 +100,14 @@
                     ctx.fillText(point.char, Math.floor(drop.x), point.y);
                 });
 
-                if (drop.y * 20 > canvas.height + 100) {
-                    drop.y = Math.random() * -15;
+                if (drop.y * 20 > canvas.height + 200) {
+                    drop.y = Math.random() * -20;
                     drop.history = [];
                 }
             });
         }
 
-        setInterval(draw, 16); // Even faster refresh (~60fps)
+        setInterval(draw, 16);
     </script>
 </body>
 </html>
