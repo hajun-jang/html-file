@@ -31,19 +31,22 @@
         
         window.addEventListener('resize', resizeCanvas);
 
-        // Generate a broad range of safe Unicode characters
+        // Curated symbolic and ancient-style character ranges
         const charArray = [];
         const ranges = [
-            [0x0021, 0x007E], // Basic Latin
-            [0x00A1, 0x00FF], // Latin-1 Supplement
-            [0x0100, 0x017F], // Latin Extended-A
-            [0x0370, 0x03FF], // Greek and Coptic
-            [0x0400, 0x04FF], // Cyrillic
-            [0x30A0, 0x30FF], // Katakana
-            [0xAC00, 0xD7A3], // Hangul Syllables
+            [0x0021, 0x007E], // Basic Latin (English, Numbers, Symbols)
+            [0x00A1, 0x00FF], // Latin-1 Symbols
+            [0x0370, 0x03FF], // Greek
+            [0x16A0, 0x16EA], // Runic (Hieroglyph-like)
+            [0x2C00, 0x2C5E], // Glagolitic (Ancient symbolic look)
             [0x2100, 0x214F], // Letterlike Symbols
             [0x2200, 0x22FF], // Mathematical Operators
-            [0x25A0, 0x25FF]  // Geometric Shapes
+            [0x2500, 0x259F], // Box Drawing & Blocks
+            [0x25A0, 0x25FF], // Geometric Shapes
+            [0x2600, 0x26FF], // Miscellaneous Symbols
+            [0x2700, 0x27BF], // Dingbats
+            [0x30A0, 0x30FF], // Katakana
+            [0xFF01, 0xFF5E]  // Full-width Roman & Symbols
         ];
 
         for (const [start, end] of ranges) {
@@ -55,17 +58,18 @@
         let drops = [];
 
         function initDrops() {
-            // Denser columns
-            const step = 12; 
+            // Higher density (smaller step)
+            const step = 10; 
             const columns = Math.floor(canvas.width / step);
             drops = [];
             for (let i = 0; i < columns; i++) {
-                const fontSize = Math.floor(Math.random() * 10) + 12; // 12px to 22px
-                const speed = (fontSize / 15) * 3; // Faster overall speed
+                // Smaller font sizes
+                const fontSize = Math.floor(Math.random() * 10) + 8; // 8px to 18px
+                const speed = (fontSize / 12) * 4; // Higher speed
                 
                 drops.push({
                     x: i * step,
-                    y: Math.random() * -150, // Wider range for more staggered but frequent entry
+                    y: Math.random() * -200, // More staggered entry
                     fontSize: fontSize,
                     speed: speed,
                     history: []
@@ -80,14 +84,13 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             drops.forEach(drop => {
-                // Faster update
-                drop.y += drop.speed * 0.15;
+                drop.y += drop.speed * 0.12;
 
-                // Update history more frequently
+                // Constant updates for more activity
                 const char = charArray[Math.floor(Math.random() * charArray.length)];
                 drop.history.push({ char: char, y: Math.floor(drop.y * 20) });
                 
-                if (drop.history.length > 25) {
+                if (drop.history.length > 20) {
                     drop.history.shift();
                 }
 
@@ -105,15 +108,14 @@
                     ctx.fillText(point.char, Math.floor(drop.x), point.y);
                 });
 
-                // Faster reset cycle
                 if (drop.y * 20 > canvas.height + 100) {
-                    drop.y = Math.random() * -10;
+                    drop.y = Math.random() * -15;
                     drop.history = [];
                 }
             });
         }
 
-        setInterval(draw, 20);
+        setInterval(draw, 16); // Even faster refresh (~60fps)
     </script>
 </body>
 </html>
