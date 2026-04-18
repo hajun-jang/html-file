@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새해 카운트다운</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem 4rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #countdown {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        .label {
+            font-size: 1rem;
+            color: #a0a0a0;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                width: 90%;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            #countdown {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>새해까지 남은 시간</h1>
+        <div id="countdown">로딩 중...</div>
+        <div class="label">New Year Countdown</div>
+    </div>
+
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            let nextYear = currentYear + 1;
+            let nextNewYear = new Date(nextYear, 0, 1, 0, 0, 0); // Jan 1st of next year
+
+            // If it's already past Jan 1st this year (which it usually is), nextNewYear is correct.
+            // If we were exactly on Jan 1st before midnight? The logic holds.
+            
+            const diff = nextNewYear - now;
+
+            if (diff <= 0) {
+                // Happy New Year!
+                // Reset to next year if needed or show message
+                // For this task, we just want the countdown. 
+                // If diff is 0, it means it IS New Year.
+                document.getElementById('countdown').innerText = "새해 복 많이 받으세요!";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const formattedTime = `새해로부터 남은 시간: ${days}일 ${hours}시간 ${minutes}분 ${seconds}초`;
+            
+            // The user requested format: "새해로부터 남은 시간: X일 XX시간 XX분 XX초"
+            // My formattedTime includes the prefix.
+            // Let's make it match exactly the requested format structure, maybe cleaner without prefix in the number part?
+            // "새해로부터 남은 시간: X일 XX시간 XX분 XX초"
+            
+            document.getElementById('countdown').innerText = formattedTime;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+    </script>
+</body>
+</html>

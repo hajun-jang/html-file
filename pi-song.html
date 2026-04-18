@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Song Stream - BPM Control</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --danger: #ef4444;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 { font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--accent); }
+        p.description { color: var(--text-dim); font-size: 0.875rem; margin-bottom: 2rem; }
+
+        .controls { display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem; }
+        .slider-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .control-item {
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+            color: var(--text-dim); font-size: 0.75rem; background: rgba(0,0,0,0.2);
+            padding: 0.75rem; border-radius: 0.75rem;
+        }
+
+        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+        .button-group { display: flex; justify-content: center; gap: 1rem; }
+
+        button {
+            padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        #btn-start { background: var(--accent); color: white; }
+        #btn-stop { background: var(--danger); color: white; }
+        #btn-stop:disabled { display: none; }
+
+        .pi-display {
+            background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 1rem;
+            font-family: 'Courier New', monospace; font-size: 1.25rem;
+            line-height: 1.6; word-break: break-all; height: 160px;
+            overflow-y: auto; position: relative; border: 1px solid rgba(255,255,255,0.05);
+            scroll-behavior: smooth;
+        }
+
+        .digit { display: inline-block; padding: 0 1px; transition: all 0.1s; }
+        .digit.active { color: var(--accent); font-weight: bold; transform: scale(1.3); text-shadow: 0 0 10px var(--accent); }
+        #status { margin-top: 1rem; font-size: 0.75rem; color: var(--text-dim); min-height: 1.5rem; }
+        
+        /* BPM 입력창 스타일 */
+        #bpm-num {
+            width: 50px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent);
+            color: white; border-radius: 4px; padding: 2px 5px; text-align: center;
+            font-family: inherit; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎼 Pi Song Stream</h1>
+    <p class="description">원주율 수열을 분석하여 실시간 리듬과 화성으로 연주합니다.</p>
+
+    <div class="controls">
+        <div class="button-group">
+            <button id="btn-start" onclick="start()">시작</button>
+            <button id="btn-stop" onclick="stop()" disabled>정지</button>
+        </div>
+        <div class="slider-group">
+            <div class="control-item">
+                <label>볼륨</label>
+                <input type="range" id="volume" min="0" max="2" step="0.01" value="1.0">
+            </div>
+            <div class="control-item">
+                <label>BPM (속도)</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+                    <input type="number" id="bpm-num" min="15" max="240" value="60">
+                    <input type="range" id="bpm-range" min="15" max="240" step="1" value="60">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pi-display" id="pi-display"></div>
+    <div id="status">연결 대기 중...</div>
+</div>
+
+<script>
+let ctx = null, masterGain = null, reverb = null;
+let isPlaying = false, rafId = null;
+
+const scale = { '1': 261.63, '2': 293.66, '3': 329.63, '4': 349.23, '5': 392.00, '6': 440.00, '7': 493.88, '8': 523.25, '9': 587.33 };
+const chords = [
+  [261.63, 329.63, 392.00], // C
+  [220.00, 261.63, 329.63], // Am
+  [174.61, 220.00, 261.63], // F
+  [196.00, 246.94, 293.66]  // G
+];
+
+function initAudio() {
+    if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = ctx.createGain();
+        masterGain.gain.value = document.getElementById('volume').value;
+        reverb = createReverb();
+        masterGain.connect(reverb);
+        reverb.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+}
+
+function createReverb() {
+    const length = ctx.sampleRate * 2.5;
+    const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        let data = impulse.getChannelData(ch);
+        for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
+    }
+    const convolver = ctx.createConvolver();
+    convolver.buffer = impulse;
+    return convolver;
+}
+
+function playNote(freq, t, dur) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.5, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 3.5);
+    o.connect(g); g.connect(masterGain);
+    o.start(t); o.stop(t + dur * 3.5);
+}
+
+function playChord(chord, t) {
+    chord.forEach((f, i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine"; o.frequency.value = i === 0 ? f / 2 : f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.15, t + 0.1);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 6.0);
+        o.connect(g); g.connect(masterGain);
+        o.start(t); o.stop(t + 6.0);
+    });
+}
+
+let piBuffer = "", fetchIndex = 0, scheduleIndex = 0, displayIndex = 0, nextTime = 0, chordTick = 0;
+
+async function fetchPi(start, count) {
+    try {
+        const res = await fetch(`https://api.pi.delivery/v1/pi?start=${start}&numberOfDigits=${count}`);
+        const data = await res.json();
+        return data.content.replace('.', '');
+    } catch (e) { return ""; }
+}
+
+async function fillBuffer() {
+    if (piBuffer.length - scheduleIndex > 1000) return;
+    let more = await fetchPi(fetchIndex, 1000);
+    if (more) { fetchIndex += more.length; piBuffer += more; }
+}
+
+function updateDisplay(idx) {
+    const display = document.getElementById("pi-display");
+    const end = idx + 15;
+    const slice = piBuffer.slice(0, end);
+    let html = "";
+    for (let i = 0; i < slice.length; i++) {
+        const isActive = i === idx;
+        html += `<span class="digit ${isActive ? 'active' : ''}">${i === 0 ? '3.' : slice[i]}</span>`;
+    }
+    display.innerHTML = html;
+    display.scrollTop = display.scrollHeight;
+}
+
+function showPattern(msg, type) {
+    const s = document.getElementById("status");
+    const color = type === 'fast' ? '#38bdf8' : '#fbbf24';
+    s.innerHTML = `<b style="color:${color}">✨ ${msg} ✨</b>`;
+}
+
+function scheduler() {
+    if (!isPlaying) return;
+    
+    // BPM을 박자 간격(초)으로 변환
+    const bpm = parseFloat(document.getElementById('bpm-range').value);
+    const beatInterval = 60 / bpm;
+
+    while (nextTime < ctx.currentTime + 1.5) {
+        if (scheduleIndex + 50 >= piBuffer.length) fillBuffer();
+
+        const s3 = piBuffer.slice(scheduleIndex, scheduleIndex + 3);
+        const s2 = piBuffer.slice(scheduleIndex, scheduleIndex + 2);
+        let cellBeats = 1, notes = [], msg = "", type = "";
+
+        if (s3[0] === s3[1] && s3[1] === s3[2]) {
+            cellBeats = 3; notes = [{o:0, i:0}, {o:1.5, i:1}, {o:2, i:2}]; msg = "Grand Triple";
+        } else if (s2[0] === s2[1]) {
+            cellBeats = 2; notes = [{o:0, i:0}, {o:1.5, i:1}]; msg = "Dotted Double";
+        } else if (Number(s3[0])+1 === Number(s3[1]) && Number(s3[1])+1 === Number(s3[2])) {
+            cellBeats = 1; notes = [{o:0, i:0}, {o:0.25, i:1}, {o:0.5, i:2}]; msg = "Graceful Run"; type = "fast";
+        } else {
+            cellBeats = 1; notes = [{o:0, i:0}];
+        }
+
+        if (Math.floor(chordTick / 4) !== Math.floor((chordTick + cellBeats) / 4) || chordTick === 0) {
+            playChord(chords[Math.floor(chordTick / 4) % chords.length], nextTime);
+        }
+
+        const baseIdx = scheduleIndex;
+        notes.forEach((n, i) => {
+            const t = nextTime + (n.o * beatInterval);
+            const dur = ((notes[i+1] ? notes[i+1].o : cellBeats) - n.o) * beatInterval;
+            const d = piBuffer[baseIdx + n.i];
+            if (d && d !== '0') playNote(scale[d], t, dur);
+
+            setTimeout(() => {
+                if (isPlaying) {
+                    displayIndex = baseIdx + n.i;
+                    updateDisplay(displayIndex);
+                    if (msg) showPattern(msg, type);
+                    else document.getElementById("status").textContent = `Position: ${displayIndex}`;
+                }
+            }, Math.max(0, (t - ctx.currentTime) * 1000));
+        });
+
+        nextTime += cellBeats * beatInterval;
+        chordTick += cellBeats;
+        scheduleIndex += notes.length;
+    }
+    rafId = requestAnimationFrame(scheduler);
+}
+
+async function start() {
+    initAudio(); if (isPlaying) return;
+    document.getElementById("btn-start").disabled = true;
+    document.getElementById("btn-stop").disabled = false;
+    if (!piBuffer) {
+        piBuffer = await fetchPi(0, 1000);
+        fetchIndex = piBuffer.length;
+    }
+    isPlaying = true; nextTime = ctx.currentTime + 0.1; chordTick = 0; scheduler();
+}
+
+function stop() {
+    isPlaying = false; if (rafId) cancelAnimationFrame(rafId);
+    document.getElementById("btn-start").disabled = false;
+    document.getElementById("btn-stop").disabled = true;
+    document.getElementById("status").textContent = "Stopped";
+}
+
+// UI 이벤트 리스너
+document.getElementById('volume').addEventListener('input', (e) => { if (masterGain) masterGain.gain.value = e.target.value; });
+
+const bpmNum = document.getElementById('bpm-num');
+const bpmRange = document.getElementById('bpm-range');
+
+bpmNum.addEventListener('input', (e) => {
+    let val = parseInt(e.target.value);
+    if (val < 15) val = 15; if (val > 240) val = 240;
+    bpmRange.value = val;
+});
+
+bpmRange.addEventListener('input', (e) => {
+    bpmNum.value = e.target.value;
+});
+</script>
+</body>
+</html>
