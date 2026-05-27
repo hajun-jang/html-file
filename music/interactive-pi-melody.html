@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orchestral Pi Symphony - 영화 '이상한 나라의 수학자' 모티프</title>
+    <title>Orchestral Pi Symphony - 파이송 작곡 가이드 모델</title>
     <style>
-        /* 1. 디자인 시스템 & CSS 변수 정의 */
+        /* 1. 디자인 시스템 & 글로벌 CSS 변수 */
         :root {
-            --bg-deep: #060814;
-            --bg-panel: rgba(18, 16, 46, 0.4);
-            --bg-panel-solid: #0d0c22;
-            --border-glow: rgba(6, 182, 212, 0.2);
-            --border-glow-active: rgba(6, 182, 212, 0.6);
+            --bg-deep: #05060f;
+            --bg-panel: rgba(13, 11, 34, 0.4);
+            --border-glow: rgba(99, 102, 241, 0.25);
+            --border-glow-active: rgba(99, 102, 241, 0.6);
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
+            --accent-indigo: #6366f1;
             --accent-cyan: #06b6d4;
-            --accent-gold: #d97706;
+            --accent-gold: #f59e0b;
             --accent-magenta: #ec4899;
-            --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            --glass-blur: blur(12px);
+            --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --glass-blur: blur(15px);
         }
 
         * {
@@ -30,7 +30,7 @@
         body {
             background: var(--bg-deep);
             color: var(--text-main);
-            font-family: var(--font-family);
+            font-family: var(--font-sans);
             min-height: 100vh;
             overflow-x: hidden;
             display: flex;
@@ -38,10 +38,9 @@
             justify-content: space-between;
         }
 
-        /* 2. 레이아웃 구조 */
         header {
             padding: 1.5rem 2rem;
-            background: linear-gradient(180deg, rgba(6, 8, 20, 0.8) 0%, rgba(6, 8, 20, 0) 100%);
+            background: linear-gradient(180deg, rgba(5, 6, 15, 0.9) 0%, rgba(5, 6, 15, 0) 100%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             justify-content: space-between;
@@ -50,18 +49,15 @@
         }
 
         header h1 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--text-main) 0%, var(--accent-cyan) 50%, var(--accent-magenta) 100%);
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--text-main) 0%, var(--accent-indigo) 50%, var(--accent-cyan) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
-        .subtitle {
+        header .subtitle {
             font-size: 0.75rem;
             color: var(--text-dim);
             font-weight: 400;
@@ -70,7 +66,7 @@
 
         .app-container {
             display: grid;
-            grid-template-columns: 320px 1fr 340px;
+            grid-template-columns: 340px 1fr 340px;
             gap: 1.5rem;
             padding: 1.5rem;
             flex-grow: 1;
@@ -79,7 +75,7 @@
             width: 100%;
         }
 
-        /* 3. 모듈별 패널 공통 스타일 */
+        /* 공통 글래스패널 */
         .glass-panel {
             background: var(--bg-panel);
             backdrop-filter: var(--glass-blur);
@@ -91,18 +87,18 @@
             flex-direction: column;
             gap: 1.2rem;
             transition: border-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
         .glass-panel:hover {
             border-color: var(--border-glow-active);
-            box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.1);
         }
 
         .panel-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--accent-indigo);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding-bottom: 0.5rem;
             display: flex;
@@ -110,7 +106,25 @@
             align-items: center;
         }
 
-        /* 4. 컨트롤 스타일 */
+        /* 작곡 가이드 보드 전용 */
+        .guide-board {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px dashed var(--accent-indigo);
+            border-radius: 0.75rem;
+            padding: 0.8rem;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: var(--text-dim);
+            transition: all 0.3s;
+        }
+
+        .guide-board h4 {
+            color: var(--accent-indigo);
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        /* 컨트롤 요소 */
         .control-group {
             display: flex;
             flex-direction: column;
@@ -142,13 +156,13 @@
         }
 
         select:focus, input[type="number"]:focus {
-            border-color: var(--accent-cyan);
+            border-color: var(--accent-indigo);
         }
 
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 6px;
+            height: 5px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
             outline: none;
@@ -156,20 +170,19 @@
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: var(--accent-cyan);
+            background: var(--accent-indigo);
             cursor: pointer;
-            box-shadow: 0 0 10px var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-indigo);
             transition: transform 0.1s;
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+            transform: scale(1.25);
         }
 
-        /* 5. 연주 메인 버튼 & 지표 */
         .play-controls {
             display: flex;
             gap: 0.8rem;
@@ -191,14 +204,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-cyan) 0%, #0891b2 100%);
+            background: linear-gradient(135deg, var(--accent-indigo) 0%, #4f46e5 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
         }
 
         .btn-danger {
@@ -218,33 +231,50 @@
             box-shadow: none !important;
         }
 
-        /* 6. 지휘자(Conductor) 모듈 & 페이즈 인디케이터 */
-        .phase-badge-container {
+        /* 6단계 진행 상태 배지 */
+        .step-badge-container {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             gap: 0.4rem;
         }
 
-        .phase-badge {
-            flex: 1;
-            padding: 0.4rem 0.2rem;
-            text-align: center;
-            border-radius: 0.35rem;
-            font-size: 0.65rem;
-            background: rgba(255, 255, 255, 0.03);
+        .step-badge {
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-dim);
             transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .phase-badge.active {
-            background: rgba(6, 182, 212, 0.15);
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        .step-badge.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-indigo);
+            color: var(--text-main);
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
         }
 
+        .step-badge.active .badge-num {
+            background: var(--accent-indigo);
+            color: white;
+        }
+
+        .badge-num {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            transition: all 0.3s;
+        }
+
+        /* 수열 지표 그리드 */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -272,19 +302,14 @@
             margin-top: 0.2rem;
         }
 
-        /* 7. 파이 숫자 표시 보드 */
+        /* 실시간 수열 디스플레이 */
         .pi-board {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 0.75rem;
             padding: 0.8rem;
-            height: 110px;
+            height: 90px;
             overflow: hidden;
-            position: relative;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.3rem;
-            letter-spacing: 2px;
-            line-height: 1.5;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -294,41 +319,34 @@
         .pi-digit-stream {
             display: flex;
             align-items: center;
-            gap: 4px;
-            width: 100%;
-            justify-content: center;
+            gap: 6px;
             overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.4rem;
         }
 
         .pi-digit {
             transition: all 0.2s;
             color: var(--text-dim);
-            opacity: 0.5;
-            display: inline-block;
+            opacity: 0.4;
         }
 
         .pi-digit.current {
-            color: var(--accent-cyan);
-            font-weight: 800;
-            transform: scale(1.4);
-            text-shadow: 0 0 15px var(--accent-cyan);
+            color: var(--accent-indigo);
+            font-weight: 900;
+            transform: scale(1.35);
+            text-shadow: 0 0 15px var(--accent-indigo);
             opacity: 1;
         }
 
-        .pi-digit.chord {
-            color: var(--accent-magenta);
-            opacity: 0.9;
+        .pi-digit.accent-anchor {
+            color: var(--accent-gold);
+            font-weight: bold;
+            opacity: 0.8;
+            text-shadow: 0 0 10px var(--accent-gold);
         }
 
-        .pi-digit.prev {
-            opacity: 0.3;
-        }
-
-        .pi-digit.next {
-            opacity: 0.6;
-        }
-
-        /* 8. 메인 렌더링 캔버스 영역 */
+        /* 중앙 시각화 캔버스 영역 */
         .canvas-area {
             display: flex;
             flex-direction: column;
@@ -337,7 +355,7 @@
 
         .canvas-container {
             position: relative;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--border-glow);
             border-radius: 1.25rem;
             overflow: hidden;
@@ -362,7 +380,7 @@
             top: 1rem;
             left: 1rem;
             pointer-events: none;
-            background: rgba(6, 8, 20, 0.7);
+            background: rgba(5, 6, 15, 0.85);
             padding: 0.4rem 0.8rem;
             border-radius: 0.5rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -371,11 +389,7 @@
             z-index: 5;
         }
 
-        /* 9. 원화음 공간 (Circle of Fifths) */
-        .circle-fifths-panel {
-            align-items: center;
-        }
-
+        /* 5도권 분석 서클 크기 조절 */
         .circle-container {
             width: 200px;
             height: 200px;
@@ -383,7 +397,7 @@
             margin: 0.5rem 0;
         }
 
-        /* 10. 반응형 미디어 쿼리 */
+        /* 반응형 그리드 */
         @media (max-width: 1200px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -392,7 +406,7 @@
                 height: auto !important;
             }
             .canvas-container {
-                min-height: 450px;
+                min-height: 400px;
             }
         }
 
@@ -402,43 +416,43 @@
             font-size: 0.75rem;
             color: var(--text-dim);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(6, 8, 20, 0.9);
+            background: rgba(5, 6, 15, 0.9);
         }
-        
+
         .math-badge {
-            background: rgba(217, 119, 6, 0.1);
-            color: var(--accent-gold);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            padding: 2px 6px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-indigo);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
         }
     </style>
 </head>
 <body>
 
-    <!-- 헤더 영역 -->
+    <!-- 헤더 -->
     <header>
         <div>
             <h1>🎼 Orchestral Pi Symphony</h1>
-            <div class="subtitle">원주율 수열의 수학적 구조 분석을 통한 실시간 오케스트라 교향곡 생성기</div>
+            <div class="subtitle">작곡 가이드 구조 분석에 근거한 실시간 음악 변환 엔진</div>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
             <span class="math-badge">π = 3.1415926535...</span>
         </div>
     </header>
 
-    <!-- 메인 레이아웃 -->
+    <!-- 메인 컨테이너 -->
     <div class="app-container">
 
-        <!-- 1. 좌측 제어판 (Settings Panel) -->
+        <!-- 1. 좌측 패널 (제어부) -->
         <div class="glass-panel">
             <div class="panel-title">
-                <span>🎛️ 오케스트라 설정</span>
+                <span>🎛️ 오케스트라 제어</span>
             </div>
 
-            <!-- 플레이 버튼 그룹 -->
+            <!-- 플레이 제어 -->
             <div class="play-controls">
                 <button id="btn-play" class="btn btn-primary" onclick="appSequencer.start()">
                     ▶ 시작
@@ -448,7 +462,13 @@
                 </button>
             </div>
 
-            <!-- 볼륨 슬라이더 -->
+            <!-- 현재 단계 가이드 보드 -->
+            <div class="guide-board" id="guide-board">
+                <h4 id="guide-title">대기 중...</h4>
+                <p id="guide-desc">시작 버튼을 누르면 원주율 수열 작곡이 단계별로 진행됩니다.</p>
+            </div>
+
+            <!-- 슬라이더 볼륨 -->
             <div class="control-group">
                 <div class="control-label">
                     <span>마스터 볼륨</span>
@@ -457,55 +477,35 @@
                 <input type="range" id="slider-volume" min="0" max="2" step="0.05" value="1.0">
             </div>
 
-            <!-- 템포 (BPM) 제어 -->
+            <!-- BPM 제어 -->
             <div class="control-group">
                 <div class="control-label">
                     <span>기본 속도 (BPM)</span>
                     <span id="val-bpm" class="control-value">100</span>
                 </div>
-                <input type="range" id="slider-bpm" min="40" max="200" step="1" value="100">
+                <input type="range" id="slider-bpm" min="50" max="180" step="1" value="100">
             </div>
 
-            <!-- 연주 모드 선택 -->
-            <div class="control-group">
-                <div class="control-label">연주 모드 (Playback Mode)</div>
-                <select id="select-playback-mode" onchange="appSequencer.onPlaybackModeChange()">
-                    <option value="official" selected>🎬 공식 바이올린 악보 재현 (Violin Score)</option>
-                    <option value="math">🧮 수학적 리듬 일반화 (Generalized Rhythm)</option>
-                </select>
-            </div>
-
-            <!-- 음악 양식 선택 -->
-            <div class="control-group">
-                <div class="control-label">선법 (Scale Mode)</div>
-                <select id="select-scale">
-                    <option value="diatonic" selected>Diatonic (장음계)</option>
-                    <option value="lydian">Lydian (영화풍 신비로운 모드)</option>
-                    <option value="aeolian">Aeolian (단조롭고 진지한 마이너)</option>
-                    <option value="pentatonic">Pentatonic (오음계 Consonance)</option>
-                </select>
-            </div>
-
-            <!-- 이펙트 공간감 설정 -->
+            <!-- 딜레이/리버브 조작 -->
             <div class="control-group">
                 <div class="control-label">
                     <span>공간 잔향 (Reverb Mix)</span>
-                    <span id="val-reverb" class="control-value">40%</span>
+                    <span id="val-reverb" class="control-value">35%</span>
                 </div>
-                <input type="range" id="slider-reverb" min="0" max="1" step="0.05" value="0.4">
+                <input type="range" id="slider-reverb" min="0" max="1" step="0.05" value="0.35">
             </div>
 
             <div class="control-group">
                 <div class="control-label">
-                    <span>딜레이 에코 (Delay Feedback)</span>
+                    <span>메아리 (Delay Feedback)</span>
                     <span id="val-delay" class="control-value">30%</span>
                 </div>
                 <input type="range" id="slider-delay" min="0" max="0.8" step="0.05" value="0.3">
             </div>
 
-            <!-- 음악 시작 탐색 -->
+            <!-- 수열 시작 탐색 -->
             <div class="control-group">
-                <div class="control-label">시작 자릿수 (Jump Index)</div>
+                <div class="control-label">시작 위치 (Jump Index)</div>
                 <div style="display: flex; gap: 0.5rem;">
                     <input type="number" id="num-jump" value="0" min="0" style="flex: 1;">
                     <button class="btn btn-primary" onclick="appSequencer.jumpToDigit()" style="padding: 0 1rem; font-size: 0.8rem;">이동</button>
@@ -513,72 +513,89 @@
             </div>
         </div>
 
-        <!-- 2. 중앙 캔버스 시각화 패널 (Center Visualizer) -->
-        <div class="canvas-area" style="display: flex; flex-direction: column; flex-grow: 1;">
-            <!-- 메인 비주얼라이저 -->
-            <div class="canvas-container" style="flex-grow: 1;">
-                <div class="visualizer-overlay-info" id="overlay-status">시작을 눌러 연주를 활성화하세요.</div>
+        <!-- 2. 중앙 패널 (캔버스 시각화) -->
+        <div class="canvas-area">
+            <!-- 메인 스파이럴 성좌 시각화 -->
+            <div class="canvas-container">
+                <div class="visualizer-overlay-info" id="overlay-status">연주 준비 완료.</div>
                 <canvas id="canvas-main"></canvas>
             </div>
 
-            <!-- 하단 롤링 DAW 시각화기 -->
-            <div style="height: 160px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-glow); border-radius: 1rem; overflow: hidden; position: relative;">
-                <div class="visualizer-overlay-info">DAW Multi-Track Timeline (Piano, Celesta, Strings, Timpani)</div>
+            <!-- 하단 DAW timeline -->
+            <div style="height: 140px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-glow); border-radius: 1rem; overflow: hidden; position: relative;">
+                <div class="visualizer-overlay-info">DAW Multi-Track (Piano, Celesta, Strings, Brass)</div>
                 <canvas id="canvas-timeline"></canvas>
             </div>
         </div>
 
-        <!-- 3. 우측 지휘 및 수열 분석 패널 (Conductor & Analysis Panel) -->
+        <!-- 3. 우측 패널 (작곡 가이드 모듈 동기화) -->
         <div class="glass-panel">
             <div class="panel-title">
-                <span>📊 실시간 연주 및 분석</span>
+                <span>📋 작곡 진행 단계 (6 Steps)</span>
             </div>
 
-            <!-- 현재 상태 스트림 -->
+            <!-- 6단계 가이드 리스트 배지 -->
+            <div class="step-badge-container">
+                <div class="step-badge" id="step-0">
+                    <span>1. 원주율 시퀀스 선정</span>
+                    <span class="badge-num">1</span>
+                </div>
+                <div class="step-badge" id="step-1">
+                    <span>2. 리듬화 및 솔(5) 모티브</span>
+                    <span class="badge-num">2</span>
+                </div>
+                <div class="step-badge" id="step-2">
+                    <span>3. 동기 발전 및 변형</span>
+                    <span class="badge-num">3</span>
+                </div>
+                <div class="step-badge" id="step-3">
+                    <span>4. C-G-Am-F 화성 배치</span>
+                    <span class="badge-num">4</span>
+                </div>
+                <div class="step-badge" id="step-4">
+                    <span>5. 무한 확장 클라이맥스</span>
+                    <span class="badge-num">5</span>
+                </div>
+                <div class="step-badge" id="step-5">
+                    <span>6. 회귀 및 종결 (Recap)</span>
+                    <span class="badge-num">6</span>
+                </div>
+            </div>
+
+            <!-- 수열 입력부 -->
             <div class="control-group">
-                <div class="control-label">수열 입력부 (Pi Digit Stream)</div>
-                <div class="pi-board" id="pi-board">
+                <div class="control-label">원주율 수열 흐름</div>
+                <div class="pi-board">
                     <div class="pi-digit-stream" id="pi-digit-stream">
-                        <span style="color: var(--text-dim); font-size: 0.9rem;">대기 중...</span>
+                        <span style="color: var(--text-dim); font-size: 0.85rem;">대기 중...</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 지휘 페이즈 표시기 -->
-            <div class="control-group">
-                <div class="control-label">오케스트라 빌드업 페이즈 (Symphony Phase)</div>
-                <div class="phase-badge-container">
-                    <div class="phase-badge" id="phase-0">I. Purity</div>
-                    <div class="phase-badge" id="phase-1">II. Order</div>
-                    <div class="phase-badge" id="phase-2">III. Grand</div>
-                    <div class="phase-badge" id="phase-3">IV. Epilogue</div>
-                </div>
-            </div>
-
-            <!-- 실시간 정보 그리드 -->
+            <!-- 진행 상태 지표 -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-val" id="stat-pos">0</div>
                     <div class="stat-lbl">현재 자릿수</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-val" id="stat-signature">3/4</div>
-                    <div class="stat-lbl">현재 박자</div>
+                    <div class="stat-val" id="stat-bpm-now">100</div>
+                    <div class="stat-lbl">현재 BPM</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-val" id="stat-complexity">0</div>
-                    <div class="stat-lbl">Complexity (C)</div>
+                    <div class="stat-val" id="stat-note-val">N/A</div>
+                    <div class="stat-lbl">리듬 형태</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-val" id="stat-chord">N/A</div>
-                    <div class="stat-lbl">진행 화음 (Chord)</div>
+                    <div class="stat-lbl">진행 화음 (C Major)</div>
                 </div>
             </div>
 
-            <!-- 화성 기하학 분석 (Circle of Fifths) -->
-            <div class="control-group circle-fifths-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <!-- 5도권 원형 화성 매핑 -->
+            <div class="control-group" style="display: flex; flex-direction: column; align-items: center;">
                 <div class="control-label" style="width: 100%;">
-                    <span>화음 원형 분석 (Circle of Fifths)</span>
+                    <span>화성 진행 공간 (Circle of Fifths)</span>
                 </div>
                 <div class="circle-container">
                     <canvas id="canvas-circle-fifths"></canvas>
@@ -590,40 +607,40 @@
 
     <!-- 푸터 -->
     <footer>
-        <p>© 2026 Antigravity Creative. 영화 《이상한 나라의 수학자》 파이송 헌정 오케스트라 편곡 엔진.</p>
+        <p>© 2026 Antigravity. 파이송 작곡 가이드 전 과정 알고리즘 재현 모델.</p>
     </footer>
 
-    <!-- 11. 메인 엔진 및 스크립트 작성 -->
+    <!-- 스크립트 작성 -->
     <script>
         /****************************************************************
-         * 11-1. Web Audio API 오케스트라 합성 엔진 (DSP)
+         * 1. Web Audio API 오케스트라 합성 엔진 (DSP)
          ****************************************************************/
-        class OrchestraAudioContext {
+        class OrchestraDSP {
             constructor() {
                 this.ctx = null;
                 this.masterGain = null;
                 
-                // 각 트랙 볼륨 노드
+                // 각 채널 게인
                 this.pianoGain = null;
                 this.celestaGain = null;
                 this.stringsGain = null;
+                this.brassGain = null;
                 this.timpaniGain = null;
 
-                // 패닝 노드
+                // 패너
                 this.pianoPan = null;
                 this.celestaPan = null;
                 this.stringsPan = null;
-                this.timpaniPan = null;
+                this.brassPan = null;
 
-                // 공간 음향 노드 (Reverb & Delay)
+                // 이펙트 노드
                 this.delayNode = null;
                 this.delayFeedback = null;
                 this.reverbNode = null;
-                
-                // 마스터 이퀄라이징 & 리미터
+                this.reverbWet = null;
+
+                // 컴프레서 리미터 & 분석기
                 this.masterLimiter = null;
-                
-                // 시각화용 애널라이저
                 this.analyser = null;
 
                 this.initialized = false;
@@ -635,57 +652,61 @@
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AudioContextClass();
 
-                // 마스터 게인 노드
+                // 마스터 볼륨 게인
                 this.masterGain = this.ctx.createGain();
                 this.masterGain.gain.setValueAtTime(parseFloat(document.getElementById('slider-volume').value), this.ctx.currentTime);
 
-                // 분석기
+                // 컴프레서 리미터로 클리핑 노이즈 억제
+                this.masterLimiter = this.ctx.createDynamicsCompressor();
+                this.masterLimiter.threshold.setValueAtTime(-1.5, this.ctx.currentTime);
+                this.masterLimiter.knee.setValueAtTime(12, this.ctx.currentTime);
+                this.masterLimiter.ratio.setValueAtTime(15, this.ctx.currentTime);
+                this.masterLimiter.attack.setValueAtTime(0.005, this.ctx.currentTime);
+                this.masterLimiter.release.setValueAtTime(0.12, this.ctx.currentTime);
+
+                // 실시간 오실로스코프 시각화 분석기
                 this.analyser = this.ctx.createAnalyser();
                 this.analyser.fftSize = 512;
 
-                // 마스터 리미터 컴프레서 설정
-                this.masterLimiter = this.ctx.createDynamicsCompressor();
-                this.masterLimiter.threshold.setValueAtTime(-1.0, this.ctx.currentTime);
-                this.masterLimiter.knee.setValueAtTime(10, this.ctx.currentTime);
-                this.masterLimiter.ratio.setValueAtTime(20, this.ctx.currentTime);
-                this.masterLimiter.attack.setValueAtTime(0.003, this.ctx.currentTime);
-                this.masterLimiter.release.setValueAtTime(0.1, this.ctx.currentTime);
-
-                // 리버브 및 딜레이 설정
+                // 딜레이 메아리 라인 설정
                 this.delayNode = this.ctx.createDelay(1.0);
-                this.delayNode.delayTime.setValueAtTime(0.375, this.ctx.currentTime); // 점8분음표 간격
+                this.delayNode.delayTime.setValueAtTime(0.35, this.ctx.currentTime); // 1.5박자 수준 공간 메아리
                 this.delayFeedback = this.ctx.createGain();
                 this.delayFeedback.gain.setValueAtTime(parseFloat(document.getElementById('slider-delay').value), this.ctx.currentTime);
 
-                this.reverbNode = this.ctx.createConvolver();
-                this.setupReverbImpulse(parseFloat(document.getElementById('slider-reverb').value));
-
-                // 딜레이 피드백 루프 연결
+                // 딜레이 피드백 룹 구성
                 this.delayNode.connect(this.delayFeedback);
                 this.delayFeedback.connect(this.delayNode);
 
-                // 개별 채널 믹서 설정
+                // Schroeder 알고리즘을 변형한 합성 잔향 리버브
+                this.reverbNode = this.ctx.createConvolver();
+                this.setupReverbImpulse(parseFloat(document.getElementById('slider-reverb').value));
+
+                // 개별 오케스트라 악기 채널 게인 설정
                 this.pianoGain = this.ctx.createGain();
-                this.pianoGain.gain.setValueAtTime(0.9, this.ctx.currentTime);
+                this.pianoGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
                 this.pianoPan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-                if (this.pianoPan) this.pianoPan.pan.setValueAtTime(0.0, this.ctx.currentTime); // 피아노 중앙
+                if (this.pianoPan) this.pianoPan.pan.setValueAtTime(-0.1, this.ctx.currentTime);
 
                 this.celestaGain = this.ctx.createGain();
-                this.celestaGain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+                this.celestaGain.gain.setValueAtTime(0.5, this.ctx.currentTime);
                 this.celestaPan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-                if (this.celestaPan) this.celestaPan.pan.setValueAtTime(0.3, this.ctx.currentTime); // 첼레스타 약간 우측
+                if (this.celestaPan) this.celestaPan.pan.setValueAtTime(0.35, this.ctx.currentTime); // 첼레스타 우측 배치
 
                 this.stringsGain = this.ctx.createGain();
-                this.stringsGain.gain.setValueAtTime(0.0, this.ctx.currentTime); // 처음엔 0으로 시작
+                this.stringsGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
                 this.stringsPan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-                if (this.stringsPan) this.stringsPan.pan.setValueAtTime(-0.4, this.ctx.currentTime); // 스트링 약간 좌측
+                if (this.stringsPan) this.stringsPan.pan.setValueAtTime(-0.4, this.ctx.currentTime); // 스트링 좌측 서라운드
+
+                this.brassGain = this.ctx.createGain();
+                this.brassGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
+                this.brassPan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+                if (this.brassPan) this.brassPan.pan.setValueAtTime(0.2, this.ctx.currentTime); // 브라스 우측 내측 배치
 
                 this.timpaniGain = this.ctx.createGain();
-                this.timpaniGain.gain.setValueAtTime(0.0, this.ctx.currentTime); // 처음엔 0으로 시작
-                this.timpaniPan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-                if (this.timpaniPan) this.timpaniPan.pan.setValueAtTime(0.0, this.ctx.currentTime); // 팀파니 중앙
+                this.timpaniGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
 
-                // 오디오 소스 -> 패너 -> 채널게인 -> 마스터 믹서 라우팅
+                // 오디오 노드 연결 함수
                 const connectSource = (sourceNode, gainNode, panNode) => {
                     if (panNode) {
                         sourceNode.connect(panNode);
@@ -695,63 +716,60 @@
                     }
                     gainNode.connect(this.masterGain);
                 };
-
                 this.connectSource = connectSource;
 
-                // 마스터 라우팅: 마스터게인 -> 딜레이 & 리버브 & 다이렉트 신호 병렬 믹싱
-                this.masterGain.connect(this.masterLimiter); // Dry
-                
-                // Reverb/Delay wet 라인 구축을 위한 별도 게인 노드
+                // 드라이 신호 믹스
+                this.masterGain.connect(this.masterLimiter);
+
+                // 리버브 믹스 채널 구축
                 this.reverbWet = this.ctx.createGain();
                 this.reverbWet.gain.setValueAtTime(parseFloat(document.getElementById('slider-reverb').value), this.ctx.currentTime);
                 this.masterGain.connect(this.reverbWet);
                 this.reverbWet.connect(this.reverbNode);
                 this.reverbNode.connect(this.masterLimiter);
 
+                // 딜레이 믹스 채널 구축
                 this.delayWet = this.ctx.createGain();
-                this.delayWet.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                this.delayWet.gain.setValueAtTime(0.18, this.ctx.currentTime);
                 this.masterGain.connect(this.delayWet);
                 this.delayWet.connect(this.delayNode);
                 this.delayNode.connect(this.masterLimiter);
 
-                // 마스터 컴프레서 -> 분석기 -> 스피커 아웃
+                // 리미터 -> 애널라이저 -> 오디오 출력
                 this.masterLimiter.connect(this.analyser);
                 this.analyser.connect(this.ctx.destination);
 
                 this.initialized = true;
             }
 
-            // 인공 잔향 임펄스 응답 생성 알고리즘 (Schroeder)
+            // 공간감 시뮬레이션용 노이즈 디케이 버퍼 생성
             setupReverbImpulse(amount) {
                 const sampleRate = this.ctx ? this.ctx.sampleRate : 44100;
-                const length = sampleRate * 3.0; // 3.0초 잔향 시간
+                const length = sampleRate * 2.8; // 2.8초 넉넉한 홀 잔향
                 const impulse = this.ctx.createBuffer(2, length, sampleRate);
                 
                 for (let ch = 0; ch < 2; ch++) {
                     const data = impulse.getChannelData(ch);
                     for (let i = 0; i < length; i++) {
-                        // 감쇠 진폭 모델링 (Exponential Decay)
-                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5) * amount;
+                        // 감쇠 패턴: Exponential decay 적용
+                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.8) * amount;
                     }
                 }
                 this.reverbNode.buffer = impulse;
             }
 
-            // 마스터 볼륨 업데이트
             setMasterVolume(val) {
                 if (this.masterGain && this.ctx) {
                     this.masterGain.gain.linearRampToValueAtTime(val, this.ctx.currentTime + 0.05);
                 }
             }
 
-            // 딜레이 리턴량 조절
             setDelayFeedback(val) {
                 if (this.delayFeedback && this.ctx) {
                     this.delayFeedback.gain.linearRampToValueAtTime(val, this.ctx.currentTime + 0.05);
                 }
             }
 
-            // 리버브 리턴량 조절
             setReverbMix(val) {
                 if (this.reverbWet && this.ctx) {
                     this.reverbWet.gain.linearRampToValueAtTime(val, this.ctx.currentTime + 0.05);
@@ -759,362 +777,261 @@
             }
 
             /****************************************************************
-             * 11-2. 오케스트라 악기 개별 신시사이저 설계
+             * 2. 악기 합성 신시사이저 구조 설계
              ****************************************************************/
 
-            // 1. 그랜드 피아노 신시사이저 (The Piano Solo)
+            // 1) 그랜드 피아노 신스
             playPiano(freq, time, dur) {
                 if (!this.ctx) return;
-                
-                // 메인 바디 (삼각파)
+
                 const oscMain = this.ctx.createOscillator();
                 oscMain.type = "triangle";
                 oscMain.frequency.setValueAtTime(freq, time);
 
-                // 고음 반짝임 배음 (사인파 + FM 배음 구조)
-                const oscSparkle = this.ctx.createOscillator();
-                oscSparkle.type = "sine";
-                oscSparkle.frequency.setValueAtTime(freq * 2.0, time);
+                const oscSub = this.ctx.createOscillator();
+                oscSub.type = "sine";
+                oscSub.frequency.setValueAtTime(freq * 2, time); // 배음 증폭
 
-                // 타건 시 해머 타격 클릭음 재현 (Highpass filtered Noise)
-                const bufferSize = this.ctx.sampleRate * 0.02; // 20ms 아주 짧은 노이즈
-                const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const noiseData = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    noiseData[i] = Math.random() * 2 - 1;
-                }
-                const noiseSource = this.ctx.createBufferSource();
-                noiseSource.buffer = noiseBuffer;
-                
-                const noiseFilter = this.ctx.createBiquadFilter();
-                noiseFilter.type = "highpass";
-                noiseFilter.frequency.setValueAtTime(1000, time);
-                noiseSource.connect(noiseFilter);
+                // 타건 시 발생하는 타격 노이즈 클릭음 합성
+                const bufferSize = this.ctx.sampleRate * 0.015; // 15ms 클릭 노이즈
+                const clickBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const clickData = clickBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) clickData[i] = Math.random() * 2 - 1;
+                const clickSource = this.ctx.createBufferSource();
+                clickSource.buffer = clickBuffer;
 
-                // 엠벨로프 믹싱 노드
+                const clickFilter = this.ctx.createBiquadFilter();
+                clickFilter.type = "highpass";
+                clickFilter.frequency.setValueAtTime(1200, time);
+                clickSource.connect(clickFilter);
+
                 const env = this.ctx.createGain();
                 env.gain.setValueAtTime(0, time);
-                env.gain.linearRampToValueAtTime(0.5, time + 0.005); // 빠른 타건 어택
-                env.gain.exponentialRampToValueAtTime(0.001, time + dur * 2.5); // 피아노 잔향
+                env.gain.linearRampToValueAtTime(0.5, time + 0.005); // 어택
+                env.gain.exponentialRampToValueAtTime(0.001, time + dur * 2.5); // 릴리즈
 
-                const noiseEnv = this.ctx.createGain();
-                noiseEnv.gain.setValueAtTime(0.3, time);
-                noiseEnv.gain.exponentialRampToValueAtTime(0.001, time + 0.015);
+                const clickEnv = this.ctx.createGain();
+                clickEnv.gain.setValueAtTime(0.25, time);
+                clickEnv.gain.exponentialRampToValueAtTime(0.001, time + 0.01);
 
-                // 노드 연결
                 oscMain.connect(env);
-                oscSparkle.connect(env);
-                noiseFilter.connect(noiseEnv);
+                oscSub.connect(env);
+                clickFilter.connect(clickEnv);
 
-                // 피아노 버스에 믹싱
                 this.connectSource(env, this.pianoGain, this.pianoPan);
-                this.connectSource(noiseEnv, this.pianoGain, this.pianoPan);
+                this.connectSource(clickEnv, this.pianoGain, this.pianoPan);
 
-                // 연주 트리거
                 oscMain.start(time);
                 oscMain.stop(time + dur * 2.5);
-                oscSparkle.start(time);
-                oscSparkle.stop(time + dur * 2.5);
-                noiseSource.start(time);
-                noiseSource.stop(time + 0.05);
+                oscSub.start(time);
+                oscSub.stop(time + dur * 2.5);
+                clickSource.start(time);
+                clickSource.stop(time + 0.03);
             }
 
-            // 2. 첼레스타 & 뮤직 박스 신시사이저 (Sparkle Bells)
+            // 2) 첼레스타 신스 (모티브 솔(5) 연주 시 벨소리 반짝임 추가 레이어)
             playCelesta(freq, time, dur) {
                 if (!this.ctx) return;
-                
-                const oscCarrier = this.ctx.createOscillator();
-                const oscModulator = this.ctx.createOscillator();
+
+                const carrier = this.ctx.createOscillator();
+                const modulator = this.ctx.createOscillator();
                 const modGain = this.ctx.createGain();
                 const env = this.ctx.createGain();
 
-                oscCarrier.type = "sine";
-                oscCarrier.frequency.setValueAtTime(freq * 2.0, time); // 옥타브 위 강조
+                carrier.type = "sine";
+                // 첼레스타는 옥타브 도약 강조 (2옥타브 위)
+                carrier.frequency.setValueAtTime(freq * 4.0, time);
 
-                oscModulator.type = "sine";
-                oscModulator.frequency.setValueAtTime(freq * 3.5, time); // 불협화 배음 발생용 FM 모듈레이터
-                
-                // FM 합성 엠벨로프
-                modGain.gain.setValueAtTime(150, time);
-                modGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+                modulator.type = "sine";
+                modulator.frequency.setValueAtTime(freq * 6.0, time); // FM 구조 불협 배음 생성
 
-                // 캐리어 볼륨 엠벨로프
+                modGain.gain.setValueAtTime(200, time);
+                modGain.gain.exponentialRampToValueAtTime(0.01, time + 0.08);
+
                 env.gain.setValueAtTime(0, time);
-                env.gain.linearRampToValueAtTime(0.2, time + 0.002);
-                env.gain.exponentialRampToValueAtTime(0.0001, time + dur * 3.0); // 아주 기인 릴리즈
+                env.gain.linearRampToValueAtTime(0.25, time + 0.002);
+                env.gain.exponentialRampToValueAtTime(0.0001, time + dur * 3.5); // 아주 긴 소멸 시간
 
-                // 연결
-                oscModulator.connect(modGain);
-                modGain.connect(oscCarrier.frequency); // FM 변조
-                oscCarrier.connect(env);
+                modulator.connect(modGain);
+                modGain.connect(carrier.frequency);
+                carrier.connect(env);
 
                 this.connectSource(env, this.celestaGain, this.celestaPan);
 
-                oscCarrier.start(time);
-                oscCarrier.stop(time + dur * 3.0);
-                oscModulator.start(time);
-                oscModulator.stop(time + dur * 3.0);
+                carrier.start(time);
+                carrier.stop(time + dur * 3.5);
+                modulator.start(time);
+                modulator.stop(time + dur * 3.5);
             }
 
-            // 3. 심포닉 스트링 앙상블 (Rich Unison Strings)
+            // 3) 현악 스트링스 앙상블 (Sustained String pad)
             playStrings(freqs, time, dur) {
                 if (!this.ctx || !freqs || freqs.length === 0) return;
 
-                // 현악기 사운드는 다성(Polyphonic) 레이어링과 유니즌 디튠이 핵심
                 freqs.forEach((freq) => {
-                    const stringGroupGain = this.ctx.createGain();
-                    stringGroupGain.gain.setValueAtTime(0, time);
-                    stringGroupGain.gain.linearRampToValueAtTime(0.15, time + 0.5); // 부드럽게 크레센도 (어택 500ms)
-                    stringGroupGain.gain.exponentialRampToValueAtTime(0.0001, time + dur + 1.0); // 긴 릴리즈
+                    const stringGain = this.ctx.createGain();
+                    stringGain.gain.setValueAtTime(0, time);
+                    stringGain.gain.linearRampToValueAtTime(0.18, time + 0.6); // 부드러운 어택
+                    stringGain.gain.exponentialRampToValueAtTime(0.0001, time + dur + 1.2); // 긴 감쇠 잔향
 
+                    // 유니즌 디튠 효과 구현
                     const oscCount = 3;
-                    const detuneAmount = 15; // cents
+                    const detuneAmount = 14;
 
                     for (let i = 0; i < oscCount; i++) {
                         const osc = this.ctx.createOscillator();
-                        osc.type = "sawtooth"; // 거친 현악 음색
-                        osc.frequency.setValueAtTime(freq / 2.0, time); // 한 옥타브 아래로 저음 보강
+                        osc.type = "sawtooth";
+                        osc.frequency.setValueAtTime(freq / 2.0, time); // 웅장함을 위해 한 옥타브 아래 연주
                         
-                        // 유니즌 디튠
-                        const detune = (i - 1) * detuneAmount; 
-                        osc.detune.setValueAtTime(detune, time);
+                        const det = (i - 1) * detuneAmount;
+                        osc.detune.setValueAtTime(det, time);
 
-                        // 현악기 특유의 저음 강조 필터 적용
+                        // 필터 적용으로 거친 느낌 정화
                         const filter = this.ctx.createBiquadFilter();
                         filter.type = "lowpass";
-                        filter.frequency.setValueAtTime(800, time); // 따뜻하게 걸러줌
+                        filter.frequency.setValueAtTime(750, time);
                         filter.Q.setValueAtTime(1.0, time);
 
                         osc.connect(filter);
-                        filter.connect(stringGroupGain);
+                        filter.connect(stringGain);
 
                         osc.start(time);
-                        osc.stop(time + dur + 1.0);
+                        osc.stop(time + dur + 1.2);
                     }
 
-                    this.connectSource(stringGroupGain, this.stringsGain, this.stringsPan);
+                    this.connectSource(stringGain, this.stringsGain, this.stringsPan);
                 });
             }
 
-            // 4. 오케스트라 웅장한 팀파니 & 서브 베이스 (The Heartbeat)
+            // 4) 브라스 / 긴장감 Synth Pad
+            playBrass(freqs, time, dur) {
+                if (!this.ctx || !freqs || freqs.length === 0) return;
+
+                freqs.forEach((freq) => {
+                    const brassGain = this.ctx.createGain();
+                    brassGain.gain.setValueAtTime(0, time);
+                    brassGain.gain.linearRampToValueAtTime(0.1, time + 0.4); // 서서히 긴장감 확대
+                    brassGain.gain.exponentialRampToValueAtTime(0.0001, time + dur + 0.5);
+
+                    const osc = this.ctx.createOscillator();
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(freq, time);
+
+                    // LFO 비브라토 효과 적용으로 피치 떨림 연출
+                    const lfo = this.ctx.createOscillator();
+                    const lfoGain = this.ctx.createGain();
+                    lfo.frequency.value = 5.5; // 5.5Hz 비브라토
+                    lfoGain.gain.value = 8; // 진폭
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(osc.frequency);
+
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = "peaking";
+                    filter.frequency.setValueAtTime(600, time);
+
+                    osc.connect(filter);
+                    filter.connect(brassGain);
+
+                    this.connectSource(brassGain, this.brassGain, this.brassPan);
+
+                    lfo.start(time);
+                    lfo.stop(time + dur + 0.5);
+                    osc.start(time);
+                    osc.stop(time + dur + 0.5);
+                });
+            }
+
+            // 5) 오케스트라 팀파니 (Climax 타악기)
             playTimpani(time) {
                 if (!this.ctx) return;
 
                 const osc = this.ctx.createOscillator();
                 const env = this.ctx.createGain();
-                
-                // 팀파니 특유의 피치 하강 효과 (120Hz -> 40Hz)
+
                 osc.type = "sine";
-                osc.frequency.setValueAtTime(110, time);
-                osc.frequency.exponentialRampToValueAtTime(45, time + 0.4);
+                osc.frequency.setValueAtTime(100, time);
+                osc.frequency.exponentialRampToValueAtTime(35, time + 0.45); // 타격 후 피치 드롭 효과
 
-                // 고음역 노이즈를 섞어 가죽을 치는 타격감 묘사
-                const noiseSize = this.ctx.sampleRate * 0.05;
-                const noiseBuffer = this.ctx.createBuffer(1, noiseSize, this.ctx.sampleRate);
-                const noiseData = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < noiseSize; i++) noiseData[i] = Math.random() * 2 - 1;
-                const noiseSource = this.ctx.createBufferSource();
-                noiseSource.buffer = noiseBuffer;
-
-                const noiseFilter = this.ctx.createBiquadFilter();
-                noiseFilter.type = "bandpass";
-                noiseFilter.frequency.setValueAtTime(150, time);
-                noiseFilter.Q.setValueAtTime(2.0, time);
-
-                const noiseEnv = this.ctx.createGain();
-                noiseEnv.gain.setValueAtTime(0.6, time);
-                noiseEnv.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-
-                // 메인 볼륨 Envelope
                 env.gain.setValueAtTime(0, time);
-                env.gain.linearRampToValueAtTime(0.8, time + 0.005);
-                env.gain.exponentialRampToValueAtTime(0.0001, time + 1.2); // 울려퍼짐
+                env.gain.linearRampToValueAtTime(0.9, time + 0.005);
+                env.gain.exponentialRampToValueAtTime(0.0001, time + 1.2);
 
                 osc.connect(env);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseEnv);
-
-                this.connectSource(env, this.timpaniGain, this.timpaniPan);
-                this.connectSource(noiseEnv, this.timpaniGain, this.timpaniPan);
+                this.connectSource(env, this.timpaniGain, null);
 
                 osc.start(time);
                 osc.stop(time + 1.2);
-                noiseSource.start(time);
-                noiseSource.stop(time + 0.05);
             }
         }
 
-        const audio = new OrchestraAudioContext();
+        const audio = new OrchestraDSP();
 
         /****************************************************************
-         * 11-3. Pi-Melody 리듬 & 하모니 생성 엔진 (Core Sequencer)
+         * 3. 파이송 6단계 작곡 알고리즘 시퀀서 (Sequencer)
          ****************************************************************/
-
-        // 선법별 기본 음계 세부 주파수 매핑
-        const SCALE_PRESETS = {
-            diatonic: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25], // C4 ~ E5 (도레미파솔라시도레미)
-            lydian: [261.63, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25],   // F# 도입 (신비한 느낌)
-            aeolian: [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25],  // Am 선법 (애절한 느낌)
-            pentatonic: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00] // C D E G A 5음계
+        
+        // 계이름 매핑: 1=도, 2=레, 3=미, 4=파, 5=솔, 6=라, 7=시, 8=높은 도, 9=높은 레, 0=쉼표/서스테인
+        const SCALE_PITCHES = {
+            '1': 261.63, // C4
+            '2': 293.66, // D4
+            '3': 329.63, // E4
+            '4': 349.23, // F4
+            '5': 392.00, // G4 (솔 - 메인 모티브)
+            '6': 440.00, // A4
+            '7': 493.88, // B4
+            '8': 523.25, // C5 (높은 도)
+            '9': 587.33, // D5 (높은 레)
+            '0': 0.0     // 쉼표 / 서스테인 처리
         };
 
-        // 코드 주파수 구성 정의
         const CHORDS_POOL = {
-            C_Major: [261.63, 329.63, 392.00], // C (도미솔)
-            A_Minor: [220.00, 261.63, 329.63], // Am (라도미)
-            F_Major: [174.61, 220.00, 261.63], // F (파라도)
-            G_Major: [196.00, 246.94, 293.66], // G (솔시레)
-            D_Minor: [293.66, 349.23, 440.00], // Dm (레파라)
-            E_Minor: [329.63, 392.00, 493.88], // Em (미솔시)
-            C_Maj7:  [261.63, 329.63, 392.00, 493.88], // Cmaj7
-            A_Min7:  [220.00, 261.63, 329.63, 392.00]  // Am7
+            C_Major: [261.63, 329.63, 392.00], // I
+            G_Major: [196.00, 246.94, 293.66], // V
+            A_Minor: [220.00, 261.63, 329.63], // vi
+            F_Major: [174.61, 220.00, 261.63]  // IV
         };
 
-        // 수열 탐색용 헬퍼 함수
+        const STEP_INFOS = [
+            { title: "1단계: 원주율 시퀀스 선정", desc: "원주율 π의 숫자를 계이름에 1대1 매핑하여 멜로디 시퀀스 뼈대를 만듭니다. (3.1415926535...)" },
+            { title: "2단계: 리듬화 & 솔(5) 모티브", desc: "단조로운 숫자 흐름에 강약을 부여합니다. 3,1,4는 짧게, 5는 모티브 동기음으로 지정되어 첼레스타가 옥타브 레이어링 악센트로 연주됩니다." },
+            { title: "3단계: 동기 발전 (Motif Development)", desc: "초반의 3.1415 모티브가 한 옥타브 위로 상승 전개되며 리듬 변형(셋잇단음표)이 도입되어 곡의 서사가 발전합니다." },
+            { title: "4단계: 화성 부여 (Harmonization)", desc: "안정적인 C Major 기반의 5도권 하강 순환 코드 진행(C-G-Am-F)이 배경 현악 패드와 텐션 패드로 추가되어 화성이 조화롭게 어우러집니다." },
+            { title: "5단계: 무한 확장 클라이맥스", desc: "리듬의 밀도(16분음표)가 극도로 올라가고 템포가 빨라집니다. 멜로디의 옥타브 상승과 웅장한 팀파니 드럼 타격으로 클라이맥스에 도달합니다." },
+            { title: "6단계: 회귀 및 종결 (Recapitulation)", desc: "곡의 끝에 도달하며 템포가 느려지고, 초반 3.1415 멜로디가 피아노와 첼레스타의 가장 넓은 음역대로 웅장하게 회환한 후 페르마타 으뜸화음으로 종결됩니다." }
+        ];
+
         async function fetchPi(start, count) {
             try {
                 const res = await fetch(`https://api.pi.delivery/v1/pi?start=${start}&numberOfDigits=${count}`);
                 const data = await res.json();
                 return data.content.replace('.', '');
-            } catch (e) { 
-                return ""; 
+            } catch (e) {
+                return "";
             }
         }
 
-        class PiSymphonySequencer {
+        class PiSongCompositionSequencer {
             constructor() {
                 this.isPlaying = false;
                 this.piBuffer = "";
-                this.currentStartDigit = 0;
                 
+                this.currentStartDigit = 0;
                 this.fetchIndex = 0;
                 this.scheduleIndex = 0;
-                this.displayIndex = 0;
-                
+
                 this.nextNoteTime = 0.0;
                 this.measureBeatCounter = 0.0;
                 this.chordMeasureTick = 0;
 
                 this.activeChordName = "C Major";
                 this.activeChordFreqs = CHORDS_POOL.C_Major;
-                
+
                 this.rafId = null;
-                this.activeNotesForVisualizer = []; // 비주얼 렌더링 동기화용 배열
+                this.activeNotesForVisualizer = [];
 
-                this.activeScaleName = "diatonic";
-                this.timeSignature = 4; // 4/4 default
-                this.musicPhase = 0;    // 0: Intro, 1: Order, 2: Grand, 3: Epilogue
-                this.playbackMode = "official";
-            }
-
-            onPlaybackModeChange() {
-                this.playbackMode = document.getElementById('select-playback-mode').value;
-                const wasPlaying = this.isPlaying;
-                this.stop();
-                if (wasPlaying) {
-                    setTimeout(() => this.start(), 100);
-                }
-            }
-
-            getViolinPitch(digit, index) {
-                // 0-14 인덱스 (느린 도입부 15개 자리)
-                if (index < 15) {
-                    const lowScale = {
-                        '1': 523.25, // C5
-                        '2': 587.33, // D5
-                        '3': 659.25, // E5
-                        '4': 698.46, // F5
-                        '5': 783.99, // G5
-                        '6': 880.00, // A5
-                        '7': 987.77, // B5
-                        '8': 1046.50,// C6
-                        '9': 1174.66 // D6
-                    };
-                    return lowScale[digit] || 523.25;
-                }
-                
-                // 15+ 인덱스 (빠른 8분음표 바이올린 연주)
-                const highScale = {
-                    '1': 523.25, // C5
-                    '2': 587.33, // D5
-                    '3': 1318.51,// E6
-                    '4': 1396.91,// F6
-                    '5': 1567.98,// G6
-                    '6': 1760.00,// A6
-                    '7': 987.77, // B5
-                    '8': 1046.50,// C6
-                    '9': 1174.66 // D6
-                };
-                
-                // 악보 상 특정 인덱스 미세 조정
-                if (index === 16) return 1174.66; // 2 -> D6
-                if (index === 21) return 1174.66; // 2 -> D6
-                
-                const customPitches = {
-                    23: 1396.91, // F6
-                    24: 1318.51, // E6
-                    25: 1318.51, // E6
-                    26: 1046.50, // C6
-                    27: 1318.51, // E6
-                    28: 1174.66, // D6
-                    29: 987.77,  // B5
-                    30: 1174.66, // D6
-                    31: 1567.98, // G6
-                    33: 587.33,  // D5 (낮음)
-                    34: 1046.50, // C6
-                    35: 1046.50, // C6
-                    36: 1396.91, // F6
-                    37: 523.25,  // C5 (낮음)
-                    38: 1174.66, // D6
-                    39: 987.77,  // B5
-                    40: 523.25,  // C5
-                    41: 880.00,  // A5
-                    42: 1174.66, // D6
-                    43: 1318.51, // E6
-                    44: 1174.66, // D6
-                    45: 1174.66, // D6
-                    46: 1318.51, // E6
-                    47: 987.77,  // B5
-                    48: 783.99,  // G5
-                    49: 523.25,  // C5
-                    51: 783.99,  // G5
-                    52: 1046.50, // C6
-                    53: 587.33,  // D5
-                    55: 1174.66, // D6
-                    56: 987.77,  // B5
-                    57: 698.46,  // F5
-                    58: 1174.66, // D6
-                    59: 698.46,  // F5
-                    60: 698.46,  // F5
-                    61: 783.99,  // G5
-                    62: 1174.66, // D6
-                    63: 587.33,  // D5
-                    64: 1318.51, // E6
-                    66: 987.77,  // B5
-                    67: 1046.50, // C6
-                    68: 523.25,  // C5
-                    69: 880.00,  // A5
-                    70: 698.46,  // F5
-                    72: 880.00,  // A5
-                    73: 587.33,  // D5
-                    74: 1046.50, // C6
-                    75: 880.00,  // A5
-                    76: 587.33,  // D5
-                    78: 1046.50, // C6
-                    79: 1174.66, // D6
-                    80: 1174.66, // D6
-                    81: 1046.50, // C6
-                    82: 880.00,  // A5
-                    83: 587.33,  // D5
-                    84: 1046.50, // C6
-                    86: 1318.51, // E6
-                };
-                
-                if (customPitches[index] !== undefined) {
-                    return customPitches[index];
-                }
-                
-                return highScale[digit] || 523.25;
+                this.currentPhase = 0; // 0 ~ 5 (작곡 가이드 6단계)
+                this.timeSignature = 4; // 4/4 박자 기본
+                this.tempoBPM = 100;
             }
 
             async start() {
@@ -1127,43 +1044,42 @@
                 const startIdx = parseInt(document.getElementById('num-jump').value) || 0;
                 this.currentStartDigit = startIdx;
                 this.fetchIndex = startIdx;
-                
-                document.getElementById('overlay-status').textContent = "수열 원주율 데이터를 호출하고 있습니다...";
-                const data = await fetchPi(this.fetchIndex, 1000);
+
+                document.getElementById('overlay-status').textContent = "원주율 파이 수열 수집 중...";
+                const data = await fetchPi(this.fetchIndex, 500); // 500자리 확보
                 if (!data) {
-                    alert("원주율 수열 API를 연결하는데 실패했습니다. 네트워크를 확인하세요.");
+                    alert("API 통신 실패. 네트워크 상태를 확인해주십시오.");
                     this.stop();
                     return;
                 }
-                
+
                 this.piBuffer = data;
                 this.fetchIndex += data.length;
                 this.scheduleIndex = 0;
-                this.displayIndex = 0;
                 this.measureBeatCounter = 0.0;
                 this.chordMeasureTick = 0;
-                this.musicPhase = 0;
+                this.currentPhase = 0;
 
                 this.isPlaying = true;
                 this.nextNoteTime = audio.ctx.currentTime + 0.1;
-                
-                document.getElementById('overlay-status').textContent = "오케스트라 협주가 시작됩니다.";
+                this.tempoBPM = parseInt(document.getElementById('slider-bpm').value);
+
+                document.getElementById('overlay-status').textContent = "작곡 가이드 모티브 1단계 재생 시작.";
                 this.schedulerLoop();
             }
 
             stop() {
                 this.isPlaying = false;
-                if (this.rafId) {
-                    cancelAnimationFrame(this.rafId);
-                }
+                if (this.rafId) cancelAnimationFrame(this.rafId);
+
                 document.getElementById('btn-play').disabled = false;
                 document.getElementById('btn-stop').disabled = true;
-                document.getElementById('overlay-status').textContent = "연주가 정지되었습니다.";
-                
-                // 스트링 가혹 릴리즈 강제 감쇠
-                if (audio.stringsGain) {
-                    audio.stringsGain.gain.setValueAtTime(0, audio.ctx.currentTime);
-                }
+                document.getElementById('overlay-status').textContent = "작곡 연주가 정지되었습니다.";
+
+                // 볼륨 강제 리셋 감쇠
+                if (audio.stringsGain) audio.stringsGain.gain.setValueAtTime(0, audio.ctx.currentTime);
+                if (audio.brassGain) audio.brassGain.gain.setValueAtTime(0, audio.ctx.currentTime);
+
                 this.activeNotesForVisualizer = [];
             }
 
@@ -1178,323 +1094,310 @@
                 }
             }
 
-            // 실시간 순차 연주 스케줄링 루프
+            // 시퀀싱 루프
             async schedulerLoop() {
                 if (!this.isPlaying) return;
 
-                // 버퍼가 200자 미만으로 떨어지면 미리 원주율 추가 호출
-                if (this.piBuffer.length - this.scheduleIndex < 200) {
-                    const more = await fetchPi(this.fetchIndex, 1000);
+                // 버퍼 부족 시 실시간 추가 수집
+                if (this.piBuffer.length - this.scheduleIndex < 100) {
+                    const more = await fetchPi(this.fetchIndex, 500);
                     if (more) {
                         this.piBuffer += more;
                         this.fetchIndex += more.length;
                     }
                 }
 
-                this.playbackMode = document.getElementById('select-playback-mode').value;
+                const indexOffset = this.currentStartDigit + this.scheduleIndex;
+                
+                // 6단계 작곡 가이드 단계(Phase)를 인덱스 기준으로 엄밀히 산출
+                this.currentPhase = this.determinePhase(indexOffset);
+                this.adjustOrchestraStructure(this.currentPhase);
 
-                let bpm = parseFloat(document.getElementById('slider-bpm').value);
-                const indexOffsetStart = this.currentStartDigit + this.scheduleIndex;
+                const beatDuration = 60 / this.tempoBPM;
 
-                if (this.playbackMode === "official") {
-                    // 공식 바이올린 악보 모드일 경우 전용 템포 강제 설정 (0-14자리는 70, 15자리부터는 80)
-                    if (indexOffsetStart < 15) {
-                        bpm = 70;
-                    } else {
-                        bpm = 80;
-                    }
-                    const sliderBpm = document.getElementById('slider-bpm');
-                    if (parseInt(sliderBpm.value) !== bpm) {
-                        sliderBpm.value = bpm;
-                        document.getElementById('val-bpm').textContent = bpm;
-                    }
-                }
-
-                const beatDuration = 60 / bpm; // 1박자 시간(초)
-
-                // 오디오 타임라인에 맞춰 선제 스케줄링 (1.0초 앞의 사운드를 큐잉)
                 while (this.nextNoteTime < audio.ctx.currentTime + 0.8) {
                     if (this.scheduleIndex >= this.piBuffer.length) {
+                        // 곡의 완벽한 재현 끝 도달
+                        this.stop();
                         break;
                     }
-
-                    this.activeScaleName = document.getElementById('select-scale').value;
-                    const scaleArray = SCALE_PRESETS[this.activeScaleName];
 
                     const d_n = parseInt(this.piBuffer[this.scheduleIndex]) || 0;
                     const d_n1 = parseInt(this.piBuffer[this.scheduleIndex + 1]) || 0;
                     const d_n2 = parseInt(this.piBuffer[this.scheduleIndex + 2]) || 0;
 
-                    const indexOffset = this.currentStartDigit + this.scheduleIndex;
-
-                    // 페이즈 기반 음량 조절 자동화 (빌드업 웅장한 연주 모델)
-                    this.musicPhase = this.determinePhase(indexOffset);
-                    this.adjustOrchestraMix(this.musicPhase);
-
-                    // 1. Complexity Score 수학 공식: C = (d_n * d_n1 + d_n2) % 12
-                    const complexity = (d_n * d_n1 + d_n2) % 12;
-                    
-                    // 2. 박자/리듬 셀 세분화 결정
-                    let beatLength = 1.0; // 기본 1박자
+                    // 1. 리듬 및 리듬 밀도 결정 (2단계 가이드: 3,1,4는 짧은 8분음표, 5~9는 긴음)
+                    let beatLength = 1.0;
                     let subdivType = "Quarter";
-                    let notesToPlay = []; // { digit, timeOffset, duration, isMain }
+                    let notesToPlay = []; // { digit, timeOffset, duration, octaveOffset, isAnchor }
 
-                    if (this.playbackMode === "official") {
-                        // --- 공식 바이올린 악보 재현 모드 ---
-                        this.timeSignature = 4; // 4/4 박자 고정
-
-                        if (indexOffset < 15) {
-                            // 도입부 15개 자리 (3.14159265358979) -> Quarter, Quarter, Half 반복
-                            const patternStep = indexOffset % 3;
-                            if (patternStep === 0 || patternStep === 1) {
-                                subdivType = "Quarter";
-                                beatLength = 1.0;
-                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, isMain: true });
-                            } else {
-                                subdivType = "Half";
-                                beatLength = 2.0;
-                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.8, isMain: true });
-                            }
+                    if (this.currentPhase === 0) {
+                        // 1단계: 단순 대입 1대1 재생 (모두 4분음표 1.0 beat)
+                        subdivType = "Quarter";
+                        beatLength = 1.0;
+                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, octaveOffset: 0 });
+                    } else if (this.currentPhase === 4) {
+                        // 5단계: 클라이맥스 (속도 급상승, 리듬 밀도 극대화 8분/16분음표 쪼개기)
+                        subdivType = "Sixteenths/Eighths";
+                        beatLength = 0.5; // 8분음표 단위로 빠르게 전진
+                        if (d_n % 3 === 0) {
+                            // 16분음표 2개로 분할 재생
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.2, octaveOffset: 1 });
+                            notesToPlay.push({ digit: d_n1, timeOffset: 0.25 * beatDuration, duration: 0.2, octaveOffset: 1 });
                         } else {
-                            // 16번째 자리 이후 (빠른 8분음표 바이올린 연주)
-                            if (d_n === 0) {
-                                subdivType = "Rest";
-                                beatLength = 0.5; // 8분 쉼표
-                            } else {
-                                subdivType = "Eighth";
-                                beatLength = 0.5; // 8분 음표
-                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, isMain: true });
-                            }
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, octaveOffset: 1 });
+                        }
+                    } else if (this.currentPhase === 5) {
+                        // 6단계: 회귀 (매우 느린 템포, 2분음표/점음표 위주 해결)
+                        subdivType = "Half/Fermata";
+                        if (d_n === 3 || d_n === 1 || d_n === 4) {
+                            beatLength = 2.0; // 2분음표로 크게 늘어짐
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.8, octaveOffset: 0, doubleOctave: true });
+                        } else {
+                            beatLength = 1.0;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.9, octaveOffset: 0 });
                         }
                     } else {
-                        // --- 기존 수학적 리듬 일반화 모드 ---
-                        if (d_n === 0) {
-                            subdivType = "Rest";
-                            beatLength = (d_n1 % 2 === 0) ? 1.0 : 0.5;
-                        } else if (d_n === d_n1) {
-                            subdivType = "Dotted";
-                            beatLength = 1.5;
-                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.3, isMain: true });
-                        } else if (complexity >= 3 && complexity <= 5) {
-                            subdivType = "Eighths";
+                        // 2~4단계 공통 리듬 적용 가이드
+                        // 3, 1, 4 는 짧은 8분음표 (0.5박)
+                        if (d_n === 3 || d_n === 1 || d_n === 4) {
+                            subdivType = "Eighth";
+                            beatLength = 0.5;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.42, octaveOffset: 0 });
+                        }
+                        // 반복되는 5는 모티브 동기음 솔(G4) 악센트 및 첼레스타 레이어 추가
+                        else if (d_n === 5) {
+                            subdivType = "Motif G5 Anchor";
                             beatLength = 1.0;
-                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, isMain: true });
-                            notesToPlay.push({ digit: d_n1, timeOffset: 0.5 * beatDuration, duration: 0.4, isMain: false });
-                        } else if (complexity === 8) {
-                            subdivType = "Triplet";
-                            beatLength = 1.0;
-                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.28, isMain: true });
-                            notesToPlay.push({ digit: d_n1, timeOffset: 0.33 * beatDuration, duration: 0.28, isMain: false });
-                            notesToPlay.push({ digit: d_n2, timeOffset: 0.66 * beatDuration, duration: 0.28, isMain: false });
-                        } else if (complexity === 9) {
-                            subdivType = "Staccato";
-                            beatLength = 1.0;
-                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.15, isMain: true });
-                        } else {
-                            subdivType = "Quarter";
-                            beatLength = 1.0;
-                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, isMain: true });
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.9, octaveOffset: 0, isAnchor: true });
+                        }
+                        // 그 외 5~9는 긴음화 (1.0박 또는 1.5박)
+                        else {
+                            subdivType = "Quarter/Dotted";
+                            if (d_n % 2 === 0) {
+                                beatLength = 1.0;
+                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.85, octaveOffset: 0 });
+                            } else {
+                                beatLength = 1.5;
+                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.35, octaveOffset: 0 });
+                            }
                         }
                     }
 
-                    // 3. 다이내믹 박자 마디 계산 및 코드 변화 진행
+                    // 2. 동기 발전 (3단계: 3-1-4-1 모티브 발견 시 옥타브 이동 변형)
+                    if (this.currentPhase >= 2 && this.currentPhase <= 3) {
+                        const historySeq = this.piBuffer.slice(this.scheduleIndex, this.scheduleIndex + 4);
+                        if (historySeq === "3141" || historySeq === "1592") {
+                            // 옥타브 도약 적용
+                            notesToPlay.forEach(n => {
+                                n.octaveOffset = 1; // 한 옥타브 위 재생
+                            });
+                        }
+                    }
+
+                    // 3. 화성 진행 적용 (4단계: C - G - Am - F 반복 순환 배치)
                     if (this.measureBeatCounter >= this.timeSignature) {
                         this.measureBeatCounter = 0;
                         this.chordMeasureTick++;
 
-                        if (this.playbackMode === "official") {
-                            // 공식 악보의 서정적인 영화 분위기 코드 진행 매핑
-                            if (indexOffset < 15) {
-                                const introChords = ["C_Major", "C_Major", "G_Major", "A_Minor", "F_Major", "G_Major"];
-                                const chordKey = introChords[this.chordMeasureTick % introChords.length];
-                                this.activeChordName = chordKey.replace('_', ' ');
-                                this.activeChordFreqs = CHORDS_POOL[chordKey];
-                            } else {
-                                const loopChords = ["A_Minor", "D_Minor", "G_Major", "C_Major", "F_Major", "D_Minor", "E_Minor", "A_Minor"];
-                                const chordKey = loopChords[(this.chordMeasureTick - 6) % loopChords.length] || "A_Minor";
-                                this.activeChordName = chordKey.replace('_', ' ');
-                                this.activeChordFreqs = CHORDS_POOL[chordKey];
-                            }
-                        } else {
-                            // 수학적 마디 합계 기반 코드 변환
-                            const chordSum = (d_n + d_n1 + d_n2 + 7) % 8;
-                            const chordKeys = Object.keys(CHORDS_POOL);
-                            this.activeChordName = chordKeys[chordSum].replace('_', ' ');
-                            this.activeChordFreqs = CHORDS_POOL[chordKeys[chordSum]];
-                        }
+                        const chordProg = ["C_Major", "G_Major", "A_Minor", "F_Major"];
+                        const chordKey = chordProg[this.chordMeasureTick % 4];
+                        this.activeChordName = chordKey.replace('_', ' ');
+                        this.activeChordFreqs = CHORDS_POOL[chordKey];
 
-                        // 새로운 마디 시작 시 팀파니 트리거 (Phase 2 이상 웅장함 강조)
-                        if (this.musicPhase >= 2) {
-                            audio.playTimpani(this.nextNoteTime);
-                        }
-
-                        // 스트링 화음 재생 (Phase 1 이상)
-                        if (this.musicPhase >= 1) {
+                        // 마디 경계선 스트링/브라스 화성 코드 연주 트리거
+                        if (this.currentPhase >= 3) {
                             audio.playStrings(this.activeChordFreqs, this.nextNoteTime, beatDuration * this.timeSignature);
+                            // 브라스 텐션 패드 추가
+                            if (this.currentPhase >= 3) {
+                                audio.playBrass(this.activeChordFreqs, this.nextNoteTime, beatDuration * this.timeSignature);
+                            }
                         }
 
-                        if (this.playbackMode !== "official") {
-                            // 일정 확률에 따른 3/4 및 4/4 교차 변환 (수학 모드만)
-                            this.timeSignature = (d_n2 % 2 === 0) ? 4 : 3;
+                        // 클라이맥스에서 마디 경계에 팀파니 연주
+                        if (this.currentPhase === 4) {
+                            audio.playTimpani(this.nextNoteTime);
                         }
                     }
 
-                    // 4. 악기 노트 렌더링 트리거 실행
+                    // 4. 오디오 주파수 합성 연주 실행
                     const scheduleIdxSnapshot = this.scheduleIndex;
                     notesToPlay.forEach((note) => {
-                        let noteFreq;
-                        if (this.playbackMode === "official") {
-                            noteFreq = this.getViolinPitch(note.digit, indexOffset);
-                        } else {
-                            noteFreq = scaleArray[note.digit];
+                        let freq = SCALE_PITCHES[note.digit];
+                        if (freq > 0) {
+                            // 옥타브 변위 반영
+                            if (note.octaveOffset === 1) freq *= 2.0;
+
+                            const noteTime = this.nextNoteTime + note.timeOffset;
+                            const noteDur = note.duration * beatDuration;
+
+                            // 기본 그랜드 피아노 재생
+                            audio.playPiano(freq, noteTime, noteDur);
+
+                            // 회귀(6단계) 시 피아노 저음+고음 더블 옥타브 재생
+                            if (note.doubleOctave) {
+                                audio.playPiano(freq / 2.0, noteTime, noteDur); // 피아노 저음
+                            }
+
+                            // 2단계 가이드: 솔(5) 출현 시 첼레스타 발광 악센트 추가 레이어링
+                            if (note.isAnchor || note.digit === 5) {
+                                audio.playCelesta(freq, noteTime, noteDur);
+                            }
+                            
+                            // 6단계 회귀 시 넓은 음역 표현을 위해 전체 첼레스타 레이어 보강
+                            if (this.currentPhase === 5) {
+                                audio.playCelesta(freq, noteTime, noteDur);
+                            }
+
+                            // 시각화용 데이터 연동 큐잉
+                            const visualNote = {
+                                pitch: freq,
+                                digit: note.digit,
+                                time: noteTime,
+                                dur: noteDur,
+                                type: subdivType,
+                                isMain: !note.isAnchor,
+                                idx: indexOffset
+                            };
+                            this.activeNotesForVisualizer.push(visualNote);
+
+                            // 연주 시간 동기화 UI 업데이트 호출
+                            setTimeout(() => {
+                                if (this.isPlaying) {
+                                    this.updateUIPerNote(visualNote, subdivType);
+                                }
+                            }, Math.max(0, (noteTime - audio.ctx.currentTime) * 1000));
                         }
-
-                        const noteTime = this.nextNoteTime + note.timeOffset;
-                        const noteDur = note.duration * beatDuration;
-
-                        // 피아노 멜로디 재생
-                        audio.playPiano(noteFreq, noteTime, noteDur);
-
-                        // Celesta 반짝임 배음 추가
-                        if (this.playbackMode === "official") {
-                            if (this.musicPhase >= 1) {
-                                audio.playCelesta(noteFreq, noteTime, noteDur);
-                            }
-                        } else {
-                            if (this.musicPhase >= 2 && note.digit > 4 && (subdivType === "Eighths" || subdivType === "Triplet")) {
-                                audio.playCelesta(noteFreq, noteTime, noteDur);
-                            }
-                        }
-
-                        // 실시간 비주얼라이저 데이터 동기화
-                        const visualNote = {
-                            pitch: noteFreq,
-                            digit: note.digit,
-                            time: noteTime,
-                            dur: noteDur,
-                            type: subdivType,
-                            isMain: note.isMain,
-                            idx: indexOffset
-                        };
-                        
-                        this.activeNotesForVisualizer.push(visualNote);
-                        
-                        // 재생 시간 동기화 트리거
-                        setTimeout(() => {
-                            if (this.isPlaying) {
-                                this.updateUIPerNote(visualNote, complexity, subdivType);
-                            }
-                        }, Math.max(0, (noteTime - audio.ctx.currentTime) * 1000));
                     });
 
-                    // 마디 누적 박자 갱신
+                    // 다음 스케줄 계측 이동
                     this.measureBeatCounter += beatLength;
                     this.nextNoteTime += beatLength * beatDuration;
                     
-                    // 버퍼 소모 수 결정
-                    if (this.playbackMode === "official") {
-                        this.scheduleIndex += 1;
+                    if (subdivType === "Sixteenths/Eighths") {
+                        this.scheduleIndex += (d_n % 3 === 0) ? 2 : 1;
                     } else {
-                        if (subdivType === "Triplet") this.scheduleIndex += 3;
-                        else if (subdivType === "Eighths") this.scheduleIndex += 2;
-                        else if (subdivType === "Dotted") this.scheduleIndex += 2;
-                        else this.scheduleIndex += 1;
+                        this.scheduleIndex += 1;
                     }
                 }
 
-                // 60fps 간격 호출
+                // 60fps 애니메이션 프레임 루프
                 this.rafId = requestAnimationFrame(() => this.schedulerLoop());
             }
 
-            // 빌드업을 위한 페이즈 결정 규칙
+            // 인덱스 자릿수 구간에 따라 6단계 작곡 가이드를 동적으로 선별 적용
             determinePhase(index) {
-                const localIndex = index - this.currentStartDigit;
-                if (localIndex < 25) return 0; // Phase I: Intro
-                if (localIndex < 65) return 1; // Phase II: Order
-                if (localIndex < 145) return 2; // Phase III: Grand (Peak)
-                return 3; // Phase IV: Epilogue
+                const offset = index - this.currentStartDigit;
+                if (offset < 15) return 0;  // 1단계 (원주율 시퀀스 도출)
+                if (offset < 35) return 1;  // 2단계 (리듬화 및 솔 모티브 강조)
+                if (offset < 65) return 2;  // 3단계 (동기 발전 - 옥타브 도약 및 리듬 변형)
+                if (offset < 95) return 3;  // 4단계 (화성 부여 C-G-Am-F 진행)
+                if (offset < 145) return 4; // 5단계 (클라이맥스 가속 및 팀파니 가세)
+                return 5;                   // 6단계 (초반 멜로디의 넓은 음역대 회귀)
             }
 
-            // 페이즈별 악기 볼륨 및 효과 자동 조정
-            adjustOrchestraMix(phase) {
+            // 각 작곡 단계별 오케스트라 편성(볼륨 믹서) 및 템포 제어 자동화
+            adjustOrchestraStructure(phase) {
                 if (!audio.initialized) return;
 
                 const t = audio.ctx.currentTime;
                 
-                // 디스플레이 배지 업데이트
-                for (let i = 0; i < 4; i++) {
-                    const badge = document.getElementById(`phase-${i}`);
+                // 진행 단계 배지 하이라이트 제어
+                for (let i = 0; i < 6; i++) {
+                    const badge = document.getElementById(`step-${i}`);
                     if (badge) {
                         if (i === phase) badge.classList.add('active');
                         else badge.classList.remove('active');
                     }
                 }
 
-                // 페이즈별 악기 구성 믹싱 볼륨 컨트롤
+                // 가이드 보드 실시간 다국어 해독 정보 렌더링
+                document.getElementById('guide-title').textContent = STEP_INFOS[phase].title;
+                document.getElementById('guide-desc').textContent = STEP_INFOS[phase].desc;
+
+                // 단계별 오케스트라 믹서 밸런스 제어
                 switch (phase) {
-                    case 0: // Intro: 피아노 중심, 스트링 꺼짐, 팀파니 꺼짐
-                        audio.pianoGain.gain.linearRampToValueAtTime(0.9, t + 0.5);
-                        audio.celestaGain.gain.linearRampToValueAtTime(0.0, t + 0.5);
-                        audio.stringsGain.gain.linearRampToValueAtTime(0.02, t + 0.5);
-                        audio.timpaniGain.gain.linearRampToValueAtTime(0.0, t + 0.5);
+                    case 0: // 1단계: 온전히 솔로 피아노
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.85, t + 0.3);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+                        audio.brassGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+                        audio.timpaniGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
                         break;
-                    case 1: // Order: 피아노 + 첼레스타 희미하게 + 백그라운드 스트링
-                        audio.pianoGain.gain.linearRampToValueAtTime(0.8, t + 0.5);
-                        audio.celestaGain.gain.linearRampToValueAtTime(0.4, t + 0.5);
-                        audio.stringsGain.gain.linearRampToValueAtTime(0.15, t + 0.5);
-                        audio.timpaniGain.gain.linearRampToValueAtTime(0.0, t + 0.5);
+                    case 1: // 2단계: 피아노 + 솔(5) 악센트 첼레스타 추가
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.8, t + 0.3);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.6, t + 0.3);
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+                        audio.brassGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
                         break;
-                    case 2: // Grand: 대규모 풀 앙상블 전개 + 팀파니 저음 폭발
-                        audio.pianoGain.gain.linearRampToValueAtTime(0.8, t + 0.5);
-                        audio.celestaGain.gain.linearRampToValueAtTime(0.65, t + 0.5);
-                        audio.stringsGain.gain.linearRampToValueAtTime(0.5, t + 0.5); // 스트링 소리 대폭 확대
-                        audio.timpaniGain.gain.linearRampToValueAtTime(0.85, t + 0.5); // 팀파니 가동
+                    case 2: // 3단계: 옥타브 이동 발전
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.8, t + 0.3);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.4, t + 0.3);
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.05, t + 0.3); // 현악 서서히 진입
+                        audio.brassGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
                         break;
-                    case 3: // Epilogue: 아웃트로 감쇠
-                        audio.pianoGain.gain.linearRampToValueAtTime(0.7, t + 0.5);
-                        audio.celestaGain.gain.linearRampToValueAtTime(0.2, t + 0.5);
-                        audio.stringsGain.gain.linearRampToValueAtTime(0.08, t + 0.5);
+                    case 3: // 4단계: C-G-Am-F 화성 앙상블 (현악+브라스 텐션 패드 결합)
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.75, t + 0.3);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.3, t + 0.3);
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.35, t + 0.3); // 현악 강화
+                        audio.brassGain.gain.linearRampToValueAtTime(0.18, t + 0.3); // 브라스 진입
+                        audio.timpaniGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+                        break;
+                    case 4: // 5단계: 클라이맥스 (템포 가속 + 현악/브라스 최대 + 팀파니 폭발)
+                        this.tempoBPM = parseInt(document.getElementById('slider-bpm').value) * 1.2; // 20% 가속
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.75, t + 0.3);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.5, t + 0.3);
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.65, t + 0.3); // 최대 웅장
+                        audio.brassGain.gain.linearRampToValueAtTime(0.3, t + 0.3);   // 브라스 크레센도
+                        audio.timpaniGain.gain.linearRampToValueAtTime(0.9, t + 0.3);   // 팀파니 최대
+                        break;
+                    case 5: // 6단계: 회귀 (리타르단도 감속 + 으뜸 화음 회귀)
+                        this.tempoBPM = 75; // 템포 감속 고정
+                        audio.pianoGain.gain.linearRampToValueAtTime(0.85, t + 0.5);
+                        audio.celestaGain.gain.linearRampToValueAtTime(0.8, t + 0.5); // 고음 첼레스타 서정성 배가
+                        audio.stringsGain.gain.linearRampToValueAtTime(0.4, t + 0.5);  // 서서히 페이드아웃 감쇠
+                        audio.brassGain.gain.linearRampToValueAtTime(0.1, t + 0.5);
                         audio.timpaniGain.gain.linearRampToValueAtTime(0.0, t + 0.5);
                         break;
                 }
             }
 
-            // 노트 재생 타이밍과 UI 요소 실시간 연동
-            updateUIPerNote(note, complexity, subdivType) {
+            // 실시간 상태 계측 UI 리프레시
+            updateUIPerNote(note, subdivType) {
                 document.getElementById('stat-pos').textContent = note.idx;
-                document.getElementById('stat-signature').textContent = this.timeSignature + "/4";
-                document.getElementById('stat-complexity').textContent = complexity;
+                document.getElementById('stat-bpm-now').textContent = Math.round(this.tempoBPM);
+                document.getElementById('stat-note-val').textContent = subdivType;
                 document.getElementById('stat-chord').textContent = this.activeChordName;
 
-                // 원형 숫자 스트림 갱신
+                // 수열 입력부 갱신
                 const streamContainer = document.getElementById('pi-digit-stream');
                 let html = "";
                 
-                // 이전 4개, 현재 재생 1개, 다음 4개 렌더링
                 const offset = note.idx - this.currentStartDigit;
-                const startIdx = Math.max(0, offset - 4);
+                const startIdx = Math.max(0, offset - 3);
                 
                 for (let i = startIdx; i < offset; i++) {
-                    if (this.piBuffer[i]) html += `<span class="pi-digit prev">${this.piBuffer[i]}</span>`;
+                    if (this.piBuffer[i]) html += `<span class="pi-digit">${this.piBuffer[i]}</span>`;
                 }
                 
-                // 현재 숫자 표시
-                html += `<span class="pi-digit current">${note.digit}</span>`;
+                // 모티브 5(솔) 여부에 따른 골드 하이라이트 구분
+                const isAnchor = note.digit === 5;
+                html += `<span class="pi-digit current ${isAnchor ? 'accent-anchor' : ''}">${note.digit}</span>`;
                 
-                for (let i = offset + 1; i < offset + 5; i++) {
-                    if (this.piBuffer[i]) html += `<span class="pi-digit next">${this.piBuffer[i]}</span>`;
+                for (let i = offset + 1; i < offset + 4; i++) {
+                    if (this.piBuffer[i]) html += `<span class="pi-digit" style="opacity: 0.65;">${this.piBuffer[i]}</span>`;
                 }
 
                 streamContainer.innerHTML = html;
             }
         }
 
-        const appSequencer = new PiSymphonySequencer();
+        const appSequencer = new PiSongCompositionSequencer();
 
         /****************************************************************
-         * 11-4. 고급 Canvas 시각화 엔진 (Visualizers)
+         * 4. 고성능 2D Canvas 시각화 모듈 (Visualizer)
          ****************************************************************/
-        class SymphonyVisualizer {
+        class SymphonyCanvasVisualizer {
             constructor() {
                 this.mainCanvas = document.getElementById('canvas-main');
                 this.mainCtx = this.mainCanvas.getContext('2d');
@@ -1507,10 +1410,6 @@
 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
-                
-                // 오실로스코프 및 은하 별무리 애니메이션 파티클
-                this.particles = [];
-                this.glowValue = 0;
             }
 
             resize() {
@@ -1529,7 +1428,7 @@
 
             startLoop() {
                 const loop = () => {
-                    this.drawMainVisualizer();
+                    this.drawMainSpiral();
                     this.drawTimeline();
                     this.drawCircleFifths();
                     requestAnimationFrame(loop);
@@ -1537,187 +1436,187 @@
                 requestAnimationFrame(loop);
             }
 
-            // 1. 메인 캔버스: 기하학적 파이 성운 & 오실로스코프 융합 비주얼
-            drawMainVisualizer() {
+            // 1) 중앙 캔버스: 파이 로그 나선(Golden Spiral) 기하학 성좌 연주 연출
+            drawMainSpiral() {
                 const w = this.mainCanvas.width;
                 const h = this.mainCanvas.height;
                 const ctx = this.mainCtx;
 
-                // 트레일 잔상 블러 처리
-                ctx.fillStyle = 'rgba(6, 8, 20, 0.2)';
+                // 트레일 잔상 효과
+                ctx.fillStyle = 'rgba(5, 6, 15, 0.22)';
                 ctx.fillRect(0, 0, w, h);
 
-                // 오디오 주파수 데이터 취득
-                let waveData = null;
+                // 마스터 실시간 오실로스코프 주파수 드로잉
+                let oscData = null;
                 if (audio.initialized && audio.analyser) {
-                    const bufferLength = audio.analyser.frequencyBinCount;
-                    waveData = new Uint8Array(bufferLength);
-                    audio.analyser.getByteTimeDomainData(waveData);
+                    const binCount = audio.analyser.frequencyBinCount;
+                    oscData = new Uint8Array(binCount);
+                    audio.analyser.getByteTimeDomainData(oscData);
                 }
 
-                const centerX = w / 2;
-                const centerY = h / 2;
-                const maxRadius = Math.min(w, h) * 0.4;
+                const cx = w / 2;
+                const cy = h / 2;
+                const maxRadius = Math.min(w, h) * 0.42;
 
-                // A. 페이즈 및 재생 강도에 따른 은하 성운(Grid) 드로잉
-                ctx.strokeStyle = 'rgba(6, 182, 212, 0.03)';
-                ctx.lineWidth = 1;
-                for (let r = 50; r < maxRadius; r += 40) {
+                // 기하학 성운 외곽선 격자 렌더링
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.035)';
+                ctx.lineWidth = 1.2;
+                for (let r = 40; r < maxRadius; r += 45) {
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
                     ctx.stroke();
                 }
 
-                // B. 오실로스코프 링 시각화
-                if (waveData) {
-                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.8)';
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-                    ctx.lineWidth = 2;
+                // 주파수 링 파형 오버레이
+                if (oscData) {
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.6)';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = 'rgba(99, 102, 241, 0.4)';
+                    ctx.lineWidth = 1.5;
                     ctx.beginPath();
 
-                    const len = waveData.length;
+                    const len = oscData.length;
                     for (let i = 0; i < len; i++) {
                         const angle = (i / len) * Math.PI * 2;
-                        const v = waveData[i] / 128.0; // 0.0 ~ 2.0
-                        const radius = maxRadius + (v - 1.0) * 45; // 음성 진폭에 따라 수축
-                        const x = centerX + Math.cos(angle) * radius;
-                        const y = centerY + Math.sin(angle) * radius;
-                        
+                        const scaleFactor = oscData[i] / 128.0; // 0.0 ~ 2.0
+                        const currentRadius = maxRadius + (scaleFactor - 1.0) * 50;
+                        const x = cx + Math.cos(angle) * currentRadius;
+                        const y = cy + Math.sin(angle) * currentRadius;
+
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
                     }
                     ctx.closePath();
                     ctx.stroke();
-                    ctx.shadowBlur = 0; // 그림자 해제
+                    ctx.shadowBlur = 0;
                 }
 
-                // C. 파이 기하학 나선 성좌 (Golden Spiral)
+                // 파이 6단계 작곡 노선 피드백 렌더링
                 if (appSequencer.isPlaying) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
                     const now = audio.ctx.currentTime;
-                    const recentNotes = appSequencer.activeNotesForVisualizer.filter(n => now >= n.time && now <= n.time + n.dur + 0.5);
+                    // 최근 3.5초 이내 연주된 노트들을 성좌에 매핑
+                    const recentNotes = appSequencer.activeNotesForVisualizer.filter(n => now >= n.time && now <= n.time + n.dur + 1.0);
 
                     recentNotes.forEach((note) => {
-                        const indexAngle = (note.idx * 137.5) * (Math.PI / 180); // 황금 각도 회전
-                        const distance = Math.sqrt(note.idx - appSequencer.currentStartDigit + 1) * 20; // 스파이럴 거리
+                        const angle = (note.idx * 137.5) * (Math.PI / 180); // 137.5도 황금 기하학 각도 회전
+                        const spiralDist = Math.sqrt(note.idx - appSequencer.currentStartDigit + 1) * 19;
                         
-                        const x = centerX + Math.cos(indexAngle) * distance;
-                        const y = centerY + Math.sin(indexAngle) * distance;
+                        const x = cx + Math.cos(angle) * spiralDist;
+                        const y = cy + Math.sin(angle) * spiralDist;
 
-                        // 현재 활성 노트 강조 발광
-                        const alpha = 1.0 - (now - note.time) / (note.dur + 0.5);
+                        const durationPct = (now - note.time) / (note.dur + 1.0);
+                        const alpha = Math.max(0, 1.0 - durationPct);
+
+                        // 활성 모티브 노드 강조 발광
                         ctx.beginPath();
-                        ctx.arc(x, y, 12 * alpha + 2, 0, Math.PI * 2);
+                        ctx.arc(x, y, 10 * alpha + 2, 0, Math.PI * 2);
                         
-                        if (note.isMain) {
-                            ctx.fillStyle = `rgba(6, 182, 212, ${alpha})`;
-                            ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+                        if (note.digit === 5) {
+                            ctx.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
                         } else {
-                            ctx.fillStyle = `rgba(236, 72, 153, ${alpha * 0.7})`;
-                            ctx.strokeStyle = `rgba(236, 72, 153, ${alpha * 0.4})`;
+                            ctx.fillStyle = `rgba(99, 102, 241, ${alpha})`;
+                            ctx.strokeStyle = `rgba(6, 182, 212, ${alpha * 0.7})`;
                         }
                         ctx.fill();
                         ctx.stroke();
 
-                        // 꼬리 연결 라인 생성
-                        ctx.strokeStyle = `rgba(6, 182, 212, ${alpha * 0.15})`;
+                        // 중심으로부터 나선 노드 성좌 라인 연결
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${alpha * 0.12})`;
                         ctx.beginPath();
-                        ctx.moveTo(centerX, centerY);
+                        ctx.moveTo(cx, cy);
                         ctx.lineTo(x, y);
                         ctx.stroke();
                     });
                 }
             }
 
-            // 2. 하단 시각화: DAW 스타일 멀티트랙 스크롤 비주얼
+            // 2) 하단 캔버스: DAW 스케줄링 timeline 가시화
             drawTimeline() {
                 const w = this.timelineCanvas.width;
                 const h = this.timelineCanvas.height;
                 const ctx = this.timelineCtx;
 
-                ctx.fillStyle = '#060814';
+                ctx.fillStyle = '#05060f';
                 ctx.fillRect(0, 0, w, h);
 
-                const trackCount = 4;
-                const trackHeight = h / trackCount;
-                const trackNames = ["Piano", "Celesta", "Strings", "Timpani"];
-                
-                // 트랙 격자 드로잉
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                const channels = 4;
+                const trackHeight = h / channels;
+                const labels = ["Piano", "Celesta", "Strings", "Brass/Bass"];
+
+                // 트랙 경계 격자선 그리기
+                ctx.strokeStyle = 'rgba(255,255,255, 0.04)';
                 ctx.lineWidth = 1;
-                for (let i = 0; i < trackCount; i++) {
+                for (let i = 0; i < channels; i++) {
                     ctx.beginPath();
                     ctx.moveTo(0, i * trackHeight);
                     ctx.lineTo(w, i * trackHeight);
                     ctx.stroke();
 
-                    // 트랙 텍스트 레이블
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.font = '9px var(--font-family)';
-                    ctx.fillText(trackNames[i], 10, i * trackHeight + 15);
+                    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+                    ctx.font = '9px var(--font-sans)';
+                    ctx.fillText(labels[i], 12, i * trackHeight + 16);
                 }
 
                 if (!audio.initialized) return;
 
                 const now = audio.ctx.currentTime;
-                const displayWindow = 4.0; // 표시 타임라인 범위 (4초 전후)
+                const timelineScope = 3.5; // 화면에 표시될 초 범위
 
-                // activeNotesForVisualizer 내부 노트를 캔버스 상에 정밀 매핑
-                appSequencer.activeNotesForVisualizer = appSequencer.activeNotesForVisualizer.filter(n => now < n.time + displayWindow);
+                // 이미 지난 노트 필터 제거
+                appSequencer.activeNotesForVisualizer = appSequencer.activeNotesForVisualizer.filter(n => now < n.time + timelineScope);
 
                 appSequencer.activeNotesForVisualizer.forEach((note) => {
-                    // 시간 위치 -> X 좌표 변환
                     const timeDelta = note.time - now;
-                    // 현재 재생 위치를 화면 좌측에서 20% 지점에 고정 (0.2 * w)
-                    const x = 0.2 * w + (timeDelta / displayWindow) * (w * 0.8);
-                    const rectWidth = (note.dur / displayWindow) * (w * 0.8);
+                    // 현재 재생 커서 위치는 화면의 15% 지점에 배치
+                    const x = 0.15 * w + (timeDelta / timelineScope) * (w * 0.85);
+                    const rectWidth = (note.dur / timelineScope) * (w * 0.85);
 
-                    // 노트를 4개 라인에 적절히 할당
-                    let trackIdx = 0;
-                    if (note.type === "Triplet" || note.type === "Eighths") {
-                        trackIdx = note.isMain ? 0 : 1; // Piano & Celesta 분배
-                    } else if (note.pitch < 150) {
-                        trackIdx = 3; // 저음 Timpani
+                    // 각 악기 성향에 맞춰 채널 인덱스 배분
+                    let channelIdx = 0;
+                    if (note.digit === 5) {
+                        channelIdx = 1; // Celesta 전용 트랙
+                    } else if (note.type === "Half/Fermata" && note.pitch < 150) {
+                        channelIdx = 3; // Brass/Bass 트랙
+                    } else if (appSequencer.currentPhase >= 3 && !note.isMain) {
+                        channelIdx = 2; // Strings 트랙
                     } else {
-                        trackIdx = note.isMain ? 0 : 2; // Piano & Strings 분배
+                        channelIdx = 0; // Piano 트랙
                     }
 
-                    const y = trackIdx * trackHeight + 3;
-                    const rectHeight = trackHeight - 6;
+                    const y = channelIdx * trackHeight + 4;
+                    const rectHeight = trackHeight - 8;
 
-                    // 활성 상태 여부 판단에 따른 색상 설정
                     const isActive = now >= note.time && now <= note.time + note.dur;
                     if (isActive) {
-                        ctx.fillStyle = trackIdx === 0 ? 'rgba(6, 182, 212, 0.8)' : 
-                                        trackIdx === 1 ? 'rgba(252, 211, 77, 0.8)' :
-                                        trackIdx === 2 ? 'rgba(236, 72, 153, 0.8)' : 'rgba(239, 68, 68, 0.8)';
-                        ctx.shadowBlur = 8;
+                        ctx.fillStyle = channelIdx === 0 ? 'rgba(99, 102, 241, 0.85)' :
+                                        channelIdx === 1 ? 'rgba(245, 158, 11, 0.85)' :
+                                        channelIdx === 2 ? 'rgba(6, 182, 212, 0.85)' : 'rgba(236, 72, 153, 0.85)';
+                        ctx.shadowBlur = 6;
                         ctx.shadowColor = ctx.fillStyle;
                     } else {
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
                         ctx.shadowBlur = 0;
                     }
 
-                    // 노트 직사각형 드로잉
                     if (x + rectWidth > 0 && x < w) {
                         ctx.beginPath();
-                        ctx.roundRect(x, y, Math.max(5, rectWidth), rectHeight, 3);
+                        ctx.roundRect(x, y, Math.max(6, rectWidth), rectHeight, 3);
                         ctx.fill();
                     }
                     ctx.shadowBlur = 0;
                 });
 
-                // 현재 타임 라인 커서 표시
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                // 현재 재생 커서 타임라인 직선
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
-                ctx.moveTo(0.2 * w, 0);
-                ctx.lineTo(0.2 * w, h);
+                ctx.moveTo(0.15 * w, 0);
+                ctx.lineTo(0.15 * w, h);
                 ctx.stroke();
             }
 
-            // 3. 우측 시각화: 화성기하학 12도 분석 (Circle of Fifths)
+            // 3) 우측 캔버스: 화성 5도권(Circle of Fifths) 공간 분석기
             drawCircleFifths() {
                 const w = this.circleCanvas.width;
                 const h = this.circleCanvas.height;
@@ -1727,69 +1626,66 @@
 
                 const cx = w / 2;
                 const cy = h / 2;
-                const r = Math.min(w, h) * 0.4;
+                const radius = Math.min(w, h) * 0.42;
 
-                const chordLabels = ["C", "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#", "F"];
-                
-                // 12도 원형 그리드 배치 드로잉
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-                ctx.lineWidth = 1.5;
+                const labels = ["C", "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#", "F"];
+
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
                 ctx.stroke();
 
-                const angleStep = (Math.PI * 2) / 12;
+                const stepAngle = (Math.PI * 2) / 12;
 
-                // 코드 라벨 위치 매핑
-                const positions = chordLabels.map((label, idx) => {
-                    const angle = idx * angleStep - Math.PI / 2; // 상단 중심 기준 회전
+                const positions = labels.map((name, idx) => {
+                    const angle = idx * stepAngle - Math.PI / 2;
                     return {
-                        name: label,
-                        x: cx + Math.cos(angle) * r,
-                        y: cx + Math.sin(angle) * r,
+                        name: name,
+                        x: cx + Math.cos(angle) * radius,
+                        y: cy + Math.sin(angle) * radius,
                         angle: angle
                     };
                 });
 
-                // 라벨 텍스트 드로잉
                 positions.forEach((pos) => {
-                    const activeChordName = appSequencer.activeChordName.split(' ')[0]; // 'C', 'Am' 등
-                    const isActive = activeChordName === pos.name || (activeChordName === pos.name + "m") || (activeChordName === pos.name + "maj7");
+                    const activeName = appSequencer.activeChordName.split(' ')[0];
+                    const isActive = activeName === pos.name || (activeName === pos.name + "m");
 
                     if (isActive && appSequencer.isPlaying) {
-                        ctx.fillStyle = 'var(--accent-cyan)';
-                        ctx.font = 'bold 12px var(--font-family)';
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = 'var(--accent-cyan)';
+                        ctx.fillStyle = 'var(--accent-indigo)';
+                        ctx.font = 'bold 11px var(--font-sans)';
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = 'var(--accent-indigo)';
                     } else {
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                        ctx.font = '10px var(--font-family)';
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                        ctx.font = '9px var(--font-sans)';
                         ctx.shadowBlur = 0;
                     }
 
                     ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, 4, 0, Math.PI*2);
+                    ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // 문자 오프셋 위치
-                    const textOffsetR = r + 15;
-                    const tx = cx + Math.cos(pos.angle) * textOffsetR;
-                    const ty = cy + Math.sin(pos.angle) * textOffsetR + 4;
+                    // 라벨 위치 배치
+                    const labelR = radius + 14;
+                    const lx = cx + Math.cos(pos.angle) * labelR;
+                    const ly = cy + Math.sin(pos.angle) * labelR + 3;
                     ctx.textAlign = "center";
-                    ctx.fillText(pos.name, tx, ty);
+                    ctx.fillText(pos.name, lx, ly);
                     ctx.shadowBlur = 0;
                 });
 
-                // 활성 화음에 따라 관계 구조선 연결 (현악기의 공명 기하학적 형상)
-                if (appSequencer.isPlaying) {
-                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
-                    ctx.lineWidth = 1;
+                // 4단계 이상의 경우 화음간 공명선(Connection Lines) 렌더링
+                if (appSequencer.isPlaying && appSequencer.currentPhase >= 3) {
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.2)';
+                    ctx.lineWidth = 0.8;
                     ctx.beginPath();
-                    positions.forEach((pos1, i) => {
-                        positions.forEach((pos2, j) => {
+                    positions.forEach((p1, i) => {
+                        positions.forEach((p2, j) => {
                             if (Math.abs(i - j) === 1 || Math.abs(i - j) === 11 || Math.abs(i - j) === 5) {
-                                ctx.moveTo(pos1.x, pos1.y);
-                                ctx.lineTo(pos2.x, pos2.y);
+                                ctx.moveTo(p1.x, p1.y);
+                                ctx.lineTo(p2.x, p2.y);
                             }
                         });
                     });
@@ -1798,33 +1694,33 @@
             }
         }
 
-        const vis = new SymphonyVisualizer();
+        const vis = new SymphonyCanvasVisualizer();
         vis.startLoop();
 
         /****************************************************************
-         * 11-5. UI 사용자 조작 이벤트 바인딩
+         * 5. UI 이벤트 핸들러 바인딩
          ****************************************************************/
-        // 볼륨 변경
         document.getElementById('slider-volume').addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             document.getElementById('val-volume').textContent = val.toFixed(1);
             audio.setMasterVolume(val);
         });
 
-        // BPM 변경
         document.getElementById('slider-bpm').addEventListener('input', (e) => {
             const val = parseInt(e.target.value);
             document.getElementById('val-bpm').textContent = val;
+            if (appSequencer.isPlaying) {
+                // 클라이맥스 전까지 동적으로 가속 템포 비율 재계산
+                appSequencer.tempoBPM = val;
+            }
         });
 
-        // 리버브 믹스 조작
         document.getElementById('slider-reverb').addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             document.getElementById('val-reverb').textContent = Math.round(val * 100) + "%";
             audio.setReverbMix(val);
         });
 
-        // 딜레이 조작
         document.getElementById('slider-delay').addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             document.getElementById('val-delay').textContent = Math.round(val * 100) + "%";
