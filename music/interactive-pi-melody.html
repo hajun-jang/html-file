@@ -466,6 +466,15 @@
                 <input type="range" id="slider-bpm" min="40" max="200" step="1" value="100">
             </div>
 
+            <!-- 연주 모드 선택 -->
+            <div class="control-group">
+                <div class="control-label">연주 모드 (Playback Mode)</div>
+                <select id="select-playback-mode" onchange="appSequencer.onPlaybackModeChange()">
+                    <option value="official" selected>🎬 공식 바이올린 악보 재현 (Violin Score)</option>
+                    <option value="math">🧮 수학적 리듬 일반화 (Generalized Rhythm)</option>
+                </select>
+            </div>
+
             <!-- 음악 양식 선택 -->
             <div class="control-group">
                 <div class="control-label">선법 (Scale Mode)</div>
@@ -993,8 +1002,119 @@
                 this.activeNotesForVisualizer = []; // 비주얼 렌더링 동기화용 배열
 
                 this.activeScaleName = "diatonic";
-                this.timeSignature = 3; // 3/4 or 4/4
+                this.timeSignature = 4; // 4/4 default
                 this.musicPhase = 0;    // 0: Intro, 1: Order, 2: Grand, 3: Epilogue
+                this.playbackMode = "official";
+            }
+
+            onPlaybackModeChange() {
+                this.playbackMode = document.getElementById('select-playback-mode').value;
+                const wasPlaying = this.isPlaying;
+                this.stop();
+                if (wasPlaying) {
+                    setTimeout(() => this.start(), 100);
+                }
+            }
+
+            getViolinPitch(digit, index) {
+                // 0-14 인덱스 (느린 도입부 15개 자리)
+                if (index < 15) {
+                    const lowScale = {
+                        '1': 523.25, // C5
+                        '2': 587.33, // D5
+                        '3': 659.25, // E5
+                        '4': 698.46, // F5
+                        '5': 783.99, // G5
+                        '6': 880.00, // A5
+                        '7': 987.77, // B5
+                        '8': 1046.50,// C6
+                        '9': 1174.66 // D6
+                    };
+                    return lowScale[digit] || 523.25;
+                }
+                
+                // 15+ 인덱스 (빠른 8분음표 바이올린 연주)
+                const highScale = {
+                    '1': 523.25, // C5
+                    '2': 587.33, // D5
+                    '3': 1318.51,// E6
+                    '4': 1396.91,// F6
+                    '5': 1567.98,// G6
+                    '6': 1760.00,// A6
+                    '7': 987.77, // B5
+                    '8': 1046.50,// C6
+                    '9': 1174.66 // D6
+                };
+                
+                // 악보 상 특정 인덱스 미세 조정
+                if (index === 16) return 1174.66; // 2 -> D6
+                if (index === 21) return 1174.66; // 2 -> D6
+                
+                const customPitches = {
+                    23: 1396.91, // F6
+                    24: 1318.51, // E6
+                    25: 1318.51, // E6
+                    26: 1046.50, // C6
+                    27: 1318.51, // E6
+                    28: 1174.66, // D6
+                    29: 987.77,  // B5
+                    30: 1174.66, // D6
+                    31: 1567.98, // G6
+                    33: 587.33,  // D5 (낮음)
+                    34: 1046.50, // C6
+                    35: 1046.50, // C6
+                    36: 1396.91, // F6
+                    37: 523.25,  // C5 (낮음)
+                    38: 1174.66, // D6
+                    39: 987.77,  // B5
+                    40: 523.25,  // C5
+                    41: 880.00,  // A5
+                    42: 1174.66, // D6
+                    43: 1318.51, // E6
+                    44: 1174.66, // D6
+                    45: 1174.66, // D6
+                    46: 1318.51, // E6
+                    47: 987.77,  // B5
+                    48: 783.99,  // G5
+                    49: 523.25,  // C5
+                    51: 783.99,  // G5
+                    52: 1046.50, // C6
+                    53: 587.33,  // D5
+                    55: 1174.66, // D6
+                    56: 987.77,  // B5
+                    57: 698.46,  // F5
+                    58: 1174.66, // D6
+                    59: 698.46,  // F5
+                    60: 698.46,  // F5
+                    61: 783.99,  // G5
+                    62: 1174.66, // D6
+                    63: 587.33,  // D5
+                    64: 1318.51, // E6
+                    66: 987.77,  // B5
+                    67: 1046.50, // C6
+                    68: 523.25,  // C5
+                    69: 880.00,  // A5
+                    70: 698.46,  // F5
+                    72: 880.00,  // A5
+                    73: 587.33,  // D5
+                    74: 1046.50, // C6
+                    75: 880.00,  // A5
+                    76: 587.33,  // D5
+                    78: 1046.50, // C6
+                    79: 1174.66, // D6
+                    80: 1174.66, // D6
+                    81: 1046.50, // C6
+                    82: 880.00,  // A5
+                    83: 587.33,  // D5
+                    84: 1046.50, // C6
+                    86: 1318.51, // E6
+                };
+                
+                if (customPitches[index] !== undefined) {
+                    return customPitches[index];
+                }
+                
+                return highScale[digit] || 523.25;
             }
 
             async start() {
@@ -1071,7 +1191,25 @@
                     }
                 }
 
-                const bpm = parseFloat(document.getElementById('slider-bpm').value);
+                this.playbackMode = document.getElementById('select-playback-mode').value;
+
+                let bpm = parseFloat(document.getElementById('slider-bpm').value);
+                const indexOffsetStart = this.currentStartDigit + this.scheduleIndex;
+
+                if (this.playbackMode === "official") {
+                    // 공식 바이올린 악보 모드일 경우 전용 템포 강제 설정 (0-14자리는 70, 15자리부터는 80)
+                    if (indexOffsetStart < 15) {
+                        bpm = 70;
+                    } else {
+                        bpm = 80;
+                    }
+                    const sliderBpm = document.getElementById('slider-bpm');
+                    if (parseInt(sliderBpm.value) !== bpm) {
+                        sliderBpm.value = bpm;
+                        document.getElementById('val-bpm').textContent = bpm;
+                    }
+                }
+
                 const beatDuration = 60 / bpm; // 1박자 시간(초)
 
                 // 오디오 타임라인에 맞춰 선제 스케줄링 (1.0초 앞의 사운드를 큐잉)
@@ -1087,64 +1225,103 @@
                     const d_n1 = parseInt(this.piBuffer[this.scheduleIndex + 1]) || 0;
                     const d_n2 = parseInt(this.piBuffer[this.scheduleIndex + 2]) || 0;
 
+                    const indexOffset = this.currentStartDigit + this.scheduleIndex;
+
+                    // 페이즈 기반 음량 조절 자동화 (빌드업 웅장한 연주 모델)
+                    this.musicPhase = this.determinePhase(indexOffset);
+                    this.adjustOrchestraMix(this.musicPhase);
+
                     // 1. Complexity Score 수학 공식: C = (d_n * d_n1 + d_n2) % 12
                     const complexity = (d_n * d_n1 + d_n2) % 12;
                     
-                    // 2. 박자/리듬 셀 세분화 결정 (Complexity 기반 Heuristics)
+                    // 2. 박자/리듬 셀 세분화 결정
                     let beatLength = 1.0; // 기본 1박자
                     let subdivType = "Quarter";
-                    let notesToPlay = []; // { freqOffset, timeOffset, duration, instrument }
+                    let notesToPlay = []; // { digit, timeOffset, duration, isMain }
 
-                    // 페이즈 기반 음량 조절 자동화 (빌드업 웅장한 연주 모델)
-                    this.musicPhase = this.determinePhase(this.currentStartDigit + this.scheduleIndex);
-                    this.adjustOrchestraMix(this.musicPhase);
+                    if (this.playbackMode === "official") {
+                        // --- 공식 바이올린 악보 재현 모드 ---
+                        this.timeSignature = 4; // 4/4 박자 고정
 
-                    // 리듬 구조 제어
-                    if (d_n === 0) {
-                        // 0은 쉼표
-                        subdivType = "Rest";
-                        beatLength = (d_n1 % 2 === 0) ? 1.0 : 0.5;
-                    } else if (d_n === d_n1) {
-                        // 연속 더블 숫자는 점음표 (1.5박)
-                        subdivType = "Dotted";
-                        beatLength = 1.5;
-                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.3, isMain: true });
-                    } else if (complexity >= 3 && complexity <= 5) {
-                        // 8분음표 연속 2개로 분할
-                        subdivType = "Eighths";
-                        beatLength = 1.0;
-                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, isMain: true });
-                        notesToPlay.push({ digit: d_n1, timeOffset: 0.5 * beatDuration, duration: 0.4, isMain: false });
-                    } else if (complexity === 8) {
-                        // 셋잇단음표 (Triplet)
-                        subdivType = "Triplet";
-                        beatLength = 1.0;
-                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.28, isMain: true });
-                        notesToPlay.push({ digit: d_n1, timeOffset: 0.33 * beatDuration, duration: 0.28, isMain: false });
-                        notesToPlay.push({ digit: d_n2, timeOffset: 0.66 * beatDuration, duration: 0.28, isMain: false });
-                    } else if (complexity === 9) {
-                        // 스타카토
-                        subdivType = "Staccato";
-                        beatLength = 1.0;
-                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.15, isMain: true });
+                        if (indexOffset < 15) {
+                            // 도입부 15개 자리 (3.14159265358979) -> Quarter, Quarter, Half 반복
+                            const patternStep = indexOffset % 3;
+                            if (patternStep === 0 || patternStep === 1) {
+                                subdivType = "Quarter";
+                                beatLength = 1.0;
+                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, isMain: true });
+                            } else {
+                                subdivType = "Half";
+                                beatLength = 2.0;
+                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.8, isMain: true });
+                            }
+                        } else {
+                            // 16번째 자리 이후 (빠른 8분음표 바이올린 연주)
+                            if (d_n === 0) {
+                                subdivType = "Rest";
+                                beatLength = 0.5; // 8분 쉼표
+                            } else {
+                                subdivType = "Eighth";
+                                beatLength = 0.5; // 8분 음표
+                                notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, isMain: true });
+                            }
+                        }
                     } else {
-                        // 기본 4분음표 1개
-                        subdivType = "Quarter";
-                        beatLength = 1.0;
-                        notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, isMain: true });
+                        // --- 기존 수학적 리듬 일반화 모드 ---
+                        if (d_n === 0) {
+                            subdivType = "Rest";
+                            beatLength = (d_n1 % 2 === 0) ? 1.0 : 0.5;
+                        } else if (d_n === d_n1) {
+                            subdivType = "Dotted";
+                            beatLength = 1.5;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 1.3, isMain: true });
+                        } else if (complexity >= 3 && complexity <= 5) {
+                            subdivType = "Eighths";
+                            beatLength = 1.0;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.4, isMain: true });
+                            notesToPlay.push({ digit: d_n1, timeOffset: 0.5 * beatDuration, duration: 0.4, isMain: false });
+                        } else if (complexity === 8) {
+                            subdivType = "Triplet";
+                            beatLength = 1.0;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.28, isMain: true });
+                            notesToPlay.push({ digit: d_n1, timeOffset: 0.33 * beatDuration, duration: 0.28, isMain: false });
+                            notesToPlay.push({ digit: d_n2, timeOffset: 0.66 * beatDuration, duration: 0.28, isMain: false });
+                        } else if (complexity === 9) {
+                            subdivType = "Staccato";
+                            beatLength = 1.0;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.15, isMain: true });
+                        } else {
+                            subdivType = "Quarter";
+                            beatLength = 1.0;
+                            notesToPlay.push({ digit: d_n, timeOffset: 0, duration: 0.8, isMain: true });
+                        }
                     }
 
-                    // 3. 다이내믹 박자 규칙 (3/4 박자 vs 4/4 박자 결정)
-                    // 현재 마디 누적 박수가 차면 마디 경계 설정
+                    // 3. 다이내믹 박자 마디 계산 및 코드 변화 진행
                     if (this.measureBeatCounter >= this.timeSignature) {
                         this.measureBeatCounter = 0;
                         this.chordMeasureTick++;
 
-                        // 마디 합계 기반 화성(Chord) 변동 로직
-                        const chordSum = (d_n + d_n1 + d_n2 + 7) % 8;
-                        const chordKeys = Object.keys(CHORDS_POOL);
-                        this.activeChordName = chordKeys[chordSum].replace('_', ' ');
-                        this.activeChordFreqs = CHORDS_POOL[chordKeys[chordSum]];
+                        if (this.playbackMode === "official") {
+                            // 공식 악보의 서정적인 영화 분위기 코드 진행 매핑
+                            if (indexOffset < 15) {
+                                const introChords = ["C_Major", "C_Major", "G_Major", "A_Minor", "F_Major", "G_Major"];
+                                const chordKey = introChords[this.chordMeasureTick % introChords.length];
+                                this.activeChordName = chordKey.replace('_', ' ');
+                                this.activeChordFreqs = CHORDS_POOL[chordKey];
+                            } else {
+                                const loopChords = ["A_Minor", "D_Minor", "G_Major", "C_Major", "F_Major", "D_Minor", "E_Minor", "A_Minor"];
+                                const chordKey = loopChords[(this.chordMeasureTick - 6) % loopChords.length] || "A_Minor";
+                                this.activeChordName = chordKey.replace('_', ' ');
+                                this.activeChordFreqs = CHORDS_POOL[chordKey];
+                            }
+                        } else {
+                            // 수학적 마디 합계 기반 코드 변환
+                            const chordSum = (d_n + d_n1 + d_n2 + 7) % 8;
+                            const chordKeys = Object.keys(CHORDS_POOL);
+                            this.activeChordName = chordKeys[chordSum].replace('_', ' ');
+                            this.activeChordFreqs = CHORDS_POOL[chordKeys[chordSum]];
+                        }
 
                         // 새로운 마디 시작 시 팀파니 트리거 (Phase 2 이상 웅장함 강조)
                         if (this.musicPhase >= 2) {
@@ -1156,23 +1333,37 @@
                             audio.playStrings(this.activeChordFreqs, this.nextNoteTime, beatDuration * this.timeSignature);
                         }
 
-                        // 일정 확률/마디에 따라 3/4와 4/4 교차 변환 (수학적 짝홀수 분석)
-                        this.timeSignature = (d_n2 % 2 === 0) ? 4 : 3;
+                        if (this.playbackMode !== "official") {
+                            // 일정 확률에 따른 3/4 및 4/4 교차 변환 (수학 모드만)
+                            this.timeSignature = (d_n2 % 2 === 0) ? 4 : 3;
+                        }
                     }
 
                     // 4. 악기 노트 렌더링 트리거 실행
                     const scheduleIdxSnapshot = this.scheduleIndex;
                     notesToPlay.forEach((note) => {
-                        const noteFreq = scaleArray[note.digit];
+                        let noteFreq;
+                        if (this.playbackMode === "official") {
+                            noteFreq = this.getViolinPitch(note.digit, indexOffset);
+                        } else {
+                            noteFreq = scaleArray[note.digit];
+                        }
+
                         const noteTime = this.nextNoteTime + note.timeOffset;
                         const noteDur = note.duration * beatDuration;
 
                         // 피아노 멜로디 재생
                         audio.playPiano(noteFreq, noteTime, noteDur);
 
-                        // Celesta 반짝임 추가 (Phase 2 이상에서 빠른 8분음표/셋잇단일 때만 보강)
-                        if (this.musicPhase >= 2 && note.digit > 4 && (subdivType === "Eighths" || subdivType === "Triplet")) {
-                            audio.playCelesta(noteFreq, noteTime, noteDur);
+                        // Celesta 반짝임 배음 추가
+                        if (this.playbackMode === "official") {
+                            if (this.musicPhase >= 1) {
+                                audio.playCelesta(noteFreq, noteTime, noteDur);
+                            }
+                        } else {
+                            if (this.musicPhase >= 2 && note.digit > 4 && (subdivType === "Eighths" || subdivType === "Triplet")) {
+                                audio.playCelesta(noteFreq, noteTime, noteDur);
+                            }
                         }
 
                         // 실시간 비주얼라이저 데이터 동기화
@@ -1183,7 +1374,7 @@
                             dur: noteDur,
                             type: subdivType,
                             isMain: note.isMain,
-                            idx: this.currentStartDigit + scheduleIdxSnapshot
+                            idx: indexOffset
                         };
                         
                         this.activeNotesForVisualizer.push(visualNote);
@@ -1201,10 +1392,14 @@
                     this.nextNoteTime += beatLength * beatDuration;
                     
                     // 버퍼 소모 수 결정
-                    if (subdivType === "Triplet") this.scheduleIndex += 3;
-                    else if (subdivType === "Eighths") this.scheduleIndex += 2;
-                    else if (subdivType === "Dotted") this.scheduleIndex += 2;
-                    else this.scheduleIndex += 1;
+                    if (this.playbackMode === "official") {
+                        this.scheduleIndex += 1;
+                    } else {
+                        if (subdivType === "Triplet") this.scheduleIndex += 3;
+                        else if (subdivType === "Eighths") this.scheduleIndex += 2;
+                        else if (subdivType === "Dotted") this.scheduleIndex += 2;
+                        else this.scheduleIndex += 1;
+                    }
                 }
 
                 // 60fps 간격 호출
