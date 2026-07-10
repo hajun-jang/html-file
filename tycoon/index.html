@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Brew Café - Tycoon Game</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f0a08;
+            --bg-panel: rgba(28, 18, 14, 0.7);
+            --border-color: rgba(230, 204, 178, 0.15);
+            --primary: #d4a373;
+            --primary-hover: #e6ccb2;
+            --accent-gold: #ffb703;
+            --text-main: #f5ebe0;
+            --text-muted: #b5a89e;
+            --success: #52b788;
+            --danger: #e63946;
+            --font-display: 'Fredoka', sans-serif;
+            --font-sans: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(112, 66, 20, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(212, 163, 115, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(15, 10, 8, 0.5);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 20px rgba(212, 163, 115, 0.3);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .header-stats span strong {
+            color: var(--text-main);
+        }
+
+        /* 메인 레이아웃 */
+        main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 자원 대시보드 */
+        .dashboard {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+            opacity: 0.7;
+        }
+
+        .card.gold-card::before { background: var(--accent-gold); }
+        .card.beans-card::before { background: #8e7355; }
+        .card.sales-card::before { background: var(--success); }
+
+        .card-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .card-value {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 작업 영역 */
+        .workspace-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .action-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 350px;
+            position: relative;
+        }
+
+        .coffee-cup-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .coffee-cup-container:active {
+            transform: scale(0.92);
+        }
+
+        .coffee-cup {
+            font-size: 6rem;
+            filter: drop-shadow(0 10px 20px rgba(112, 66, 20, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 증기 애니메이션 */
+        .steam {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: rise 2s infinite ease-out;
+        }
+        .steam-1 { animation-delay: 0s; left: 40%; }
+        .steam-2 { animation-delay: 0.7s; left: 50%; }
+        .steam-3 { animation-delay: 1.4s; left: 60%; }
+
+        @keyframes rise {
+            0% {
+                transform: translate(-50%, 10px) scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(-50%, -40px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            max-width: 400px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent-gold));
+            border-radius: 99px;
+            transition: width 0.1s linear;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #b07d50);
+            border: none;
+            color: #1c120c;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 163, 115, 0.5);
+            background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-sec {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-sec:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* 로그 창 */
+        .log-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            height: 180px;
+        }
+
+        .log-title {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            scroll-behavior: smooth;
+        }
+
+        .log-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .log-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .log-item {
+            color: var(--text-muted);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .log-item.success { color: var(--success); }
+        .log-item.danger { color: var(--danger); }
+        .log-item.info { color: var(--accent-gold); }
+
+        /* 상점 패널 (오른쪽 사이드바) */
+        .shop-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            height: fit-content;
+        }
+
+        .shop-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(212, 163, 115, 0.3);
+        }
+
+        .shop-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .shop-item-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .shop-item-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .shop-item-cost {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            margin-top: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .btn-buy {
+            background: var(--primary);
+            color: #1c120c;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-buy:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn-buy:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* 유틸리티/푸터 */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-links button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+        }
+
+        .footer-links button:hover {
+            color: var(--primary-hover);
+        }
+
+        /* 텍스트 팝업 (골드 획득 시 화면에 떠오르는 숫자 효과) */
+        .floating-text {
+            position: absolute;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, -50%) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) translateY(-60px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>☕</span> Pixel Brew Café
+        </div>
+        <div class="header-stats">
+            <span>평판: <strong id="reputation-val">★ 1.0</strong></span>
+            <span>카페 등급: <strong id="tier-val">동네 모퉁이 카페</strong></span>
+        </div>
+    </header>
+
+    <main>
+        <!-- 자원 대시보드 -->
+        <div class="dashboard">
+            <div class="card gold-card">
+                <span class="card-label">보유 자금</span>
+                <span class="card-value" id="gold-val">1,000 🪙</span>
+            </div>
+            <div class="card beans-card">
+                <span class="card-label">원두 재고</span>
+                <span class="card-value" id="beans-val">10 🫘</span>
+            </div>
+            <div class="card sales-card">
+                <span class="card-label">누적 판매</span>
+                <span class="card-value" id="sales-val">0 ☕</span>
+            </div>
+        </div>
+
+        <!-- 작업 영역 (왼쪽) -->
+        <div class="workspace-area">
+            <div class="action-panel" id="brew-panel">
+                <div class="steam steam-1">♨</div>
+                <div class="steam steam-2">♨</div>
+                <div class="steam steam-3">♨</div>
+                
+                <div class="coffee-cup-container" id="cup-btn">
+                    <div class="coffee-cup">☕</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn" id="brew-btn">커피 추출하기 (10초)</button>
+                    <button class="btn btn-sec" id="buy-beans-btn">원두 구매 (+10 🫘 / 50🪙)</button>
+                </div>
+            </div>
+
+            <!-- 로그 패널 -->
+            <div class="log-panel">
+                <div class="log-title">
+                    <span>카페 소식</span>
+                    <span style="font-size: 0.75rem;">실시간 로그</span>
+                </div>
+                <ul class="log-list" id="log-list">
+                    <li class="log-item info">☕ Pixel Brew Café에 오신 것을 환영합니다!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 상점 영역 (오른쪽) -->
+        <div class="shop-panel">
+            <div class="shop-title"><span>🛒</span> 장비 및 직원 업그레이드</div>
+            
+            <div class="shop-items">
+                <!-- 에스프레소 머신 -->
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <span class="shop-item-name" id="machine-name">노후된 에스프레소 머신 (Lv.1)</span>
+                        <span class="shop-item-desc">커피 추출 속도가 빨라집니다.</span>
+                        <span class="shop-item-cost" id="machine-cost-label">🪙 200</span>
+                    </div>
+                    <button class="btn-buy" id="upgrade-machine-btn">업그레이드</button>
+                </div>
+
+                <!-- 아르바이트 직원 -->
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <span class="shop-item-name" id="worker-name">알바생 채용 (현재 0명)</span>
+                        <span class="shop-item-desc">1초마다 자동으로 원두를 소비해 커피를 판매합니다.</span>
+                        <span class="shop-item-cost" id="worker-cost-label">🪙 300</span>
+                    </div>
+                    <button class="btn-buy" id="hire-worker-btn">고용</button>
+                </div>
+
+                <!-- 원두 정기 배송 -->
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <span class="shop-item-name" id="delivery-name">원두 정기 배송 (Lv.0)</span>
+                        <span class="shop-item-desc">5초마다 자동으로 원두가 공급됩니다.</span>
+                        <span class="shop-item-cost" id="delivery-cost-label">🪙 500</span>
+                    </div>
+                    <button class="btn-buy" id="upgrade-delivery-btn">계약</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Pixel Brew Café. Web Audio API & HTML5 Canvas 기반 타이쿤 프리셋.</p>
+        <div class="footer-links">
+            <button id="btn-save">수동 저장</button>
+            <button id="btn-reset">데이터 초기화</button>
+        </div>
+    </footer>
+
+    <script>
+        // Web Audio API를 활용한 효과음 합성 클래스
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playClick() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playCoin() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.type = 'triangle';
+                const now = this.ctx.currentTime;
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.08); // A5
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+                osc.start();
+                osc.stop(now + 0.3);
+            }
+
+            playBrew() {
+                this.init();
+                if (!this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 0.5; // 0.5초 노이즈
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.Q.setValueAtTime(3.0, this.ctx.currentTime);
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.5);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+                noise.stop(this.ctx.currentTime + 0.5);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        // 게임 상태 정의
+        const DEFAULT_STATE = {
+            gold: 1000,
+            beans: 10,
+            sales: 0,
+            reputation: 1.0,
+            machineLevel: 1,
+            workers: 0,
+            deliveryLevel: 0,
+            lastTick: Date.now()
+        };
+
+        let state = { ...DEFAULT_STATE };
+
+        // 수치 정의
+        const BEAN_PACK_COST = 50;
+        const BEANS_PER_PACK = 10;
+        const COFFEE_BASE_PRICE = 120; // 1잔당 기본 가격
+
+        // 업그레이드 가격 설정 공식
+        function getMachineCost(lv) { return Math.round(150 * Math.pow(1.8, lv)); }
+        function getWorkerCost(workers) { return Math.round(250 * Math.pow(2.0, workers)); }
+        function getDeliveryCost(lv) { return Math.round(400 * Math.pow(2.2, lv)); }
+        function getMachineSpeed(lv) { return Math.max(1.0, 10.0 - (lv - 1) * 1.5); } // 초 단위 (최소 1초)
+        function getTierName(rep) {
+            if (rep < 1.5) return "동네 모퉁이 카페";
+            if (rep < 2.5) return "입소문 난 핫플레이스";
+            if (rep < 4.0) return "줄 서서 마시는 맛집";
+            return "글로벌 커피 프랜차이즈";
+        }
+
+        // DOM Elements
+        const goldVal = document.getElementById('gold-val');
+        const beansVal = document.getElementById('beans-val');
+        const salesVal = document.getElementById('sales-val');
+        const reputationVal = document.getElementById('reputation-val');
+        const tierVal = document.getElementById('tier-val');
+
+        const brewBtn = document.getElementById('brew-btn');
+        const buyBeansBtn = document.getElementById('buy-beans-btn');
+        const cupBtn = document.getElementById('cup-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const brewPanel = document.getElementById('brew-panel');
+        const logList = document.getElementById('log-list');
+
+        const upgradeMachineBtn = document.getElementById('upgrade-machine-btn');
+        const machineCostLabel = document.getElementById('machine-cost-label');
+        const machineName = document.getElementById('machine-name');
+
+        const hireWorkerBtn = document.getElementById('hire-worker-btn');
+        const workerCostLabel = document.getElementById('worker-cost-label');
+        const workerName = document.getElementById('worker-name');
+
+        const upgradeDeliveryBtn = document.getElementById('upgrade-delivery-btn');
+        const deliveryCostLabel = document.getElementById('delivery-cost-label');
+        const deliveryName = document.getElementById('delivery-name');
+
+        const btnSave = document.getElementById('btn-save');
+        const btnReset = document.getElementById('btn-reset');
+
+        // 게임 루프 변수
+        let isBrewing = false;
+        let brewTimer = null;
+        let lastAutoTick = Date.now();
+        let lastDeliveryTick = Date.now();
+
+        // 로그 기록 함수
+        function addLog(message, type = '') {
+            const li = document.createElement('li');
+            li.className = `log-item ${type}`;
+            li.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logList.appendChild(li);
+            
+            // 스크롤 최하단 이동
+            logList.scrollTop = logList.scrollHeight;
+
+            // 로그 개수 제한 (최근 20개만 유지)
+            while (logList.children.length > 20) {
+                logList.removeChild(logList.firstChild);
+            }
+        }
+
+        // 화면 갱신 함수
+        function updateUI() {
+            goldVal.innerText = `${state.gold.toLocaleString()} 🪙`;
+            beansVal.innerText = `${state.beans} 🫘`;
+            salesVal.innerText = `${state.sales} ☕`;
+            reputationVal.innerText = `★ ${state.reputation.toFixed(1)}`;
+            tierVal.innerText = getTierName(state.reputation);
+
+            // 커피 추출 버튼 텍스트
+            const speed = getMachineSpeed(state.machineLevel);
+            if (!isBrewing) {
+                brewBtn.innerText = `커피 추출하기 (${speed.toFixed(1)}초)`;
+            }
+
+            // 상점 정보 업데이트
+            const machineCost = getMachineCost(state.machineLevel);
+            machineName.innerText = `에스프레소 머신 (Lv.${state.machineLevel})`;
+            machineCostLabel.innerText = `🪙 ${machineCost.toLocaleString()}`;
+            upgradeMachineBtn.disabled = state.gold < machineCost;
+
+            const workerCost = getWorkerCost(state.workers);
+            workerName.innerText = `알바생 채용 (현재 ${state.workers}명)`;
+            workerCostLabel.innerText = `🪙 ${workerCost.toLocaleString()}`;
+            hireWorkerBtn.disabled = state.gold < workerCost;
+
+            const deliveryCost = getDeliveryCost(state.deliveryLevel);
+            deliveryName.innerText = `원두 정기 배송 (Lv.${state.deliveryLevel})`;
+            deliveryCostLabel.innerText = state.deliveryLevel >= 5 ? "MAX" : `🪙 ${deliveryCost.toLocaleString()}`;
+            upgradeDeliveryBtn.disabled = state.deliveryLevel >= 5 || state.gold < deliveryCost;
+
+            // 원두 구매 버튼 활성화 체크
+            buyBeansBtn.disabled = state.gold < BEAN_PACK_COST;
+        }
+
+        // 골드 획득 이펙트
+        function createFloatingText(e, text) {
+            const rect = brewPanel.getBoundingClientRect();
+            let x = rect.left + rect.width / 2;
+            let y = rect.top + rect.height / 3;
+
+            if (e) {
+                x = e.clientX || x;
+                y = e.clientY || y;
+            }
+
+            const floatDiv = document.createElement('div');
+            floatDiv.className = 'floating-text';
+            floatDiv.innerText = text;
+            floatDiv.style.left = `${x}px`;
+            floatDiv.style.top = `${y}px`;
+            
+            document.body.appendChild(floatDiv);
+
+            setTimeout(() => {
+                floatDiv.remove();
+            }, 800);
+        }
+
+        // 수동 원두 구매
+        function buyBeans(e) {
+            if (state.gold >= BEAN_PACK_COST) {
+                state.gold -= BEAN_PACK_COST;
+                state.beans += BEANS_PER_PACK;
+                sfx.playClick();
+                addLog(`원두 10개를 🪙${BEAN_PACK_COST}에 구매했습니다.`, 'info');
+                updateUI();
+            }
+        }
+
+        // 수동 커피 추출 시작
+        function startBrewing() {
+            if (isBrewing) return;
+            if (state.beans <= 0) {
+                addLog("원두가 부족합니다! 원두를 먼저 구매해 주세요.", "danger");
+                sfx.playClick();
+                return;
+            }
+
+            isBrewing = true;
+            state.beans--;
+            sfx.playBrew();
+            updateUI();
+
+            const speedSeconds = getMachineSpeed(state.machineLevel);
+            const duration = speedSeconds * 1000;
+            const startTime = Date.now();
+
+            brewBtn.disabled = true;
+
+            function animateProgress() {
+                const elapsed = Date.now() - startTime;
+                const percent = Math.min(100, (elapsed / duration) * 100);
+                progressBar.style.width = `${percent}%`;
+
+                if (elapsed < duration) {
+                    brewTimer = requestAnimationFrame(animateProgress);
+                } else {
+                    finishBrewing();
+                }
+            }
+
+            brewTimer = requestAnimationFrame(animateProgress);
+        }
+
+        // 커피 추출 완료 및 판매
+        function finishBrewing() {
+            isBrewing = false;
+            progressBar.style.width = '0%';
+            brewBtn.disabled = false;
+
+            // 판매 금액 계산 (기본단가 * 평판)
+            const income = Math.round(COFFEE_BASE_PRICE * state.reputation);
+            state.gold += income;
+            state.sales += 1;
+            
+            // 평판 소량 증가
+            state.reputation += 0.05;
+
+            sfx.playCoin();
+            createFloatingText(null, `+${income}🪙`);
+            addLog(`따뜻한 커피를 판매하여 🪙${income}를 벌었습니다! (평판 상승)`, 'success');
+            
+            updateUI();
+            saveGame(true); // 자동 저장
+        }
+
+        // 업그레이드: 머신
+        function upgradeMachine() {
+            const cost = getMachineCost(state.machineLevel);
+            if (state.gold >= cost) {
+                state.gold -= cost;
+                state.machineLevel++;
+                sfx.playClick();
+                addLog(`에스프레소 머신을 Lv.${state.machineLevel}(으)로 업그레이드했습니다.`, 'info');
+                updateUI();
+                saveGame(true);
+            }
+        }
+
+        // 업그레이드: 알바생 고용
+        function hireWorker() {
+            const cost = getWorkerCost(state.workers);
+            if (state.gold >= cost) {
+                state.gold -= cost;
+                state.workers++;
+                sfx.playClick();
+                addLog(`새로운 알바생을 고용했습니다. (현재 ${state.workers}명)`, 'info');
+                updateUI();
+                saveGame(true);
+            }
+        }
+
+        // 업그레이드: 원두 공급
+        function upgradeDelivery() {
+            const cost = getDeliveryCost(state.deliveryLevel);
+            if (state.gold >= cost && state.deliveryLevel < 5) {
+                state.gold -= cost;
+                state.deliveryLevel++;
+                sfx.playClick();
+                addLog(`원두 정기 배송 서비스가 Lv.${state.deliveryLevel}(으)로 강화되었습니다.`, 'info');
+                updateUI();
+                saveGame(true);
+            }
+        }
+
+        // 로컬 스토리지 저장 & 로드
+        function saveGame(silent = false) {
+            state.lastTick = Date.now();
+            localStorage.setItem('pixel_cafe_tycoon_save', JSON.stringify(state));
+            if (!silent) {
+                addLog("게임 데이터가 로컬에 안전하게 저장되었습니다.", "info");
+            }
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('pixel_cafe_tycoon_save');
+            if (saved) {
+                try {
+                    const loadedState = JSON.parse(saved);
+                    state = { ...DEFAULT_STATE, ...loadedState };
+                    addLog("이전 게임 상태를 불러왔습니다.", "info");
+                    
+                    // 오프라인 방치 수익 계산
+                    const offlineMs = Date.now() - state.lastTick;
+                    if (offlineMs > 5000 && state.workers > 0) {
+                        const offlineSeconds = Math.floor(offlineMs / 1000);
+                        // 방치형 효율 50% 적용
+                        const maxPossibleSales = Math.floor(offlineSeconds * (state.workers * 0.5));
+                        // 원두 소모량 계산
+                        const actualSales = Math.min(maxPossibleSales, state.beans);
+                        if (actualSales > 0) {
+                            const income = Math.round(actualSales * COFFEE_BASE_PRICE * state.reputation * 0.8);
+                            state.beans -= actualSales;
+                            state.gold += income;
+                            state.sales += actualSales;
+                            addLog(`부재 중 알바생들이 원두 ${actualSales}개를 사용하여 🪙${income}의 방치 수익을 냈습니다!`, 'success');
+                        }
+                    }
+                } catch (e) {
+                    addLog("저장된 데이터 파일이 손상되었습니다. 기본값으로 시작합니다.", "danger");
+                }
+            }
+            updateUI();
+        }
+
+        function resetGame() {
+            if (confirm("정말로 모든 게임 데이터를 초기화하시겠습니까? 처음부터 다시 시작합니다.")) {
+                state = { ...DEFAULT_STATE };
+                localStorage.removeItem('pixel_cafe_tycoon_save');
+                addLog("게임 데이터를 완전히 초기화했습니다.", "danger");
+                updateUI();
+            }
+        }
+
+        // 1초 단위 핵심 자동화 루프
+        function mainLoop() {
+            const now = Date.now();
+            
+            // 1. 알바생 자동화 커피 추출 및 판매 (1초당 직원 수에 비례)
+            if (state.workers > 0 && now - lastAutoTick >= 1000) {
+                const brewsThisTick = state.workers; // 1초당 직원 한명이 1개씩 제조 시도
+                let successfulBrews = 0;
+
+                for (let i = 0; i < brewsThisTick; i++) {
+                    if (state.beans > 0) {
+                        state.beans--;
+                        successfulBrews++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (successfulBrews > 0) {
+                    const income = Math.round(successfulBrews * COFFEE_BASE_PRICE * state.reputation);
+                    state.gold += income;
+                    state.sales += successfulBrews;
+                    state.reputation += 0.01 * successfulBrews; // 평판 소폭 증가
+                    
+                    // 골드 획득 텍스트는 매초 간략하게 한 번만 띄움
+                    createFloatingText(null, `+${income}🪙`);
+                    addLog(`알바생들이 커피 ${successfulBrews}잔을 자동으로 만들어 🪙${income}를 벌었습니다.`, 'success');
+                } else if (state.beans === 0) {
+                    addLog("알바생들: 원두가 다 떨어졌어요! 원두를 구매해 주세요.", "danger");
+                }
+                
+                lastAutoTick = now;
+            }
+
+            // 2. 원두 정기 배급 자동화 (Lv.1 이상일 때 5초 주기로)
+            if (state.deliveryLevel > 0 && now - lastDeliveryTick >= 5000) {
+                const supplyAmount = state.deliveryLevel * 5; // 레벨당 5개씩 공급
+                state.beans += supplyAmount;
+                addLog(`정기 배송 서비스가 원두 ${supplyAmount}개를 창고에 채워놓았습니다!`, 'info');
+                lastDeliveryTick = now;
+            }
+
+            updateUI();
+        }
+
+        // 이벤트 리스너 연동
+        brewBtn.addEventListener('click', () => {
+            sfx.init();
+            startBrewing();
+        });
+        cupBtn.addEventListener('click', (e) => {
+            sfx.init();
+            startBrewing();
+        });
+        buyBeansBtn.addEventListener('click', (e) => {
+            sfx.init();
+            buyBeans(e);
+        });
+
+        upgradeMachineBtn.addEventListener('click', upgradeMachine);
+        hireWorkerBtn.addEventListener('click', hireWorker);
+        upgradeDeliveryBtn.addEventListener('click', upgradeDelivery);
+
+        btnSave.addEventListener('click', () => saveGame(false));
+        btnReset.addEventListener('click', resetGame);
+
+        // 초기 시작
+        loadGame();
+        setInterval(mainLoop, 100); // 100ms마다 체크하여 부드럽고 정확하게 상태 제어
+        
+        // 브라우저 닫기 전에 자동 저장
+        window.addEventListener('beforeunload', () => saveGame(true));
+    </script>
+</body>
+</html>
