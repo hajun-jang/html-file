@@ -3,7 +3,7 @@
 A collection of various HTML/JS experiments and small applications.
 
 ## Directory Structure
-
+**main link is [here](https://hajun-jang.github.io/html-file/).**
 - **[matrix/](./matrix/)**: Matrix rain effects.
   - [ascii.html](./matrix/ascii.html): Classic Matrix rain using ASCII characters.
   - [unicode.html](./matrix/unicode.html): Matrix rain using a wide range of Unicode characters.
