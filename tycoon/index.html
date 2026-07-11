@@ -23,6 +23,7 @@
             --danger: #e63946;
             --font-display: 'Fredoka', sans-serif;
             --font-sans: 'Outfit', sans-serif;
+            --dev-glow: rgba(157, 78, 221, 0.4);
         }
 
         * {
@@ -389,6 +390,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            user-select: text;
         }
 
         .shop-item-name {
@@ -432,6 +434,119 @@
             background: rgba(255, 255, 255, 0.05);
             color: rgba(255, 255, 255, 0.2);
             cursor: not-allowed;
+        }
+
+        /* 동적 주입될 개발자 콘솔 CSS */
+        .dev-console {
+            background: rgba(24, 18, 28, 0.9);
+            border: 2px dashed #9d4edd;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem auto 0 auto;
+            max-width: 1200px;
+            width: calc(100% - 3rem);
+            box-shadow: 0 0 25px var(--dev-glow);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .dev-title {
+            font-family: var(--font-display);
+            color: #c77dff;
+            font-size: 1.4rem;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dev-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .dev-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(157, 78, 221, 0.15);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .dev-label {
+            font-size: 0.8rem;
+            color: #b5a89e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dev-input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dev-input {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            padding: 0.4rem;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            width: 70px;
+        }
+
+        .dev-input:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 5px rgba(157, 78, 221, 0.5);
+        }
+
+        .btn-dev {
+            background: #7b2cbf;
+            color: #fff;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-dev:hover {
+            background: #9d4edd;
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
+        }
+
+        .dev-speed-btns {
+            display: flex;
+            gap: 0.3rem;
+            width: 100%;
+        }
+
+        .btn-speed {
+            flex: 1;
+            background: rgba(157, 78, 221, 0.15);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            color: #c77dff;
+            padding: 0.4rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-speed.active {
+            background: #7b2cbf;
+            color: #fff;
+            border-color: #9d4edd;
         }
 
         /* 유틸리티/푸터 */
@@ -501,7 +616,7 @@
             <span>☕</span> Pixel Brew Café
         </div>
         <div class="header-stats">
-            <span>평판: <strong id="reputation-val">★ 1.0</strong></span>
+            <span>평판: <strong id="reputation-val">★ 1.00</strong></span>
             <span>카페 등급: <strong id="tier-val">동네 모퉁이 카페</strong></span>
         </div>
     </header>
@@ -511,11 +626,11 @@
         <div class="dashboard">
             <div class="card gold-card">
                 <span class="card-label">보유 자금</span>
-                <span class="card-value" id="gold-val">1,000 🪙</span>
+                <span class="card-value" id="gold-val">200 🪙</span>
             </div>
             <div class="card beans-card">
                 <span class="card-label">원두 재고</span>
-                <span class="card-value" id="beans-val">10 🫘</span>
+                <span class="card-value" id="beans-val">15 🫘</span>
             </div>
             <div class="card sales-card">
                 <span class="card-label">누적 판매</span>
@@ -539,8 +654,8 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn" id="brew-btn">커피 추출하기 (10초)</button>
-                    <button class="btn btn-sec" id="buy-beans-btn">원두 구매 (+10 🫘 / 50🪙)</button>
+                    <button class="btn" id="brew-btn">커피 추출하기 (8.0초)</button>
+                    <button class="btn btn-sec" id="buy-beans-btn">원두 구매 (+20 🫘 / 50🪙)</button>
                 </div>
             </div>
 
@@ -564,9 +679,9 @@
                 <!-- 에스프레소 머신 -->
                 <div class="shop-item">
                     <div class="shop-item-info">
-                        <span class="shop-item-name" id="machine-name">노후된 에스프레소 머신 (Lv.1)</span>
+                        <span class="shop-item-name" id="machine-name">에스프레소 머신 (Lv.1)</span>
                         <span class="shop-item-desc">커피 추출 속도가 빨라집니다.</span>
-                        <span class="shop-item-cost" id="machine-cost-label">🪙 200</span>
+                        <span class="shop-item-cost" id="machine-cost-label">🪙 100</span>
                     </div>
                     <button class="btn-buy" id="upgrade-machine-btn">업그레이드</button>
                 </div>
@@ -575,8 +690,8 @@
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="worker-name">알바생 채용 (현재 0명)</span>
-                        <span class="shop-item-desc">1초마다 자동으로 원두를 소비해 커피를 판매합니다.</span>
-                        <span class="shop-item-cost" id="worker-cost-label">🪙 300</span>
+                        <span class="shop-item-desc">3초마다 자동으로 원두를 소비해 커피를 판매합니다.</span>
+                        <span class="shop-item-cost" id="worker-cost-label">🪙 150</span>
                     </div>
                     <button class="btn-buy" id="hire-worker-btn">고용</button>
                 </div>
@@ -586,13 +701,20 @@
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="delivery-name">원두 정기 배송 (Lv.0)</span>
                         <span class="shop-item-desc">5초마다 자동으로 원두가 공급됩니다.</span>
-                        <span class="shop-item-cost" id="delivery-cost-label">🪙 500</span>
+                        <span class="shop-item-cost" id="delivery-cost-label">🪙 250</span>
                     </div>
                     <button class="btn-buy" id="upgrade-delivery-btn">계약</button>
                 </div>
             </div>
         </div>
     </main>
+
+    <!--
+      [보안 가이드]
+      - HTML 정적 마크업 상에는 개발자 콘솔 코드가 일절 존재하지 않습니다.
+      - F12의 Elements 검사로 강제 조작(display: none 해제)하는 우회가 원천 차단됩니다.
+      - 검증 성공 시에만 JS를 통해 DOM 요소를 동적으로 주입(Inject)합니다.
+    -->
 
     <footer>
         <p>© 2026 Pixel Brew Café. Web Audio API & HTML5 Canvas 기반 타이쿤 프리셋.</p>
@@ -603,462 +725,618 @@
     </footer>
 
     <script>
-        // Web Audio API를 활용한 효과음 합성 클래스
-        class SoundFX {
-            constructor() {
-                this.ctx = null;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            playClick() {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
-
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
-            }
-
-            playCoin() {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.type = 'triangle';
-                const now = this.ctx.currentTime;
-                osc.frequency.setValueAtTime(587.33, now); // D5
-                osc.frequency.setValueAtTime(880, now + 0.08); // A5
-
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-
-                osc.start();
-                osc.stop(now + 0.3);
-            }
-
-            playBrew() {
-                this.init();
-                if (!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.5; // 0.5초 노이즈
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
+        // 전역 스코프를 오염시키지 않기 위해 전체 코드를 즉시 실행 함수(IIFE)로 감싸 격리합니다.
+        // F12 콘솔창의 어떤 자바스크립트 명령어로도 IIFE 내부 변수 및 함수에 접근할 수 없습니다.
+        (function() {
+            // Web Audio API 효과음 합성 클래스
+            class SoundFX {
+                constructor() {
+                    this.ctx = null;
                 }
 
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.Q.setValueAtTime(3.0, this.ctx.currentTime);
-                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.5);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                noise.start();
-                noise.stop(this.ctx.currentTime + 0.5);
-            }
-        }
-
-        const sfx = new SoundFX();
-
-        // 게임 상태 정의
-        const DEFAULT_STATE = {
-            gold: 1000,
-            beans: 10,
-            sales: 0,
-            reputation: 1.0,
-            machineLevel: 1,
-            workers: 0,
-            deliveryLevel: 0,
-            lastTick: Date.now()
-        };
-
-        let state = { ...DEFAULT_STATE };
-
-        // 수치 정의
-        const BEAN_PACK_COST = 50;
-        const BEANS_PER_PACK = 10;
-        const COFFEE_BASE_PRICE = 120; // 1잔당 기본 가격
-
-        // 업그레이드 가격 설정 공식
-        function getMachineCost(lv) { return Math.round(150 * Math.pow(1.8, lv)); }
-        function getWorkerCost(workers) { return Math.round(250 * Math.pow(2.0, workers)); }
-        function getDeliveryCost(lv) { return Math.round(400 * Math.pow(2.2, lv)); }
-        function getMachineSpeed(lv) { return Math.max(1.0, 10.0 - (lv - 1) * 1.5); } // 초 단위 (최소 1초)
-        function getTierName(rep) {
-            if (rep < 1.5) return "동네 모퉁이 카페";
-            if (rep < 2.5) return "입소문 난 핫플레이스";
-            if (rep < 4.0) return "줄 서서 마시는 맛집";
-            return "글로벌 커피 프랜차이즈";
-        }
-
-        // DOM Elements
-        const goldVal = document.getElementById('gold-val');
-        const beansVal = document.getElementById('beans-val');
-        const salesVal = document.getElementById('sales-val');
-        const reputationVal = document.getElementById('reputation-val');
-        const tierVal = document.getElementById('tier-val');
-
-        const brewBtn = document.getElementById('brew-btn');
-        const buyBeansBtn = document.getElementById('buy-beans-btn');
-        const cupBtn = document.getElementById('cup-btn');
-        const progressBar = document.getElementById('progress-bar');
-        const brewPanel = document.getElementById('brew-panel');
-        const logList = document.getElementById('log-list');
-
-        const upgradeMachineBtn = document.getElementById('upgrade-machine-btn');
-        const machineCostLabel = document.getElementById('machine-cost-label');
-        const machineName = document.getElementById('machine-name');
-
-        const hireWorkerBtn = document.getElementById('hire-worker-btn');
-        const workerCostLabel = document.getElementById('worker-cost-label');
-        const workerName = document.getElementById('worker-name');
-
-        const upgradeDeliveryBtn = document.getElementById('upgrade-delivery-btn');
-        const deliveryCostLabel = document.getElementById('delivery-cost-label');
-        const deliveryName = document.getElementById('delivery-name');
-
-        const btnSave = document.getElementById('btn-save');
-        const btnReset = document.getElementById('btn-reset');
-
-        // 게임 루프 변수
-        let isBrewing = false;
-        let brewTimer = null;
-        let lastAutoTick = Date.now();
-        let lastDeliveryTick = Date.now();
-
-        // 로그 기록 함수
-        function addLog(message, type = '') {
-            const li = document.createElement('li');
-            li.className = `log-item ${type}`;
-            li.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logList.appendChild(li);
-            
-            // 스크롤 최하단 이동
-            logList.scrollTop = logList.scrollHeight;
-
-            // 로그 개수 제한 (최근 20개만 유지)
-            while (logList.children.length > 20) {
-                logList.removeChild(logList.firstChild);
-            }
-        }
-
-        // 화면 갱신 함수
-        function updateUI() {
-            goldVal.innerText = `${state.gold.toLocaleString()} 🪙`;
-            beansVal.innerText = `${state.beans} 🫘`;
-            salesVal.innerText = `${state.sales} ☕`;
-            reputationVal.innerText = `★ ${state.reputation.toFixed(1)}`;
-            tierVal.innerText = getTierName(state.reputation);
-
-            // 커피 추출 버튼 텍스트
-            const speed = getMachineSpeed(state.machineLevel);
-            if (!isBrewing) {
-                brewBtn.innerText = `커피 추출하기 (${speed.toFixed(1)}초)`;
-            }
-
-            // 상점 정보 업데이트
-            const machineCost = getMachineCost(state.machineLevel);
-            machineName.innerText = `에스프레소 머신 (Lv.${state.machineLevel})`;
-            machineCostLabel.innerText = `🪙 ${machineCost.toLocaleString()}`;
-            upgradeMachineBtn.disabled = state.gold < machineCost;
-
-            const workerCost = getWorkerCost(state.workers);
-            workerName.innerText = `알바생 채용 (현재 ${state.workers}명)`;
-            workerCostLabel.innerText = `🪙 ${workerCost.toLocaleString()}`;
-            hireWorkerBtn.disabled = state.gold < workerCost;
-
-            const deliveryCost = getDeliveryCost(state.deliveryLevel);
-            deliveryName.innerText = `원두 정기 배송 (Lv.${state.deliveryLevel})`;
-            deliveryCostLabel.innerText = state.deliveryLevel >= 5 ? "MAX" : `🪙 ${deliveryCost.toLocaleString()}`;
-            upgradeDeliveryBtn.disabled = state.deliveryLevel >= 5 || state.gold < deliveryCost;
-
-            // 원두 구매 버튼 활성화 체크
-            buyBeansBtn.disabled = state.gold < BEAN_PACK_COST;
-        }
-
-        // 골드 획득 이펙트
-        function createFloatingText(e, text) {
-            const rect = brewPanel.getBoundingClientRect();
-            let x = rect.left + rect.width / 2;
-            let y = rect.top + rect.height / 3;
-
-            if (e) {
-                x = e.clientX || x;
-                y = e.clientY || y;
-            }
-
-            const floatDiv = document.createElement('div');
-            floatDiv.className = 'floating-text';
-            floatDiv.innerText = text;
-            floatDiv.style.left = `${x}px`;
-            floatDiv.style.top = `${y}px`;
-            
-            document.body.appendChild(floatDiv);
-
-            setTimeout(() => {
-                floatDiv.remove();
-            }, 800);
-        }
-
-        // 수동 원두 구매
-        function buyBeans(e) {
-            if (state.gold >= BEAN_PACK_COST) {
-                state.gold -= BEAN_PACK_COST;
-                state.beans += BEANS_PER_PACK;
-                sfx.playClick();
-                addLog(`원두 10개를 🪙${BEAN_PACK_COST}에 구매했습니다.`, 'info');
-                updateUI();
-            }
-        }
-
-        // 수동 커피 추출 시작
-        function startBrewing() {
-            if (isBrewing) return;
-            if (state.beans <= 0) {
-                addLog("원두가 부족합니다! 원두를 먼저 구매해 주세요.", "danger");
-                sfx.playClick();
-                return;
-            }
-
-            isBrewing = true;
-            state.beans--;
-            sfx.playBrew();
-            updateUI();
-
-            const speedSeconds = getMachineSpeed(state.machineLevel);
-            const duration = speedSeconds * 1000;
-            const startTime = Date.now();
-
-            brewBtn.disabled = true;
-
-            function animateProgress() {
-                const elapsed = Date.now() - startTime;
-                const percent = Math.min(100, (elapsed / duration) * 100);
-                progressBar.style.width = `${percent}%`;
-
-                if (elapsed < duration) {
-                    brewTimer = requestAnimationFrame(animateProgress);
-                } else {
-                    finishBrewing();
+                init() {
+                    if (!this.ctx) {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
                 }
-            }
 
-            brewTimer = requestAnimationFrame(animateProgress);
-        }
-
-        // 커피 추출 완료 및 판매
-        function finishBrewing() {
-            isBrewing = false;
-            progressBar.style.width = '0%';
-            brewBtn.disabled = false;
-
-            // 판매 금액 계산 (기본단가 * 평판)
-            const income = Math.round(COFFEE_BASE_PRICE * state.reputation);
-            state.gold += income;
-            state.sales += 1;
-            
-            // 평판 소량 증가
-            state.reputation += 0.05;
-
-            sfx.playCoin();
-            createFloatingText(null, `+${income}🪙`);
-            addLog(`따뜻한 커피를 판매하여 🪙${income}를 벌었습니다! (평판 상승)`, 'success');
-            
-            updateUI();
-            saveGame(true); // 자동 저장
-        }
-
-        // 업그레이드: 머신
-        function upgradeMachine() {
-            const cost = getMachineCost(state.machineLevel);
-            if (state.gold >= cost) {
-                state.gold -= cost;
-                state.machineLevel++;
-                sfx.playClick();
-                addLog(`에스프레소 머신을 Lv.${state.machineLevel}(으)로 업그레이드했습니다.`, 'info');
-                updateUI();
-                saveGame(true);
-            }
-        }
-
-        // 업그레이드: 알바생 고용
-        function hireWorker() {
-            const cost = getWorkerCost(state.workers);
-            if (state.gold >= cost) {
-                state.gold -= cost;
-                state.workers++;
-                sfx.playClick();
-                addLog(`새로운 알바생을 고용했습니다. (현재 ${state.workers}명)`, 'info');
-                updateUI();
-                saveGame(true);
-            }
-        }
-
-        // 업그레이드: 원두 공급
-        function upgradeDelivery() {
-            const cost = getDeliveryCost(state.deliveryLevel);
-            if (state.gold >= cost && state.deliveryLevel < 5) {
-                state.gold -= cost;
-                state.deliveryLevel++;
-                sfx.playClick();
-                addLog(`원두 정기 배송 서비스가 Lv.${state.deliveryLevel}(으)로 강화되었습니다.`, 'info');
-                updateUI();
-                saveGame(true);
-            }
-        }
-
-        // 로컬 스토리지 저장 & 로드
-        function saveGame(silent = false) {
-            state.lastTick = Date.now();
-            localStorage.setItem('pixel_cafe_tycoon_save', JSON.stringify(state));
-            if (!silent) {
-                addLog("게임 데이터가 로컬에 안전하게 저장되었습니다.", "info");
-            }
-        }
-
-        function loadGame() {
-            const saved = localStorage.getItem('pixel_cafe_tycoon_save');
-            if (saved) {
-                try {
-                    const loadedState = JSON.parse(saved);
-                    state = { ...DEFAULT_STATE, ...loadedState };
-                    addLog("이전 게임 상태를 불러왔습니다.", "info");
+                playClick() {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
                     
-                    // 오프라인 방치 수익 계산
-                    const offlineMs = Date.now() - state.lastTick;
-                    if (offlineMs > 5000 && state.workers > 0) {
-                        const offlineSeconds = Math.floor(offlineMs / 1000);
-                        // 방치형 효율 50% 적용
-                        const maxPossibleSales = Math.floor(offlineSeconds * (state.workers * 0.5));
-                        // 원두 소모량 계산
-                        const actualSales = Math.min(maxPossibleSales, state.beans);
-                        if (actualSales > 0) {
-                            const income = Math.round(actualSales * COFFEE_BASE_PRICE * state.reputation * 0.8);
-                            state.beans -= actualSales;
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.1);
+                }
+
+                playCoin() {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.type = 'triangle';
+                    const now = this.ctx.currentTime;
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.08); // A5
+
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+                    osc.start();
+                    osc.stop(now + 0.3);
+                }
+
+                playBrew() {
+                    this.init();
+                    if (!this.ctx) return;
+                    const bufferSize = this.ctx.sampleRate * 0.5; // 0.5초 노이즈
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+
+                    const noise = this.ctx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.Q.setValueAtTime(3.0, this.ctx.currentTime);
+                    filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                    filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.5);
+
+                    const gain = this.ctx.createGain();
+                    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    noise.start();
+                    noise.stop(this.ctx.currentTime + 0.5);
+                }
+            }
+
+            const sfx = new SoundFX();
+
+            // 밸런스 조정된 기본 상태 정의
+            const DEFAULT_STATE = {
+                gold: 200,
+                beans: 15,
+                sales: 0,
+                reputation: 1.0,
+                machineLevel: 1,
+                workers: 0,
+                deliveryLevel: 0,
+                lastTick: Date.now()
+            };
+
+            let state = { ...DEFAULT_STATE };
+
+            // 경제 밸런스 수치
+            const BEAN_PACK_COST = 50;
+            const BEANS_PER_PACK = 20;     
+            const COFFEE_BASE_PRICE = 30;
+
+            function getMachineCost(lv) { return Math.round(100 * Math.pow(1.6, lv - 1)); }
+            function getWorkerCost(workers) { return Math.round(150 * Math.pow(1.8, workers)); }
+            function getDeliveryCost(lv) { return Math.round(250 * Math.pow(1.7, lv)); }
+            
+            // 추출 시간: 기본 8초, 레벨당 12% 단축 (최소 1초)
+            function getMachineSpeed(lv) { 
+                return Math.max(1.0, 8.0 * Math.pow(0.88, lv - 1)); 
+            } 
+            
+            function getTierName(rep) {
+                if (rep < 1.5) return "동네 모퉁이 카페";
+                if (rep < 2.5) return "입소문 난 핫플레이스";
+                if (rep < 4.0) return "줄 서서 마시는 맛집";
+                return "글로벌 커피 프랜차이즈";
+            }
+
+            // DOM Elements
+            const goldVal = document.getElementById('gold-val');
+            const beansVal = document.getElementById('beans-val');
+            const salesVal = document.getElementById('sales-val');
+            const reputationVal = document.getElementById('reputation-val');
+            const tierVal = document.getElementById('tier-val');
+
+            const brewBtn = document.getElementById('brew-btn');
+            const buyBeansBtn = document.getElementById('buy-beans-btn');
+            const cupBtn = document.getElementById('cup-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const brewPanel = document.getElementById('brew-panel');
+            const logList = document.getElementById('log-list');
+
+            const upgradeMachineBtn = document.getElementById('upgrade-machine-btn');
+            const machineCostLabel = document.getElementById('machine-cost-label');
+            const machineName = document.getElementById('machine-name');
+
+            const hireWorkerBtn = document.getElementById('hire-worker-btn');
+            const workerCostLabel = document.getElementById('worker-cost-label');
+            const workerName = document.getElementById('worker-name');
+
+            const upgradeDeliveryBtn = document.getElementById('upgrade-delivery-btn');
+            const deliveryCostLabel = document.getElementById('delivery-cost-label');
+            const deliveryName = document.getElementById('delivery-name');
+
+            const btnSave = document.getElementById('btn-save');
+            const btnReset = document.getElementById('btn-reset');
+
+            // 게임 루프 변수
+            let isBrewing = false;
+            let brewTimer = null;
+            let lastTickReal = Date.now();
+            let autoTickAccumulator = 0;
+            let deliveryTickAccumulator = 0;
+            let gameSpeed = 1; // 배속 변수
+
+            // 로그 기록 함수
+            function addLog(message, type = '') {
+                const li = document.createElement('li');
+                li.className = `log-item ${type}`;
+                li.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logList.appendChild(li);
+                
+                logList.scrollTop = logList.scrollHeight;
+
+                while (logList.children.length > 25) {
+                    logList.removeChild(logList.firstChild);
+                }
+            }
+
+            // 화면 갱신 함수
+            function updateUI() {
+                goldVal.innerText = `${state.gold.toLocaleString()} 🪙`;
+                beansVal.innerText = `${state.beans} 🫘`;
+                salesVal.innerText = `${state.sales} ☕`;
+                reputationVal.innerText = `★ ${state.reputation.toFixed(2)}`;
+                tierVal.innerText = getTierName(state.reputation);
+
+                const speed = getMachineSpeed(state.machineLevel);
+                if (!isBrewing) {
+                    brewBtn.innerText = `커피 추출하기 (${speed.toFixed(1)}초)`;
+                }
+
+                const machineCost = getMachineCost(state.machineLevel);
+                machineName.innerText = `에스프레소 머신 (Lv.${state.machineLevel})`;
+                machineCostLabel.innerText = `🪙 ${machineCost.toLocaleString()}`;
+                upgradeMachineBtn.disabled = state.gold < machineCost;
+
+                const workerCost = getWorkerCost(state.workers);
+                workerName.innerText = `알바생 채용 (현재 ${state.workers}명)`;
+                workerCostLabel.innerText = `🪙 ${workerCost.toLocaleString()}`;
+                hireWorkerBtn.disabled = state.gold < workerCost;
+
+                const deliveryCost = getDeliveryCost(state.deliveryLevel);
+                deliveryName.innerText = `원두 정기 배송 (Lv.${state.deliveryLevel})`;
+                deliveryCostLabel.innerText = state.deliveryLevel >= 5 ? "MAX" : `🪙 ${deliveryCost.toLocaleString()}`;
+                upgradeDeliveryBtn.disabled = state.deliveryLevel >= 5 || state.gold < deliveryCost;
+
+                buyBeansBtn.disabled = state.gold < BEAN_PACK_COST;
+            }
+
+            // 골드 획득 이펙트
+            function createFloatingText(e, text) {
+                const rect = brewPanel.getBoundingClientRect();
+                let x = rect.left + rect.width / 2;
+                let y = rect.top + rect.height / 3;
+
+                if (e) {
+                    x = e.clientX || x;
+                    y = e.clientY || y;
+                }
+
+                const floatDiv = document.createElement('div');
+                floatDiv.className = 'floating-text';
+                floatDiv.innerText = text;
+                floatDiv.style.left = `${x}px`;
+                floatDiv.style.top = `${y}px`;
+                
+                document.body.appendChild(floatDiv);
+
+                setTimeout(() => {
+                    floatDiv.remove();
+                }, 800);
+            }
+
+            // 수동 원두 구매
+            function buyBeans(e) {
+                if (state.gold >= BEAN_PACK_COST) {
+                    state.gold -= BEAN_PACK_COST;
+                    state.beans += BEANS_PER_PACK;
+                    sfx.playClick();
+                    addLog(`원두 ${BEANS_PER_PACK}개를 🪙${BEAN_PACK_COST}에 구매했습니다.`, 'info');
+                    updateUI();
+                }
+            }
+
+            // 수동 커피 추출 시작
+            function startBrewing() {
+                if (isBrewing) return;
+                if (state.beans <= 0) {
+                    addLog("원두가 부족합니다! 원두를 먼저 구매해 주세요.", "danger");
+                    sfx.playClick();
+                    return;
+                }
+
+                isBrewing = true;
+                state.beans--;
+                sfx.playBrew();
+                updateUI();
+
+                const speedSeconds = getMachineSpeed(state.machineLevel);
+                const duration = (speedSeconds * 1000) / gameSpeed;
+                const startTime = Date.now();
+
+                brewBtn.disabled = true;
+
+                function animateProgress() {
+                    const elapsed = Date.now() - startTime;
+                    const percent = Math.min(100, (elapsed / duration) * 100);
+                    progressBar.style.width = `${percent}%`;
+
+                    if (elapsed < duration) {
+                        brewTimer = requestAnimationFrame(animateProgress);
+                    } else {
+                        finishBrewing();
+                    }
+                }
+
+                brewTimer = requestAnimationFrame(animateProgress);
+            }
+
+            // 커피 추출 완료 및 판매
+            function finishBrewing() {
+                isBrewing = false;
+                progressBar.style.width = '0%';
+                brewBtn.disabled = false;
+
+                const income = Math.round(COFFEE_BASE_PRICE * state.reputation);
+                state.gold += income;
+                state.sales += 1;
+                state.reputation += 0.01;
+
+                sfx.playCoin();
+                createFloatingText(null, `+${income}🪙`);
+                addLog(`수동 제조된 따뜻한 커피를 판매하여 🪙${income}를 벌었습니다!`, 'success');
+                
+                updateUI();
+                saveGame(true);
+            }
+
+            // 업그레이드들
+            function upgradeMachine() {
+                const cost = getMachineCost(state.machineLevel);
+                if (state.gold >= cost) {
+                    state.gold -= cost;
+                    state.machineLevel++;
+                    sfx.playClick();
+                    addLog(`에스프레소 머신을 Lv.${state.machineLevel}(으)로 업그레이드했습니다.`, 'info');
+                    updateUI();
+                    saveGame(true);
+                }
+            }
+
+            function hireWorker() {
+                const cost = getWorkerCost(state.workers);
+                if (state.gold >= cost) {
+                    state.gold -= cost;
+                    state.workers++;
+                    sfx.playClick();
+                    addLog(`새로운 알바생을 고용했습니다. (현재 ${state.workers}명)`, 'info');
+                    updateUI();
+                    saveGame(true);
+                }
+            }
+
+            function upgradeDelivery() {
+                const cost = getDeliveryCost(state.deliveryLevel);
+                if (state.gold >= cost && state.deliveryLevel < 5) {
+                    state.gold -= cost;
+                    state.deliveryLevel++;
+                    sfx.playClick();
+                    addLog(`원두 정기 배송 서비스가 Lv.${state.deliveryLevel}(으)로 강화되었습니다.`, 'info');
+                    updateUI();
+                    saveGame(true);
+                }
+            }
+
+            // 저장 & 불러오기
+            function saveGame(silent = false) {
+                state.lastTick = Date.now();
+                localStorage.setItem('pixel_cafe_tycoon_save', JSON.stringify(state));
+                if (!silent) {
+                    addLog("게임 데이터가 로컬에 안전하게 저장되었습니다.", "info");
+                }
+            }
+
+            function loadGame() {
+                const saved = localStorage.getItem('pixel_cafe_tycoon_save');
+                if (saved) {
+                    try {
+                        const loadedState = JSON.parse(saved);
+                        state = { ...DEFAULT_STATE, ...loadedState };
+                        addLog("이전 게임 상태를 불러왔습니다.", "info");
+                        
+                        // 오프라인 방치 수익 계산
+                        const offlineMs = Date.now() - state.lastTick;
+                        if (offlineMs > 5000 && state.workers > 0) {
+                            const offlineSeconds = Math.floor(offlineMs / 1000);
+                            const ticks = Math.floor(offlineSeconds / 3);
+                            const maxPossibleSales = ticks * state.workers;
+                            const actualSales = Math.min(maxPossibleSales, state.beans);
+                            if (actualSales > 0) {
+                                const income = Math.round(actualSales * COFFEE_BASE_PRICE * state.reputation * 0.9);
+                                state.beans -= actualSales;
+                                state.gold += income;
+                                state.sales += actualSales;
+                                state.reputation += 0.002 * actualSales;
+                                addLog(`부재 중 알바생들이 원두 ${actualSales}개를 소비하여 🪙${income}의 방치 수익을 냈습니다!`, 'success');
+                            }
+                        }
+                    } catch (e) {
+                        addLog("저장된 데이터 파일이 손상되었습니다. 기본값으로 시작합니다.", "danger");
+                    }
+                }
+                updateUI();
+            }
+
+            function resetGame() {
+                if (confirm("정말로 모든 게임 데이터를 초기화하시겠습니까? 처음부터 다시 시작합니다.")) {
+                    state = { ...DEFAULT_STATE };
+                    localStorage.removeItem('pixel_cafe_tycoon_save');
+                    addLog("게임 데이터를 완전히 초기화했습니다.", "danger");
+                    updateUI();
+                }
+            }
+
+            // 메인 시뮬레이션 루프
+            function mainLoop() {
+                const now = Date.now();
+                const dt = (now - lastTickReal) * gameSpeed;
+                lastTickReal = now;
+
+                if (state.workers > 0) {
+                    autoTickAccumulator += dt;
+                    const autoInterval = 3000;
+                    if (autoTickAccumulator >= autoInterval) {
+                        const ticks = Math.floor(autoTickAccumulator / autoInterval);
+                        autoTickAccumulator %= autoInterval;
+
+                        const totalBrewsAttempted = state.workers * ticks;
+                        let successfulBrews = 0;
+
+                        for (let i = 0; i < totalBrewsAttempted; i++) {
+                            if (state.beans > 0) {
+                                state.beans--;
+                                successfulBrews++;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (successfulBrews > 0) {
+                            const income = Math.round(successfulBrews * COFFEE_BASE_PRICE * state.reputation);
                             state.gold += income;
-                            state.sales += actualSales;
-                            addLog(`부재 중 알바생들이 원두 ${actualSales}개를 사용하여 🪙${income}의 방치 수익을 냈습니다!`, 'success');
+                            state.sales += successfulBrews;
+                            state.reputation += 0.002 * successfulBrews;
+                            
+                            createFloatingText(null, `+${income}🪙`);
+                            addLog(`[자동] 알바생들이 커피 ${successfulBrews}잔을 자동으로 만들어 🪙${income}를 벌었습니다.`, 'success');
+                        } else if (state.beans === 0) {
+                            addLog("알바생들: 원두가 다 떨어졌어요! 원두를 구매해 주세요.", "danger");
                         }
                     }
-                } catch (e) {
-                    addLog("저장된 데이터 파일이 손상되었습니다. 기본값으로 시작합니다.", "danger");
+                } else {
+                    autoTickAccumulator = 0;
                 }
-            }
-            updateUI();
-        }
 
-        function resetGame() {
-            if (confirm("정말로 모든 게임 데이터를 초기화하시겠습니까? 처음부터 다시 시작합니다.")) {
-                state = { ...DEFAULT_STATE };
-                localStorage.removeItem('pixel_cafe_tycoon_save');
-                addLog("게임 데이터를 완전히 초기화했습니다.", "danger");
+                if (state.deliveryLevel > 0) {
+                    deliveryTickAccumulator += dt;
+                    const deliveryInterval = 5000;
+                    if (deliveryTickAccumulator >= deliveryInterval) {
+                        const ticks = Math.floor(deliveryTickAccumulator / deliveryInterval);
+                        deliveryTickAccumulator %= deliveryInterval;
+
+                        const supplyAmount = state.deliveryLevel * 2 * ticks;
+                        state.beans += supplyAmount;
+                        addLog(`[배송] 정기 배송으로 원두 ${supplyAmount}개가 입고되었습니다.`, 'info');
+                    }
+                } else {
+                    deliveryTickAccumulator = 0;
+                }
+
                 updateUI();
             }
-        }
 
-        // 1초 단위 핵심 자동화 루프
-        function mainLoop() {
-            const now = Date.now();
-            
-            // 1. 알바생 자동화 커피 추출 및 판매 (1초당 직원 수에 비례)
-            if (state.workers > 0 && now - lastAutoTick >= 1000) {
-                const brewsThisTick = state.workers; // 1초당 직원 한명이 1개씩 제조 시도
-                let successfulBrews = 0;
+            // 비밀번호 SHA-256 검증 함수
+            async function sha256(message) {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
 
-                for (let i = 0; i < brewsThisTick; i++) {
-                    if (state.beans > 0) {
-                        state.beans--;
-                        successfulBrews++;
-                    } else {
-                        break;
+            // 어드민 콘솔 동적 생성 및 주입
+            function injectDevConsole() {
+                const container = document.createElement('div');
+                container.className = 'dev-console';
+                container.id = 'dev-console';
+                container.innerHTML = `
+                    <div class="dev-title">🛠️ Developer Console (Admin)</div>
+                    <div class="dev-grid">
+                        <div class="dev-control-group">
+                            <span class="dev-label">보유 자금 설정 (🪙)</span>
+                            <div class="dev-input-row">
+                                <input type="number" class="dev-input" id="dev-gold-input">
+                                <button class="btn-dev" id="btn-dev-gold">적용</button>
+                            </div>
+                        </div>
+                        <div class="dev-control-group">
+                            <span class="dev-label">원두 재고 설정 (🫘)</span>
+                            <div class="dev-input-row">
+                                <input type="number" class="dev-input" id="dev-beans-input">
+                                <button class="btn-dev" id="btn-dev-beans">적용</button>
+                            </div>
+                        </div>
+                        <div class="dev-control-group">
+                            <span class="dev-label">알바생 수 설정 (명)</span>
+                            <div class="dev-input-row">
+                                <input type="number" class="dev-input" id="dev-workers-input">
+                                <button class="btn-dev" id="btn-dev-workers">적용</button>
+                            </div>
+                        </div>
+                        <div class="dev-control-group">
+                            <span class="dev-label">평판 별점 설정 (★)</span>
+                            <div class="dev-input-row">
+                                <input type="number" step="0.1" class="dev-input" id="dev-rep-input">
+                                <button class="btn-dev" id="btn-dev-rep">적용</button>
+                            </div>
+                        </div>
+                        <div class="dev-control-group">
+                            <span class="dev-label">게임 배속 (Speed)</span>
+                            <div class="dev-speed-btns">
+                                <button class="btn-speed active" data-speed="1">1x</button>
+                                <button class="btn-speed" data-speed="2">2x</button>
+                                <button class="btn-speed" data-speed="5">5x</button>
+                                <button class="btn-speed" data-speed="10">10x</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // main 요소 바로 아래에 추가
+                const mainEl = document.querySelector('main');
+                mainEl.parentNode.insertBefore(container, mainEl.nextSibling);
+
+                // 인풋 바인딩
+                const devGoldInput = document.getElementById('dev-gold-input');
+                const devBeansInput = document.getElementById('dev-beans-input');
+                const devWorkersInput = document.getElementById('dev-workers-input');
+                const devRepInput = document.getElementById('dev-rep-input');
+
+                devGoldInput.value = state.gold;
+                devBeansInput.value = state.beans;
+                devWorkersInput.value = state.workers;
+                devRepInput.value = state.reputation.toFixed(2);
+
+                // 이벤트 리스너 연동 (동적 바인딩)
+                document.getElementById('btn-dev-gold').addEventListener('click', () => {
+                    const val = parseInt(devGoldInput.value);
+                    if (!isNaN(val) && val >= 0) {
+                        state.gold = val;
+                        addLog(`[DEV] 보유 자금이 🪙${val.toLocaleString()}(으)로 수동 적용되었습니다.`, 'info');
+                        updateUI();
+                        saveGame(true);
+                    }
+                });
+
+                document.getElementById('btn-dev-beans').addEventListener('click', () => {
+                    const val = parseInt(devBeansInput.value);
+                    if (!isNaN(val) && val >= 0) {
+                        state.beans = val;
+                        addLog(`[DEV] 원두 재고가 🫘${val}(으)로 수동 적용되었습니다.`, 'info');
+                        updateUI();
+                        saveGame(true);
+                    }
+                });
+
+                document.getElementById('btn-dev-workers').addEventListener('click', () => {
+                    const val = parseInt(devWorkersInput.value);
+                    if (!isNaN(val) && val >= 0) {
+                        state.workers = val;
+                        addLog(`[DEV] 알바생 수가 ${val}명으로 수동 적용되었습니다.`, 'info');
+                        updateUI();
+                        saveGame(true);
+                    }
+                });
+
+                document.getElementById('btn-dev-rep').addEventListener('click', () => {
+                    const val = parseFloat(devRepInput.value);
+                    if (!isNaN(val) && val >= 1.0) {
+                        state.reputation = val;
+                        addLog(`[DEV] 평판이 ★${val.toFixed(2)}(으)로 수동 적용되었습니다.`, 'info');
+                        updateUI();
+                        saveGame(true);
+                    }
+                });
+
+                const speedBtns = container.querySelectorAll('.btn-speed');
+                speedBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        speedBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        const speed = parseInt(btn.getAttribute('data-speed'));
+                        gameSpeed = speed;
+                        addLog(`[DEV] 게임 속도가 ${speed}배속으로 변경되었습니다.`, 'info');
+                    });
+                });
+
+                addLog("🛠️ [SYSTEM] 개발자 콘솔이 성공적으로 활성화되었습니다.", "info");
+            }
+
+            // 개발자 모드 체크 (?devpw=패스워드)
+            async function checkDevMode() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const devPwParam = urlParams.get('devpw');
+                
+                if (devPwParam) {
+                    const hashedInput = await sha256(devPwParam);
+                    // 디폴트 비밀번호 "admin"의 SHA-256 해시값과 비교 검증
+                    if (hashedInput === '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918') {
+                        injectDevConsole();
                     }
                 }
-
-                if (successfulBrews > 0) {
-                    const income = Math.round(successfulBrews * COFFEE_BASE_PRICE * state.reputation);
-                    state.gold += income;
-                    state.sales += successfulBrews;
-                    state.reputation += 0.01 * successfulBrews; // 평판 소폭 증가
-                    
-                    // 골드 획득 텍스트는 매초 간략하게 한 번만 띄움
-                    createFloatingText(null, `+${income}🪙`);
-                    addLog(`알바생들이 커피 ${successfulBrews}잔을 자동으로 만들어 🪙${income}를 벌었습니다.`, 'success');
-                } else if (state.beans === 0) {
-                    addLog("알바생들: 원두가 다 떨어졌어요! 원두를 구매해 주세요.", "danger");
-                }
-                
-                lastAutoTick = now;
             }
 
-            // 2. 원두 정기 배급 자동화 (Lv.1 이상일 때 5초 주기로)
-            if (state.deliveryLevel > 0 && now - lastDeliveryTick >= 5000) {
-                const supplyAmount = state.deliveryLevel * 5; // 레벨당 5개씩 공급
-                state.beans += supplyAmount;
-                addLog(`정기 배송 서비스가 원두 ${supplyAmount}개를 창고에 채워놓았습니다!`, 'info');
-                lastDeliveryTick = now;
-            }
+            // 이벤트 리스너 연동
+            brewBtn.addEventListener('click', () => {
+                sfx.init();
+                startBrewing();
+            });
+            cupBtn.addEventListener('click', (e) => {
+                sfx.init();
+                startBrewing();
+            });
+            buyBeansBtn.addEventListener('click', (e) => {
+                sfx.init();
+                buyBeans(e);
+            });
 
-            updateUI();
-        }
+            upgradeMachineBtn.addEventListener('click', upgradeMachine);
+            hireWorkerBtn.addEventListener('click', hireWorker);
+            upgradeDeliveryBtn.addEventListener('click', upgradeDelivery);
 
-        // 이벤트 리스너 연동
-        brewBtn.addEventListener('click', () => {
-            sfx.init();
-            startBrewing();
-        });
-        cupBtn.addEventListener('click', (e) => {
-            sfx.init();
-            startBrewing();
-        });
-        buyBeansBtn.addEventListener('click', (e) => {
-            sfx.init();
-            buyBeans(e);
-        });
+            btnSave.addEventListener('click', () => saveGame(false));
+            btnReset.addEventListener('click', resetGame);
 
-        upgradeMachineBtn.addEventListener('click', upgradeMachine);
-        hireWorkerBtn.addEventListener('click', hireWorker);
-        upgradeDeliveryBtn.addEventListener('click', upgradeDelivery);
+            // 초기 로딩 및 루프 실행
+            loadGame();
+            checkDevMode();
 
-        btnSave.addEventListener('click', () => saveGame(false));
-        btnReset.addEventListener('click', resetGame);
-
-        // 초기 시작
-        loadGame();
-        setInterval(mainLoop, 100); // 100ms마다 체크하여 부드럽고 정확하게 상태 제어
-        
-        // 브라우저 닫기 전에 자동 저장
-        window.addEventListener('beforeunload', () => saveGame(true));
+            setInterval(mainLoop, 100);
+            
+            window.addEventListener('beforeunload', () => saveGame(true));
+        })();
     </script>
 </body>
 </html>
