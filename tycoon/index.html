@@ -476,7 +476,7 @@
             box-shadow: 0 4px 20px rgba(157, 78, 221, 0.5);
             transition: all 0.2s ease;
             backdrop-filter: blur(5px);
-            display: none; /* 인증 성공 전엔 비노출 */
+            display: none; /* 인증 전 히든 */
             align-items: center;
             gap: 0.4rem;
         }
@@ -487,7 +487,7 @@
             box-shadow: 0 6px 25px rgba(157, 78, 221, 0.7);
         }
 
-        /* 개발자 콘솔 패널 (슬라이드인 플로팅 레이아웃) */
+        /* 개발자 콘솔 패널 */
         .dev-console {
             position: fixed;
             bottom: 80px;
@@ -501,7 +501,7 @@
             padding: 1.5rem;
             box-shadow: 0 0 35px var(--dev-glow);
             backdrop-filter: blur(10px);
-            display: none; /* 토글 연동 */
+            display: none; 
             animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -877,7 +877,7 @@
                     <button class="btn-buy" id="upgrade-delivery-volume-btn">강화</button>
                 </div>
 
-                <!-- 원두 배송 주기 단축 (Lv.20 MAX) -->
+                <!-- 원두 배송 주기 단축 (Lv.20 MAX, 배송량 1레벨 필수) -->
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="delivery-interval-name">원두 배송 주기 단축 (Lv.0)</span>
@@ -1011,7 +1011,6 @@
 
             const sfx = new SoundFX();
 
-            // 세부 밸런스 조정된 데이터 구조
             const DEFAULT_STATE = {
                 gold: 200,
                 beans: 15,
@@ -1019,9 +1018,9 @@
                 reputation: 1.0,
                 machineLevel: 1,
                 workers: 0,
-                workerSpeedLevel: 1,      // 알바 교육 레벨 (MAX 20)
-                deliveryVolumeLevel: 0,   // 배송량 계약 (MAX 20, 원두 최대 30개)
-                deliveryIntervalLevel: 0, // 배송 주기 단축 (MAX 20, 최소 1초)
+                workerSpeedLevel: 1,      
+                deliveryVolumeLevel: 0,   
+                deliveryIntervalLevel: 0, 
                 freePlayMode: false,
                 lastTick: Date.now()
             };
@@ -1032,7 +1031,6 @@
             const BEANS_PER_PACK = 20;     
             const COFFEE_BASE_PRICE = 30;
 
-            // 최대 등급 상수
             const MACHINE_MAX_LEVEL = 20;
             const WORKER_SPEED_MAX_LEVEL = 20;
             const DELIVERY_VOLUME_MAX_LEVEL = 20;
@@ -1042,11 +1040,9 @@
             function getWorkerCost(workers) { return Math.round(150 * Math.pow(1.8, workers)); }
             function getWorkerSpeedCost(lv) { return Math.round(200 * Math.pow(1.7, lv - 1)); }
             function getDeliveryVolumeCost(lv) { return Math.round(250 * Math.pow(1.5, lv)); }
-            
-            // 배송 주기 업그레이드 비용
             function getDeliveryIntervalCost(lv) { return Math.round(300 * Math.pow(1.5, lv)); }
 
-            // 수동 커피 추출 속도: Lv.1=8.0초, Lv.20=0.01초(사실상 0초 즉시)
+            // 수동 커피 추출 속도: Lv.1=8.0초, Lv.20=0.01초(즉시)
             let devSpeedOverride = null;
             function getMachineSpeed(lv) {
                 if (devSpeedOverride !== null) return devSpeedOverride;
@@ -1067,9 +1063,9 @@
                 return Math.round(2 + (lv - 1) * 1.4737);
             }
 
-            // 배송 주기 계산: Lv.1=20초, Lv.20=1초
+            // 배송 주기 계산: Lv.0=30초, Lv.1=20초, Lv.20=1.0초
             function getDeliveryInterval(lv) {
-                if (lv === 0) return Infinity;
+                if (lv === 0) return 30.0;
                 if (lv >= DELIVERY_INTERVAL_MAX_LEVEL) return 1.0;
                 return Math.max(1.0, 20.0 - (lv - 1) * 1.0);
             }
@@ -1210,9 +1206,13 @@
                     upgradeDeliveryVolumeBtn.disabled = state.gold < deliveryVolumeCost;
                 }
 
-                // 원두 배송 주기 단축
+                // 원두 배송 주기 단축 (배송량 1레벨 이상 필수)
                 const interval = getDeliveryInterval(state.deliveryIntervalLevel);
-                if (state.deliveryIntervalLevel >= DELIVERY_INTERVAL_MAX_LEVEL) {
+                if (state.deliveryVolumeLevel < 1) {
+                    deliveryIntervalName.innerText = `원두 배송 주기 단축 (배송 계약 필요)`;
+                    deliveryIntervalCostLabel.innerText = "비활성화";
+                    upgradeDeliveryIntervalBtn.disabled = true;
+                } else if (state.deliveryIntervalLevel >= DELIVERY_INTERVAL_MAX_LEVEL) {
                     deliveryIntervalName.innerText = `원두 배송 주기 단축 (Lv.${state.deliveryIntervalLevel})`;
                     deliveryIntervalCostLabel.innerText = "MAX";
                     upgradeDeliveryIntervalBtn.disabled = true;
@@ -1267,7 +1267,6 @@
 
                 const speedSeconds = getMachineSpeed(state.machineLevel);
                 
-                // 0.01초 이하 속도일 때 게이지 딜레이 없이 비동기 지연을 우회하여 즉각 판매 완료
                 if (speedSeconds <= 0.01) {
                     state.beans--;
                     sfx.playBrew();
@@ -1374,6 +1373,10 @@
             }
 
             function upgradeDeliveryInterval() {
+                if (state.deliveryVolumeLevel < 1) {
+                    addLog("배송량 계약이 먼저 진행되어야 주기를 단축할 수 있습니다.", "danger");
+                    return;
+                }
                 if (state.deliveryIntervalLevel >= DELIVERY_INTERVAL_MAX_LEVEL) return;
                 const cost = getDeliveryIntervalCost(state.deliveryIntervalLevel);
                 if (state.gold >= cost) {
@@ -1488,7 +1491,7 @@
                 const dt = (now - lastTickReal) * gameSpeed;
                 lastTickReal = now;
 
-                // 1. 알바생 자동 추출 (10초 ~ 1초)
+                // 1. 알바생 자동 추출
                 if (state.workers > 0) {
                     autoTickAccumulator += dt;
                     const autoInterval = getWorkerInterval(state.workerSpeedLevel) * 1000;
@@ -1526,10 +1529,12 @@
                     autoTickAccumulator = 0;
                 }
 
-                // 2. 이원화된 원두 배송량 및 배송 주기 작동 (둘 다 1레벨 이상일 때 동작)
-                if (state.deliveryVolumeLevel > 0 && state.deliveryIntervalLevel > 0) {
+                // 2. 이원화된 원두 배송량 및 배송 주기 작동 (배송량이 1레벨 이상일 때 동작)
+                if (state.deliveryVolumeLevel > 0) {
                     deliveryTickAccumulator += dt;
-                    const deliveryInterval = getDeliveryInterval(state.deliveryIntervalLevel) * 1000;
+                    const intervalSec = getDeliveryInterval(state.deliveryIntervalLevel);
+                    const deliveryInterval = intervalSec * 1000;
+                    
                     if (deliveryTickAccumulator >= deliveryInterval) {
                         const ticks = Math.floor(deliveryTickAccumulator / deliveryInterval);
                         deliveryTickAccumulator %= deliveryInterval;
@@ -1780,13 +1785,11 @@
                 addLog("🛠️ [SYSTEM] 개발자 콘솔이 활성화되었습니다. 좌하단 버튼으로 열고 닫을 수 있습니다.", "info");
             }
 
-            // 해시 인증 검사
             async function checkDevMode() {
                 const sig = localStorage.getItem('pixel_cafe_dev_signature');
                 if (!sig) return;
 
                 const hashedInput = await sha256(sig);
-                // "adminconsoleopen1938730587226@*!(&" 의 SHA-256 해시값
                 if (hashedInput === 'a8e0d7ba36514d966baf830bc771fb6100548267662aac192bd723ae585f3a4f') {
                     injectDevConsole();
                 }
@@ -1810,7 +1813,6 @@
             hireWorkerBtn.addEventListener('click', hireWorker);
             upgradeWorkerSpeedBtn.addEventListener('click', upgradeWorkerSpeed);
             
-            // 배송 이원화 바인딩
             upgradeDeliveryVolumeBtn.addEventListener('click', upgradeDeliveryVolume);
             upgradeDeliveryIntervalBtn.addEventListener('click', upgradeDeliveryInterval);
 
@@ -1826,7 +1828,6 @@
             });
             btnEndingReset.addEventListener('click', resetGame);
 
-            // 게임 시동
             loadGame();
             checkDevMode();
 
