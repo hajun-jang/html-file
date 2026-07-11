@@ -13,6 +13,8 @@ A collection of various HTML/JS experiments and small applications.
   - [index.html](./pi-song/index.html): An interactive "Pi Song" that generates music based on the digits of Pi.
 - **[playground/](./playground/)**: Miscellaneous tests and experiments.
   - [font-test.html](./playground/font-test.html): A simple font rendering test.
+- **[tycoon/](./tycoon/)**: Tycoon games.
+  - [index.html](./tycoon/index.html): Cafe tycoon simulation.
 
 ## How to Run
 
