@@ -88,7 +88,6 @@
             color: var(--text-main);
         }
 
-        /* 초기화 버튼 */
         .btn-reset-top {
             background: rgba(230, 57, 70, 0.15);
             border: 1px solid rgba(230, 57, 70, 0.4);
@@ -459,18 +458,56 @@
             cursor: not-allowed;
         }
 
-        /* 동적 주입될 개발자 콘솔 CSS */
+        /* 개발자 콘솔 플로팅 토글 버튼 */
+        .dev-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(123, 44, 191, 0.85);
+            color: #fff;
+            border: 2px solid #9d4edd;
+            padding: 0.8rem 1.4rem;
+            border-radius: 99px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(157, 78, 221, 0.5);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            display: none; /* 인증 성공 전엔 비노출 */
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .dev-toggle-btn:hover {
+            background: #9d4edd;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(157, 78, 221, 0.7);
+        }
+
+        /* 개발자 콘솔 패널 (슬라이드인 플로팅 레이아웃) */
         .dev-console {
-            background: rgba(24, 18, 28, 0.9);
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            z-index: 1000;
+            width: 480px;
+            max-width: calc(100vw - 40px);
+            background: rgba(24, 18, 28, 0.95);
             border: 2px dashed #9d4edd;
             border-radius: 20px;
             padding: 1.5rem;
-            margin: 2rem auto 0 auto;
-            max-width: 1200px;
-            width: calc(100% - 3rem);
-            box-shadow: 0 0 25px var(--dev-glow);
+            box-shadow: 0 0 35px var(--dev-glow);
             backdrop-filter: blur(10px);
-            animation: fadeIn 0.4s ease;
+            display: none; /* 토글 연동 */
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .dev-title {
@@ -487,8 +524,19 @@
 
         .dev-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.2rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .dev-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+        .dev-grid::-webkit-scrollbar-thumb {
+            background: rgba(157, 78, 221, 0.3);
+            border-radius: 2px;
         }
 
         .dev-control-group {
@@ -506,11 +554,13 @@
             color: #b5a89e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
         .dev-input-row {
             display: flex;
             gap: 0.5rem;
+            align-items: center;
         }
 
         .dev-input {
@@ -522,7 +572,7 @@
             padding: 0.4rem;
             font-family: var(--font-sans);
             font-size: 0.9rem;
-            width: 70px;
+            width: 80px;
         }
 
         .dev-input:focus {
@@ -791,13 +841,13 @@
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="machine-name">에스프레소 머신 (Lv.1)</span>
-                        <span class="shop-item-desc">추출 속도가 단축됩니다. (최대 Lv.17)</span>
+                        <span class="shop-item-desc">추출 속도가 단축됩니다. (최대 Lv.20)</span>
                         <span class="shop-item-cost" id="machine-cost-label">🪙 100</span>
                     </div>
                     <button class="btn-buy" id="upgrade-machine-btn">업그레이드</button>
                 </div>
 
-                <!-- 아르바이트 직원 고용 -->
+                <!-- 아르바이트 직원 고용 (무제한) -->
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="worker-name">알바생 채용 (현재 0명)</span>
@@ -807,24 +857,34 @@
                     <button class="btn-buy" id="hire-worker-btn">고용</button>
                 </div>
 
-                <!-- 알바생 추출 속도 교육 -->
+                <!-- 알바생 추출 속도 교육 (Lv.20 MAX, 알바생 1명 이상 필수) -->
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <span class="shop-item-name" id="worker-speed-name">알바생 속도 교육 (Lv.1)</span>
-                        <span class="shop-item-desc">알바생 추출 속도를 단축합니다. (최대 Lv.13)</span>
+                        <span class="shop-item-desc">알바 속도를 단축합니다. (최대 Lv.20)</span>
                         <span class="shop-item-cost" id="worker-speed-cost-label">🪙 200</span>
                     </div>
                     <button class="btn-buy" id="upgrade-worker-speed-btn">교육</button>
                 </div>
 
-                <!-- 원두 정기 배송 -->
+                <!-- 원두 배송량 강화 (Lv.20 MAX) -->
                 <div class="shop-item">
                     <div class="shop-item-info">
-                        <span class="shop-item-name" id="delivery-name">원두 정기 배송 (Lv.0)</span>
-                        <span class="shop-item-desc">20초마다 원두가 창고에 공급됩니다.</span>
-                        <span class="shop-item-cost" id="delivery-cost-label">🪙 250</span>
+                        <span class="shop-item-name" id="delivery-volume-name">원두 배송량 강화 (Lv.0)</span>
+                        <span class="shop-item-desc">1회당 배급받는 원두량이 늘어납니다. (최대 30개)</span>
+                        <span class="shop-item-cost" id="delivery-volume-cost-label">🪙 250</span>
                     </div>
-                    <button class="btn-buy" id="upgrade-delivery-btn">계약</button>
+                    <button class="btn-buy" id="upgrade-delivery-volume-btn">강화</button>
+                </div>
+
+                <!-- 원두 배송 주기 단축 (Lv.20 MAX) -->
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <span class="shop-item-name" id="delivery-interval-name">원두 배송 주기 단축 (Lv.0)</span>
+                        <span class="shop-item-desc">배송 시간 간격이 단축됩니다. (최소 1.0초)</span>
+                        <span class="shop-item-cost" id="delivery-interval-cost-label">🪙 300</span>
+                    </div>
+                    <button class="btn-buy" id="upgrade-delivery-interval-btn">단축</button>
                 </div>
             </div>
         </div>
@@ -850,6 +910,9 @@
             </div>
         </div>
     </div>
+
+    <!-- 개발자 콘솔 토글 플로팅 버튼 -->
+    <button class="dev-toggle-btn" id="dev-toggle-btn">🛠️ 어드민 제어</button>
 
     <footer>
         <p>© 2026 Pixel Brew Café. Web Audio API & HTML5 Canvas 기반 타이쿤 프리셋.</p>
@@ -948,7 +1011,7 @@
 
             const sfx = new SoundFX();
 
-            // 밸런스 조정된 기본 상태 정의
+            // 세부 밸런스 조정된 데이터 구조
             const DEFAULT_STATE = {
                 gold: 200,
                 beans: 15,
@@ -956,9 +1019,10 @@
                 reputation: 1.0,
                 machineLevel: 1,
                 workers: 0,
-                workerSpeedLevel: 1, // 알바생 속도 등급 (Lv.1 ~ Lv.13)
-                deliveryLevel: 0,
-                freePlayMode: false, // 엔딩을 본 뒤 무한 모드 상태
+                workerSpeedLevel: 1,      // 알바 교육 레벨 (MAX 20)
+                deliveryVolumeLevel: 0,   // 배송량 계약 (MAX 20, 원두 최대 30개)
+                deliveryIntervalLevel: 0, // 배송 주기 단축 (MAX 20, 최소 1초)
+                freePlayMode: false,
                 lastTick: Date.now()
             };
 
@@ -968,27 +1032,46 @@
             const BEANS_PER_PACK = 20;     
             const COFFEE_BASE_PRICE = 30;
 
-            // 머신 업그레이드 한계치 상수화
-            const MACHINE_MAX_LEVEL = 17;
-            const WORKER_SPEED_MAX_LEVEL = 13;
+            // 최대 등급 상수
+            const MACHINE_MAX_LEVEL = 20;
+            const WORKER_SPEED_MAX_LEVEL = 20;
+            const DELIVERY_VOLUME_MAX_LEVEL = 20;
+            const DELIVERY_INTERVAL_MAX_LEVEL = 20;
 
             function getMachineCost(lv) { return Math.round(100 * Math.pow(1.6, lv - 1)); }
             function getWorkerCost(workers) { return Math.round(150 * Math.pow(1.8, workers)); }
             function getWorkerSpeedCost(lv) { return Math.round(200 * Math.pow(1.7, lv - 1)); }
+            function getDeliveryVolumeCost(lv) { return Math.round(250 * Math.pow(1.5, lv)); }
             
-            // 배송 계약 비용
-            function getDeliveryCost(lv) { return Math.round(250 * Math.pow(1.7, lv)); }
-            
-            // 추출 속도: 기본 8초, 레벨당 0.47초 단축 (Lv.17 MAX 도달 시 딱 0.5초 고정)
-            let devSpeedOverride = null; // 개발자 강제 시간 설정용
-            function getMachineSpeed(lv) { 
-                if (devSpeedOverride !== null) return devSpeedOverride;
-                return Math.max(0.5, 8.0 - (lv - 1) * 0.47); 
-            } 
+            // 배송 주기 업그레이드 비용
+            function getDeliveryIntervalCost(lv) { return Math.round(300 * Math.pow(1.5, lv)); }
 
-            // 알바생 자동 추출 주기: 기본 10초, 레벨당 0.75초 단축 (Lv.13 MAX 도달 시 1.0초 고정)
+            // 수동 커피 추출 속도: Lv.1=8.0초, Lv.20=0.01초(사실상 0초 즉시)
+            let devSpeedOverride = null;
+            function getMachineSpeed(lv) {
+                if (devSpeedOverride !== null) return devSpeedOverride;
+                if (lv >= MACHINE_MAX_LEVEL) return 0.01;
+                return Math.max(0.02, 8.0 - (lv - 1) * 0.4206);
+            }
+
+            // 알바생 자동 추출 주기: Lv.1=10.0초, Lv.20=1.0초
             function getWorkerInterval(lv) {
-                return Math.max(1.0, 10.0 - (lv - 1) * 0.75);
+                if (lv >= WORKER_SPEED_MAX_LEVEL) return 1.0;
+                return Math.max(1.0, 10.0 - (lv - 1) * 0.4737);
+            }
+
+            // 배송량 계산: Lv.1=2개, Lv.20=30개
+            function getDeliveryVolume(lv) {
+                if (lv === 0) return 0;
+                if (lv >= DELIVERY_VOLUME_MAX_LEVEL) return 30;
+                return Math.round(2 + (lv - 1) * 1.4737);
+            }
+
+            // 배송 주기 계산: Lv.1=20초, Lv.20=1초
+            function getDeliveryInterval(lv) {
+                if (lv === 0) return Infinity;
+                if (lv >= DELIVERY_INTERVAL_MAX_LEVEL) return 1.0;
+                return Math.max(1.0, 20.0 - (lv - 1) * 1.0);
             }
             
             function getTierName(rep) {
@@ -1025,9 +1108,13 @@
             const workerSpeedCostLabel = document.getElementById('worker-speed-cost-label');
             const workerSpeedName = document.getElementById('worker-speed-name');
 
-            const upgradeDeliveryBtn = document.getElementById('upgrade-delivery-btn');
-            const deliveryCostLabel = document.getElementById('delivery-cost-label');
-            const deliveryName = document.getElementById('delivery-name');
+            const upgradeDeliveryVolumeBtn = document.getElementById('upgrade-delivery-volume-btn');
+            const deliveryVolumeCostLabel = document.getElementById('delivery-volume-cost-label');
+            const deliveryVolumeName = document.getElementById('delivery-volume-name');
+
+            const upgradeDeliveryIntervalBtn = document.getElementById('upgrade-delivery-interval-btn');
+            const deliveryIntervalCostLabel = document.getElementById('delivery-interval-cost-label');
+            const deliveryIntervalName = document.getElementById('delivery-interval-name');
 
             const btnSave = document.getElementById('btn-save');
             const btnReset = document.getElementById('btn-reset');
@@ -1041,6 +1128,7 @@
             const endWorkersVal = document.getElementById('end-workers-val');
             const btnEndingContinue = document.getElementById('btn-ending-continue');
             const btnEndingReset = document.getElementById('btn-ending-reset');
+            const devToggleBtn = document.getElementById('dev-toggle-btn');
 
             // 게임 루프 변수
             let isBrewing = false;
@@ -1069,13 +1157,12 @@
                 reputationVal.innerText = `★ ${state.reputation.toFixed(2)}`;
                 tierVal.innerText = getTierName(state.reputation);
 
-                // 수동 추출 버튼 시간 표시
                 const speed = getMachineSpeed(state.machineLevel);
                 if (!isBrewing) {
-                    brewBtn.innerText = `커피 추출하기 (${speed.toFixed(1)}초)`;
+                    brewBtn.innerText = `커피 추출하기 (${speed.toFixed(2)}초)`;
                 }
 
-                // 에스프레소 머신 업그레이드 제한 (Lv.17 MAX)
+                // 에스프레소 머신 업그레이드 제한
                 if (state.machineLevel >= MACHINE_MAX_LEVEL) {
                     machineName.innerText = `에스프레소 머신 (Lv.${state.machineLevel})`;
                     machineCostLabel.innerText = "MAX";
@@ -1087,15 +1174,19 @@
                     upgradeMachineBtn.disabled = state.gold < machineCost;
                 }
 
-                // 알바생 고용
+                // 알바생 고용 (제한 없음)
                 const workerCost = getWorkerCost(state.workers);
                 workerName.innerText = `알바생 채용 (현재 ${state.workers}명)`;
                 workerCostLabel.innerText = `🪙 ${workerCost.toLocaleString()}`;
                 hireWorkerBtn.disabled = state.gold < workerCost;
 
-                // 알바생 속도 교육 (Lv.13 MAX)
+                // 알바생 속도 교육 조건부 활성화 (알바생이 1명 이상 필수)
                 const workerInterval = getWorkerInterval(state.workerSpeedLevel);
-                if (state.workerSpeedLevel >= WORKER_SPEED_MAX_LEVEL) {
+                if (state.workers < 1) {
+                    workerSpeedName.innerText = `알바생 속도 교육 (알바생 필요)`;
+                    workerSpeedCostLabel.innerText = "비활성화";
+                    upgradeWorkerSpeedBtn.disabled = true;
+                } else if (state.workerSpeedLevel >= WORKER_SPEED_MAX_LEVEL) {
                     workerSpeedName.innerText = `알바생 속도 교육 (Lv.${state.workerSpeedLevel})`;
                     workerSpeedCostLabel.innerText = "MAX";
                     upgradeWorkerSpeedBtn.disabled = true;
@@ -1106,11 +1197,31 @@
                     upgradeWorkerSpeedBtn.disabled = state.gold < workerSpeedCost;
                 }
 
-                // 원두 정기 배송
-                const deliveryCost = getDeliveryCost(state.deliveryLevel);
-                deliveryName.innerText = `원두 정기 배송 (Lv.${state.deliveryLevel})`;
-                deliveryCostLabel.innerText = state.deliveryLevel >= 5 ? "MAX" : `🪙 ${deliveryCost.toLocaleString()}`;
-                upgradeDeliveryBtn.disabled = state.deliveryLevel >= 5 || state.gold < deliveryCost;
+                // 원두 배송량 강화
+                const vol = getDeliveryVolume(state.deliveryVolumeLevel);
+                if (state.deliveryVolumeLevel >= DELIVERY_VOLUME_MAX_LEVEL) {
+                    deliveryVolumeName.innerText = `원두 배송량 강화 (Lv.${state.deliveryVolumeLevel})`;
+                    deliveryVolumeCostLabel.innerText = "MAX";
+                    upgradeDeliveryVolumeBtn.disabled = true;
+                } else {
+                    const deliveryVolumeCost = getDeliveryVolumeCost(state.deliveryVolumeLevel);
+                    deliveryVolumeName.innerText = `원두 배송량 강화 (Lv.${state.deliveryVolumeLevel} - ${vol}개)`;
+                    deliveryVolumeCostLabel.innerText = `🪙 ${deliveryVolumeCost.toLocaleString()}`;
+                    upgradeDeliveryVolumeBtn.disabled = state.gold < deliveryVolumeCost;
+                }
+
+                // 원두 배송 주기 단축
+                const interval = getDeliveryInterval(state.deliveryIntervalLevel);
+                if (state.deliveryIntervalLevel >= DELIVERY_INTERVAL_MAX_LEVEL) {
+                    deliveryIntervalName.innerText = `원두 배송 주기 단축 (Lv.${state.deliveryIntervalLevel})`;
+                    deliveryIntervalCostLabel.innerText = "MAX";
+                    upgradeDeliveryIntervalBtn.disabled = true;
+                } else {
+                    const deliveryIntervalCost = getDeliveryIntervalCost(state.deliveryIntervalLevel);
+                    deliveryIntervalName.innerText = `원두 배송 주기 단축 (Lv.${state.deliveryIntervalLevel} - ${interval.toFixed(1)}초)`;
+                    deliveryIntervalCostLabel.innerText = `🪙 ${deliveryIntervalCost.toLocaleString()}`;
+                    upgradeDeliveryIntervalBtn.disabled = state.gold < deliveryIntervalCost;
+                }
 
                 buyBeansBtn.disabled = state.gold < BEAN_PACK_COST;
             }
@@ -1154,15 +1265,23 @@
                     return;
                 }
 
+                const speedSeconds = getMachineSpeed(state.machineLevel);
+                
+                // 0.01초 이하 속도일 때 게이지 딜레이 없이 비동기 지연을 우회하여 즉각 판매 완료
+                if (speedSeconds <= 0.01) {
+                    state.beans--;
+                    sfx.playBrew();
+                    finishBrewing();
+                    return;
+                }
+
                 isBrewing = true;
                 state.beans--;
                 sfx.playBrew();
                 updateUI();
 
-                const speedSeconds = getMachineSpeed(state.machineLevel);
                 const duration = (speedSeconds * 1000) / gameSpeed;
                 const startTime = Date.now();
-
                 brewBtn.disabled = true;
 
                 function animateProgress() {
@@ -1225,31 +1344,48 @@
             }
 
             function upgradeWorkerSpeed() {
+                if (state.workers < 1) {
+                    addLog("알바생이 없으면 속도 교육을 구매할 수 없습니다.", "danger");
+                    return;
+                }
                 if (state.workerSpeedLevel >= WORKER_SPEED_MAX_LEVEL) return;
                 const cost = getWorkerSpeedCost(state.workerSpeedLevel);
                 if (state.gold >= cost) {
                     state.gold -= cost;
                     state.workerSpeedLevel++;
                     sfx.playClick();
-                    addLog(`알바생 추출 속도 교육을 Lv.${state.workerSpeedLevel}(으)로 수료했습니다.`, 'info');
+                    addLog(`알바생 추출 속도 교육을 Lv.${state.workerSpeedLevel}(으)로 강화했습니다.`, 'info');
                     updateUI();
                     saveGame(true);
                 }
             }
 
-            function upgradeDelivery() {
-                const cost = getDeliveryCost(state.deliveryLevel);
-                if (state.gold >= cost && state.deliveryLevel < 5) {
+            function upgradeDeliveryVolume() {
+                if (state.deliveryVolumeLevel >= DELIVERY_VOLUME_MAX_LEVEL) return;
+                const cost = getDeliveryVolumeCost(state.deliveryVolumeLevel);
+                if (state.gold >= cost) {
                     state.gold -= cost;
-                    state.deliveryLevel++;
+                    state.deliveryVolumeLevel++;
                     sfx.playClick();
-                    addLog(`원두 정기 배송 서비스가 Lv.${state.deliveryLevel}(으)로 강화되었습니다.`, 'info');
+                    addLog(`원두 정기 배송량을 Lv.${state.deliveryVolumeLevel}(으)로 강화했습니다.`, 'info');
                     updateUI();
                     saveGame(true);
                 }
             }
 
-            // 엔딩 발생 체크 및 트리거
+            function upgradeDeliveryInterval() {
+                if (state.deliveryIntervalLevel >= DELIVERY_INTERVAL_MAX_LEVEL) return;
+                const cost = getDeliveryIntervalCost(state.deliveryIntervalLevel);
+                if (state.gold >= cost) {
+                    state.gold -= cost;
+                    state.deliveryIntervalLevel++;
+                    sfx.playClick();
+                    addLog(`원두 배송 주기를 Lv.${state.deliveryIntervalLevel}(으)로 단축했습니다.`, 'info');
+                    updateUI();
+                    saveGame(true);
+                }
+            }
+
             function checkEndingTrigger() {
                 if (state.reputation >= 100.0 && !state.freePlayMode && !state.hasEnded) {
                     state.hasEnded = true;
@@ -1293,7 +1429,6 @@
                             const offlineSeconds = Math.floor(offlineMs / 1000);
                             const workerInterval = getWorkerInterval(state.workerSpeedLevel);
                             
-                            // 방치형 효율 적용 (알바 속도 반영)
                             const ticks = Math.floor(offlineSeconds / workerInterval);
                             const maxPossibleSales = ticks * state.workers;
                             const actualSales = Math.min(maxPossibleSales, state.beans);
@@ -1308,7 +1443,6 @@
                             }
                         }
 
-                        // 복구 시점에서 평판 100이 이미 넘었으나 엔딩을 보지 않은 경우 강제 실행
                         if (state.reputation >= 100.0 && !state.freePlayMode) {
                             state.hasEnded = true;
                             setTimeout(triggerEndingModal, 1000);
@@ -1329,25 +1463,24 @@
                     closeEndingModal();
                     updateUI();
                     
-                    // 개발자 도구 인풋도 원상복구
                     const devGoldInput = document.getElementById('dev-gold-input');
                     if (devGoldInput) {
                         document.getElementById('dev-gold-input').value = state.gold;
                         document.getElementById('dev-beans-input').value = state.beans;
                         document.getElementById('dev-workers-input').value = state.workers;
                         document.getElementById('dev-worker-speed-input').value = state.workerSpeedLevel;
-                        document.getElementById('dev-delivery-input').value = state.deliveryLevel;
+                        document.getElementById('dev-delivery-volume-input').value = state.deliveryVolumeLevel;
+                        document.getElementById('dev-delivery-interval-input').value = state.deliveryIntervalLevel;
                         document.getElementById('dev-rep-input').value = state.reputation.toFixed(2);
-                        document.getElementById('dev-brew-speed-input').value = getMachineSpeed(state.machineLevel);
+                        document.getElementById('dev-brew-speed-input').value = getMachineSpeed(state.machineLevel).toFixed(2);
                     }
                 }
             }
 
-            // 가상 델타 타임 시뮬레이션 루프
+            // 가상 시간 기반 루프
             function mainLoop() {
-                // 엔딩 모달이 켜져서 연출 중이고 자유 모드로 진입하기 전이면 게임 틱 중지
                 if (state.hasEnded && !state.freePlayMode) {
-                    lastTickReal = Date.now(); // 시간 누적 방지
+                    lastTickReal = Date.now(); 
                     return;
                 }
 
@@ -1355,7 +1488,7 @@
                 const dt = (now - lastTickReal) * gameSpeed;
                 lastTickReal = now;
 
-                // 1. 알바생 자동 추출 및 판매 (주기 유동적)
+                // 1. 알바생 자동 추출 (10초 ~ 1초)
                 if (state.workers > 0) {
                     autoTickAccumulator += dt;
                     const autoInterval = getWorkerInterval(state.workerSpeedLevel) * 1000;
@@ -1393,17 +1526,18 @@
                     autoTickAccumulator = 0;
                 }
 
-                // 2. 원두 정기 배송 (5초 -> 20초)
-                if (state.deliveryLevel > 0) {
+                // 2. 이원화된 원두 배송량 및 배송 주기 작동 (둘 다 1레벨 이상일 때 동작)
+                if (state.deliveryVolumeLevel > 0 && state.deliveryIntervalLevel > 0) {
                     deliveryTickAccumulator += dt;
-                    const deliveryInterval = 20000; // 20초
+                    const deliveryInterval = getDeliveryInterval(state.deliveryIntervalLevel) * 1000;
                     if (deliveryTickAccumulator >= deliveryInterval) {
                         const ticks = Math.floor(deliveryTickAccumulator / deliveryInterval);
                         deliveryTickAccumulator %= deliveryInterval;
 
-                        const supplyAmount = state.deliveryLevel * 2 * ticks;
+                        const vol = getDeliveryVolume(state.deliveryVolumeLevel);
+                        const supplyAmount = vol * ticks;
                         state.beans += supplyAmount;
-                        addLog(`[배송] 정기 배송으로 원두 ${supplyAmount}개가 창고에 배달되었습니다.`, 'info');
+                        addLog(`[배송] 정기 배송으로 원두 ${supplyAmount}개가 배달되었습니다.`, 'info');
                     }
                 } else {
                     deliveryTickAccumulator = 0;
@@ -1419,7 +1553,7 @@
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             }
 
-            // 고성능 어드민 콘솔 동적 주입
+            // 고성능 어드민 콘솔 동적 주입 및 토글 바인딩
             function injectDevConsole() {
                 if (document.getElementById('dev-console')) return;
 
@@ -1427,9 +1561,8 @@
                 container.className = 'dev-console';
                 container.id = 'dev-console';
                 container.innerHTML = `
-                    <div class="dev-title">🛠️ Developer Console (Admin Extra)</div>
+                    <div class="dev-title">🛠️ Developer Console (Admin Panel)</div>
                     <div class="dev-grid">
-                        <!-- 자금/원두/평판 -->
                         <div class="dev-control-group">
                             <span class="dev-label">기본 수치 제어</span>
                             <div class="dev-input-row">
@@ -1449,44 +1582,46 @@
                             </div>
                         </div>
 
-                        <!-- 업그레이드 레벨 직접 제어 -->
                         <div class="dev-control-group">
                             <span class="dev-label">업그레이드 레벨 제어</span>
                             <div class="dev-input-row">
-                                <span style="font-size:0.8rem; width:70px;">머신 Lv:</span>
-                                <input type="number" min="1" max="17" class="dev-input" id="dev-machine-input">
+                                <span style="font-size:0.8rem; width:90px;">머신 Lv:</span>
+                                <input type="number" min="1" max="20" class="dev-input" id="dev-machine-input">
                                 <button class="btn-dev" id="btn-dev-machine">적용</button>
                             </div>
                             <div class="dev-input-row">
-                                <span style="font-size:0.8rem; width:70px;">알바 수:</span>
-                                <input type="number" min="0" max="100" class="dev-input" id="dev-workers-input">
+                                <span style="font-size:0.8rem; width:90px;">알바 수:</span>
+                                <input type="number" min="0" max="1000" class="dev-input" id="dev-workers-input">
                                 <button class="btn-dev" id="btn-dev-workers">적용</button>
                             </div>
                             <div class="dev-input-row">
-                                <span style="font-size:0.8rem; width:70px;">알바속도 Lv:</span>
-                                <input type="number" min="1" max="13" class="dev-input" id="dev-worker-speed-input">
+                                <span style="font-size:0.8rem; width:90px;">알바교육 Lv:</span>
+                                <input type="number" min="1" max="20" class="dev-input" id="dev-worker-speed-input">
                                 <button class="btn-dev" id="btn-dev-worker-speed">적용</button>
                             </div>
                             <div class="dev-input-row">
-                                <span style="font-size:0.8rem; width:70px;">배송 Lv:</span>
-                                <input type="number" min="0" max="5" class="dev-input" id="dev-delivery-input">
-                                <button class="btn-dev" id="btn-dev-delivery">적용</button>
+                                <span style="font-size:0.8rem; width:90px;">배송량 Lv:</span>
+                                <input type="number" min="0" max="20" class="dev-input" id="dev-delivery-volume-input">
+                                <button class="btn-dev" id="btn-dev-delivery-volume">적용</button>
+                            </div>
+                            <div class="dev-input-row">
+                                <span style="font-size:0.8rem; width:90px;">배송주기 Lv:</span>
+                                <input type="number" min="0" max="20" class="dev-input" id="dev-delivery-interval-input">
+                                <button class="btn-dev" id="btn-dev-delivery-interval">적용</button>
                             </div>
                         </div>
 
-                        <!-- 수동 커피 추출 속도 제어 -->
                         <div class="dev-control-group">
                             <span class="dev-label">추출 시간(초) 오버라이드</span>
                             <div class="dev-input-row">
-                                <input type="number" step="0.1" min="0.1" max="10.0" class="dev-input" id="dev-brew-speed-input">
+                                <input type="number" step="0.01" min="0.01" max="10.0" class="dev-input" id="dev-brew-speed-input">
                                 <button class="btn-dev" id="btn-dev-brew-speed">오버라이드</button>
                             </div>
                             <button class="btn-dev" id="btn-dev-brew-speed-reset" style="background:#4a4e69; margin-top:0.4rem;">오버라이드 해제</button>
                         </div>
 
-                        <!-- 배속 제어 -->
                         <div class="dev-control-group">
-                            <span class="dev-label">게임 시뮬레이션 배속</span>
+                            <span class="dev-label">시뮬레이션 배속</span>
                             <div class="dev-speed-btns" style="margin-top:0.5rem;">
                                 <button class="btn-speed active" data-speed="1">1x</button>
                                 <button class="btn-speed" data-speed="2">2x</button>
@@ -1500,6 +1635,16 @@
                 const mainEl = document.querySelector('main');
                 mainEl.parentNode.insertBefore(container, mainEl.nextSibling);
 
+                // 플로팅 토글 단추 노출 및 리스너 바인딩
+                devToggleBtn.style.display = 'flex';
+                devToggleBtn.addEventListener('click', () => {
+                    if (container.style.display === 'none' || container.style.display === '') {
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+
                 // 값 매핑
                 const devGoldInput = document.getElementById('dev-gold-input');
                 const devBeansInput = document.getElementById('dev-beans-input');
@@ -1508,7 +1653,8 @@
                 const devMachineInput = document.getElementById('dev-machine-input');
                 const devWorkersInput = document.getElementById('dev-workers-input');
                 const devWorkerSpeedInput = document.getElementById('dev-worker-speed-input');
-                const devDeliveryInput = document.getElementById('dev-delivery-input');
+                const devDeliveryVolumeInput = document.getElementById('dev-delivery-volume-input');
+                const devDeliveryIntervalInput = document.getElementById('dev-delivery-interval-input');
                 const devBrewSpeedInput = document.getElementById('dev-brew-speed-input');
 
                 devGoldInput.value = state.gold;
@@ -1518,10 +1664,11 @@
                 devMachineInput.value = state.machineLevel;
                 devWorkersInput.value = state.workers;
                 devWorkerSpeedInput.value = state.workerSpeedLevel;
-                devDeliveryInput.value = state.deliveryLevel;
+                devDeliveryVolumeInput.value = state.deliveryVolumeLevel;
+                devDeliveryIntervalInput.value = state.deliveryIntervalLevel;
                 devBrewSpeedInput.value = getMachineSpeed(state.machineLevel).toFixed(2);
 
-                // 이벤트들
+                // 개별 버튼 이벤트 연결
                 document.getElementById('btn-dev-gold').addEventListener('click', () => {
                     const val = parseInt(devGoldInput.value);
                     if (!isNaN(val) && val >= 0) {
@@ -1583,11 +1730,21 @@
                     }
                 });
 
-                document.getElementById('btn-dev-delivery').addEventListener('click', () => {
-                    const val = parseInt(devDeliveryInput.value);
-                    if (!isNaN(val) && val >= 0 && val <= 5) {
-                        state.deliveryLevel = val;
-                        addLog(`[DEV] 원두 배송 등급을 Lv.${val}(으)로 강제 조정했습니다.`, 'info');
+                document.getElementById('btn-dev-delivery-volume').addEventListener('click', () => {
+                    const val = parseInt(devDeliveryVolumeInput.value);
+                    if (!isNaN(val) && val >= 0 && val <= DELIVERY_VOLUME_MAX_LEVEL) {
+                        state.deliveryVolumeLevel = val;
+                        addLog(`[DEV] 원두 배송량 등급을 Lv.${val}(으)로 강제 조정했습니다.`, 'info');
+                        updateUI();
+                        saveGame(true);
+                    }
+                });
+
+                document.getElementById('btn-dev-delivery-interval').addEventListener('click', () => {
+                    const val = parseInt(devDeliveryIntervalInput.value);
+                    if (!isNaN(val) && val >= 0 && val <= DELIVERY_INTERVAL_MAX_LEVEL) {
+                        state.deliveryIntervalLevel = val;
+                        addLog(`[DEV] 원두 배송 주기 등급을 Lv.${val}(으)로 강제 조정했습니다.`, 'info');
                         updateUI();
                         saveGame(true);
                     }
@@ -1597,7 +1754,7 @@
                     const val = parseFloat(devBrewSpeedInput.value);
                     if (!isNaN(val) && val > 0.0) {
                         devSpeedOverride = val;
-                        addLog(`[DEV] 수동 커피 추출 속도를 ${val}초로 강제 오버라이드했습니다.`, 'info');
+                        addLog(`[DEV] 수동 추출 속도를 ${val}초로 강제 오버라이드했습니다.`, 'info');
                         updateUI();
                     }
                 });
@@ -1620,9 +1777,10 @@
                     });
                 });
 
-                addLog("🛠️ [SYSTEM] 개발자 콘솔이 활성화되었습니다.", "info");
+                addLog("🛠️ [SYSTEM] 개발자 콘솔이 활성화되었습니다. 좌하단 버튼으로 열고 닫을 수 있습니다.", "info");
             }
 
+            // 해시 인증 검사
             async function checkDevMode() {
                 const sig = localStorage.getItem('pixel_cafe_dev_signature');
                 if (!sig) return;
@@ -1651,13 +1809,15 @@
             upgradeMachineBtn.addEventListener('click', upgradeMachine);
             hireWorkerBtn.addEventListener('click', hireWorker);
             upgradeWorkerSpeedBtn.addEventListener('click', upgradeWorkerSpeed);
-            upgradeDeliveryBtn.addEventListener('click', upgradeDelivery);
+            
+            // 배송 이원화 바인딩
+            upgradeDeliveryVolumeBtn.addEventListener('click', upgradeDeliveryVolume);
+            upgradeDeliveryIntervalBtn.addEventListener('click', upgradeDeliveryInterval);
 
             btnSave.addEventListener('click', () => saveGame(false));
             btnReset.addEventListener('click', resetGame);
             btnResetTop.addEventListener('click', resetGame);
 
-            // 엔딩 버튼 연동
             btnEndingContinue.addEventListener('click', () => {
                 state.freePlayMode = true;
                 closeEndingModal();
@@ -1666,7 +1826,7 @@
             });
             btnEndingReset.addEventListener('click', resetGame);
 
-            // 초기 로딩
+            // 게임 시동
             loadGame();
             checkDevMode();
 
