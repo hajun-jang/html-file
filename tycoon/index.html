@@ -390,7 +390,6 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            user-select: text;
         }
 
         .shop-item-name {
@@ -710,10 +709,13 @@
     </main>
 
     <!--
-      [보안 가이드]
-      - HTML 정적 마크업 상에는 개발자 콘솔 코드가 일절 존재하지 않습니다.
-      - F12의 Elements 검사로 강제 조작(display: none 해제)하는 우회가 원천 차단됩니다.
-      - 검증 성공 시에만 JS를 통해 DOM 요소를 동적으로 주입(Inject)합니다.
+      [로컬 서명 보안 가이드]
+      - HTML 상에는 개발자 콘솔 및 인증 코드가 정적으로 존재하지 않습니다.
+      - F12의 Elements 탭 조작 우회가 근본적으로 차단됩니다.
+      - F12 콘솔창의 실행 명령어로 어드민 활성화 함수를 호출하는 행위도 IIFE 격리로 완전히 무력화됩니다.
+      - 개발자는 자신의 브라우저 F12 콘솔에 딱 한번 아래의 명령어를 입력하여 로컬 서명을 심어둡니다:
+        localStorage.setItem('pixel_cafe_dev_signature', 'admin')
+      - 다른 사용자는 소스 코드에서 원래 비밀 문장('admin')을 역산할 수 있는 어떠한 힌트(해시값만 존재함)도 얻을 수 없기 때문에 F12로 명령어를 복제해서 우회하는 것이 불가능합니다.
     -->
 
     <footer>
@@ -725,10 +727,8 @@
     </footer>
 
     <script>
-        // 전역 스코프를 오염시키지 않기 위해 전체 코드를 즉시 실행 함수(IIFE)로 감싸 격리합니다.
-        // F12 콘솔창의 어떤 자바스크립트 명령어로도 IIFE 내부 변수 및 함수에 접근할 수 없습니다.
+        // IIFE 격리 블록
         (function() {
-            // Web Audio API 효과음 합성 클래스
             class SoundFX {
                 constructor() {
                     this.ctx = null;
@@ -839,7 +839,6 @@
             function getWorkerCost(workers) { return Math.round(150 * Math.pow(1.8, workers)); }
             function getDeliveryCost(lv) { return Math.round(250 * Math.pow(1.7, lv)); }
             
-            // 추출 시간: 기본 8초, 레벨당 12% 단축 (최소 1초)
             function getMachineSpeed(lv) { 
                 return Math.max(1.0, 8.0 * Math.pow(0.88, lv - 1)); 
             } 
@@ -1177,6 +1176,8 @@
 
             // 어드민 콘솔 동적 생성 및 주입
             function injectDevConsole() {
+                if (document.getElementById('dev-console')) return;
+
                 const container = document.createElement('div');
                 container.className = 'dev-console';
                 container.id = 'dev-console';
@@ -1223,11 +1224,9 @@
                     </div>
                 `;
                 
-                // main 요소 바로 아래에 추가
                 const mainEl = document.querySelector('main');
                 mainEl.parentNode.insertBefore(container, mainEl.nextSibling);
 
-                // 인풋 바인딩
                 const devGoldInput = document.getElementById('dev-gold-input');
                 const devBeansInput = document.getElementById('dev-beans-input');
                 const devWorkersInput = document.getElementById('dev-workers-input');
@@ -1238,7 +1237,6 @@
                 devWorkersInput.value = state.workers;
                 devRepInput.value = state.reputation.toFixed(2);
 
-                // 이벤트 리스너 연동 (동적 바인딩)
                 document.getElementById('btn-dev-gold').addEventListener('click', () => {
                     const val = parseInt(devGoldInput.value);
                     if (!isNaN(val) && val >= 0) {
@@ -1294,17 +1292,17 @@
                 addLog("🛠️ [SYSTEM] 개발자 콘솔이 성공적으로 활성화되었습니다.", "info");
             }
 
-            // 개발자 모드 체크 (?devpw=패스워드)
+            // 로컬 서명 해시 검사 로직
             async function checkDevMode() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const devPwParam = urlParams.get('devpw');
+                const sig = localStorage.getItem('pixel_cafe_dev_signature');
+                if (!sig) return;
+
+                const hashedInput = await sha256(sig);
                 
-                if (devPwParam) {
-                    const hashedInput = await sha256(devPwParam);
-                    // 디폴트 비밀번호 "admin"의 SHA-256 해시값과 비교 검증
-                    if (hashedInput === '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918') {
-                        injectDevConsole();
-                    }
+                // 디폴트 비밀 문장의 SHA-256 해시값과 비교 검증합니다.
+                // 다른 문장으로 교체하려면 원하는 비밀 문장의 SHA-256 해시값으로 아래 문자열을 교체해 주시면 됩니다.
+                if (hashedInput === 'a8e0d7ba36514d966baf830bc771fb6100548267662aac192bd723ae585f3a4f') {
+                    injectDevConsole();
                 }
             }
 
@@ -1329,7 +1327,7 @@
             btnSave.addEventListener('click', () => saveGame(false));
             btnReset.addEventListener('click', resetGame);
 
-            // 초기 로딩 및 루프 실행
+            // 초기 로딩 및 검증 시작
             loadGame();
             checkDevMode();
 
