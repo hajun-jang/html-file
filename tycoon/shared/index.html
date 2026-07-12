@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Hacknet Grid - Multiplayer Co-op Tycoon</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Fredoka:wght@300..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #07090e;
+            --bg-panel: rgba(11, 16, 25, 0.85);
+            --border-color: rgba(56, 176, 0, 0.2);
+            --primary: #390099; /* 사이버 바이올렛 */
+            --primary-light: #9d4edd;
+            --neon-green: #38b000; /* 해커 네온 그린 */
+            --neon-cyan: #00f5d4;
+            --accent-gold: #ffb703;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --danger: #d90429;
+            --font-display: 'Fredoka', sans-serif;
+            --font-sans: 'Outfit', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --dev-glow: rgba(157, 78, 221, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+        }
+
+        /* 해커 게이트웨이 인증 화면 overlay */
+        .gateway-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: opacity 0.4s ease;
+        }
+
+        .gateway-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 0 35px rgba(56, 176, 0, 0.15);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 420px;
+            max-width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            backdrop-filter: blur(10px);
+            animation: cardSlideUp 0.3s ease;
+        }
+
+        @keyframes cardSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .gateway-title {
+            font-family: var(--font-mono);
+            color: var(--neon-green);
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(56, 176, 0, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .input-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .gateway-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .gateway-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(56, 176, 0, 0.4);
+        }
+
+        .gateway-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            color: #fff;
+            padding: 0.9rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .gateway-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .gateway-toggle-link {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .gateway-toggle-link:hover {
+            color: var(--neon-green);
+        }
+
+        .security-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+
+        /* 메인 게임 콘솔 레이아웃 */
+        .game-wrapper {
+            display: none; /* 로그인 시 flex로 전환 */
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-tag {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            background: rgba(0, 245, 212, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            border: 1px solid rgba(0, 245, 212, 0.3);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .global-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .global-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .global-stat-val {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(56,176,0,0.3);
+        }
+
+        .btn-settings {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .btn-settings:hover {
+            color: var(--neon-cyan);
+        }
+
+        /* 메인 보드 그리드 */
+        main {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* 해킹 컨트롤 센터 (왼쪽) */
+        .control-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(17, 24, 39, 0.4) 0%, rgba(7, 9, 14, 0.9) 100%);
+        }
+
+        /* 가상 양자 코어 탭 영역 */
+        .core-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .quantum-core {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, var(--primary) 0%, #000 70%);
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 40px rgba(56, 176, 0, 0.2), inset 0 0 20px var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.05s ease, border-color 0.2s;
+        }
+
+        .quantum-core:active {
+            transform: scale(0.94);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 60px var(--dev-glow);
+        }
+
+        .quantum-core::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            border: 1px dashed rgba(56, 176, 0, 0.3);
+            border-radius: 50%;
+            animation: rotateOuter 15s linear infinite;
+        }
+
+        @keyframes rotateOuter {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .core-inner-icon {
+            font-size: 3rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 15px rgba(56, 176, 0, 0.6);
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* 서버실 Canvas */
+        #server-room-canvas {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        /* 라이브 브리핑 기여 피드 (하단) */
+        .live-feed-panel {
+            width: 100%;
+            max-width: 600px;
+            height: 110px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .feed-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(56, 176, 0, 0.1);
+            padding-bottom: 0.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .feed-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .feed-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .feed-list::-webkit-scrollbar-thumb {
+            background: rgba(56, 176, 0, 0.2);
+            border-radius: 2px;
+        }
+
+        .feed-item {
+            color: var(--text-muted);
+            animation: logFadeIn 0.2s ease-out;
+        }
+        .feed-item.upg { color: var(--neon-cyan); }
+        .feed-item.tap { color: var(--neon-green); }
+        .feed-item.sys { color: var(--accent-gold); }
+
+        @keyframes logFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 무한 업그레이드 넷샵 (오른쪽) */
+        .net-shop {
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        .shop-title {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            color: var(--neon-green);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shop-items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .shop-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .shop-card:hover {
+            border-color: var(--neon-green);
+            background: rgba(56, 176, 0, 0.03);
+        }
+
+        .shop-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            max-width: 60%;
+        }
+
+        .shop-card-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .shop-card-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .shop-card-cost {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            margin-top: 0.2rem;
+        }
+
+        .btn-buy-upgrade {
+            background: var(--primary);
+            color: #fff;
+            border: 1px solid var(--primary-light);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-buy-upgrade:hover:not(:disabled) {
+            background: var(--primary-light);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-buy-upgrade:disabled {
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.05);
+            cursor: not-allowed;
+        }
+
+        /* 설정 모달 */
+        .settings-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 120;
+            width: 450px;
+            background: rgba(11, 16, 25, 0.95);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 45px rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            gap: 1.2rem;
+            animation: cardSlideUp 0.2s ease;
+        }
+
+        /* 개발자 콘솔 토글 플로팅 버튼 */
+        .dev-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(123, 44, 191, 0.85);
+            color: #fff;
+            border: 2px solid #9d4edd;
+            padding: 0.8rem 1.4rem;
+            border-radius: 99px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(157, 78, 221, 0.5);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .dev-toggle-btn:hover {
+            background: #9d4edd;
+        }
+
+        /* 개발자 콘솔 패널 */
+        .dev-console {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            z-index: 1000;
+            width: 360px;
+            background: rgba(20, 15, 28, 0.95);
+            border: 2px dashed #9d4edd;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 0 35px var(--dev-glow);
+            backdrop-filter: blur(10px);
+            display: none; 
+            animation: slideUp 0.25s ease;
+        }
+
+        .btn-dev {
+            background: #7b2cbf;
+            color: #fff;
+            border: none;
+            padding: 0.35rem 0.8rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-dev:hover {
+            background: #9d4edd;
+        }
+
+        /* 플로팅 기여 코인 텍스트 */
+        .floating-text {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--neon-green);
+            font-size: 1.15rem;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 해커 게이트웨이 인증 화면 -->
+    <div class="gateway-overlay" id="gateway-overlay">
+        <div class="gateway-card">
+            <div class="gateway-title"><i class="fa-solid fa-terminal"></i> HACKNET GATEWAY</div>
+            
+            <div class="input-group">
+                <span class="input-label">해커 ID</span>
+                <input type="text" class="gateway-input" id="gate-user" placeholder="USER_NICKNAME" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <span class="input-label">비밀 키</span>
+                <input type="password" class="gateway-input" id="gate-pass" placeholder="SECRET_ACCESS_KEY">
+            </div>
+
+            <button class="gateway-btn" id="btn-gate-action">그리드 터미널 접속</button>
+            <div class="gateway-toggle-link" id="btn-gate-toggle">계정이 없으신가요? 신규 ID 발급 등록</div>
+            
+            <div class="security-badge">
+                <i class="fa-solid fa-shield-halved" style="color:var(--neon-green);"></i> SQL INJECTION PROTECTED INTERFACE
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 게임 셸 -->
+    <div class="game-wrapper" id="game-wrapper">
+        <!-- 상단 헤더 -->
+        <header>
+            <div class="header-left">
+                <div class="logo"><i class="fa-solid fa-terminal"></i> Cyber Hacknet</div>
+                <div class="user-tag" id="user-tag-display">@Hacker</div>
+                <div class="stat-item" style="font-size:0.85rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-users" style="color:var(--neon-cyan);"></i> 활성 노드 수: <strong id="peers-count" style="color:#fff;">1</strong>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="global-stat">
+                    <span class="global-stat-label">공동 연산 속도</span>
+                    <span class="global-stat-val" id="global-hash-val">0 GH/s</span>
+                </div>
+                <div class="global-stat">
+                    <span class="global-stat-label">공동 자금</span>
+                    <span class="global-stat-val" id="global-gold-val" style="color:var(--accent-gold);">0 🪙</span>
+                </div>
+                <button class="btn-settings" id="btn-settings-open"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </header>
+
+        <!-- 메인 보드 -->
+        <main>
+            <!-- 해킹 컨트롤 센터 (왼쪽) -->
+            <div class="control-center">
+                <div class="core-container">
+                    <div class="quantum-core" id="quantum-core">
+                        <i class="fa-solid fa-atom core-inner-icon"></i>
+                    </div>
+                    <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted); text-align:center;">
+                        양자 해킹 코어 터치 기여 (수동 해싱 연산)
+                    </div>
+                </div>
+
+                <!-- 실시간 서버실 Canvas 비주얼라이저 -->
+                <canvas id="server-room-canvas"></canvas>
+
+                <!-- 실시간 기여 피드 -->
+                <div class="live-feed-panel">
+                    <div class="feed-header">
+                        <span>실시간 그리드 동기화 피드</span>
+                        <span id="network-mode-badge" style="color:var(--neon-green);">로컬 단독 모드</span>
+                    </div>
+                    <ul class="feed-list" id="feed-list">
+                        <!-- JS 실시간 주입 -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 무한 상점 (오른쪽) -->
+            <div class="net-shop">
+                <div class="shop-title"><i class="fa-solid fa-network-wired"></i> 그리드 무한 노드 업그레이드</div>
+                <div class="shop-items-grid" id="shop-items-grid">
+                    <!-- JS 규칙식 무한 상점 렌더러 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 환경설정 모달 (Supabase 연동) -->
+    <div class="settings-modal" id="settings-modal">
+        <h3 style="font-family:var(--font-display); color:var(--neon-cyan); border-bottom:1px solid var(--border-color); padding-bottom:0.4rem;">
+            ⚙️ 그리드 접속 설정
+        </h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">
+            다인 동시 공유를 위해 Supabase 데이터베이스 자격 증명을 연동합니다. 빈칸으로 두면 로컬 싱글 플레이 모드로 가동됩니다.
+        </p>
+        <div class="input-group">
+            <span class="input-label">Supabase Project API URL</span>
+            <input type="text" class="gateway-input" id="cfg-db-url" placeholder="https://xxxxxx.supabase.co" style="font-size:0.8rem;">
+        </div>
+        <div class="input-group">
+            <span class="input-label">Supabase Anon key</span>
+            <input type="password" class="gateway-input" id="cfg-db-key" placeholder="eyJhbGciOi..." style="font-size:0.8rem;">
+        </div>
+        <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.4rem;">
+            <button class="btn-header" id="btn-settings-close">취소</button>
+            <button class="gateway-btn" id="btn-settings-save" style="padding:0.5rem 1rem; font-size:0.85rem;">설정 저장 & 연동 🔄</button>
+        </div>
+    </div>
+
+    <!-- 개발자 콘솔 토글 플로팅 버튼 및 패널 -->
+    <button class="dev-toggle-btn" id="dev-toggle-btn">🛠️ 어드민 제어</button>
+    <div class="dev-console" id="dev-console">
+        <h3 style="color:#c77dff; font-family:var(--font-display); margin-bottom:0.8rem; border-bottom:1px solid rgba(157,78,221,0.3); padding-bottom:0.3rem;">
+            🛠️ Hacker Developer Tools
+        </h3>
+        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">자본 임의 투입</span>
+                <button class="btn-dev" id="btn-cheat-gold">+5,000 🪙</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">연산력 임의 상승</span>
+                <button class="btn-dev" id="btn-cheat-hash">+500 GH/s</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">동기화 강제 새로고침</span>
+                <button class="btn-dev" id="btn-cheat-sync">기지 동기화 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.js"></script>
+
+    <script>
+        (function() {
+            const sfx = new SoundFX();
+
+            // 4개 주 업그레이드 정보 기본 메타
+            const UPGRADE_TYPES = {
+                "cpuNode": { name: "양자 CPU 노드", desc: "코어 클릭 수동 연산력을 증폭시킵니다.", baseCost: 100, basePower: 1, type: "click" },
+                "backdoor": { name: "AI 자동 백도어", desc: "1초당 공동 비트코인을 자동으로 채굴합니다.", baseCost: 250, basePower: 2, type: "auto" },
+                "uplink": { name: "위성 중계기", desc: "해킹 수익 가치를 기하급수적으로 증폭시킵니다.", baseCost: 450, basePower: 1.15, type: "multiplier" },
+                "cooler": { name: "메인프레임 냉각기", desc: "자동 해킹 속도를 가속시킵니다.", baseCost: 600, basePower: 1.1, type: "speed" }
+            };
+
+            // 무제한 산출 알고리즘 수식 정의 (규칙적 무한 생성)
+            function getUpgradeCost(key, lv) {
+                const meta = UPGRADE_TYPES[key];
+                return Math.round(meta.baseCost * Math.pow(1.15, lv - 1));
+            }
+
+            function getUpgradePower(key, lv) {
+                const meta = UPGRADE_TYPES[key];
+                if (meta.type === "multiplier") {
+                    return 1.0 + (lv - 1) * 0.15; // 15% 복리
+                }
+                if (meta.type === "speed") {
+                    return 1.0 + (lv - 1) * 0.1; // 10% 가속
+                }
+                return Math.round(meta.basePower * Math.pow(1.12, lv - 1));
+            }
+
+            // 글로벌 공유 타이쿤 게임 상태
+            let gameState = {
+                gold: 0,
+                hashrate: 0,
+                upgrades: {
+                    cpuNode: 1,
+                    backdoor: 1,
+                    uplink: 1,
+                    cooler: 1
+                },
+                last_updated_by: "system"
+            };
+
+            let isGateRegisterMode = false;
+            let currentHackerNick = "";
+            let supabaseClient = null;
+            let realtimeChannel = null;
+            let isOnlineMode = false;
+
+            // 로컬 스토리지에 세이브용 키
+            const LOCAL_SAVE_KEY = "cyber_hacknet_shared_local_save";
+
+            // Sound Synth
+            function SoundFX() {
+                this.ctx = null;
+                this.init = () => { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); };
+                
+                // 청축 기계식 키보드 타건음 합성
+                this.playClick = () => {
+                    this.init(); if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.05);
+
+                    gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+                };
+
+                // 해킹 기지 전원 활성화 신시사이저 소리
+                this.playUpgrade = () => {
+                    this.init(); if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.type = 'sawtooth';
+                    const now = this.ctx.currentTime;
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.4);
+
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                    osc.start(); osc.stop(now + 0.4);
+                };
+            }
+
+            // HTML5 2D Canvas 서버실 비주얼라이저 셋업
+            const canvas = document.getElementById('server-room-canvas');
+            const ctx = canvas.getContext('2d');
+            let canvasWidth = canvas.width = 600;
+            let canvasHeight = canvas.height = 200;
+
+            // 데이터 패킷 흐름용 파티클
+            const packets = [];
+
+            function renderServerRoom() {
+                requestAnimationFrame(renderServerRoom);
+                
+                // 배경 드로잉 (어두운 회로 기판 감성)
+                ctx.fillStyle = "rgba(7, 9, 14, 0.25)";
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                // 회로선 격자 그리기
+                ctx.strokeStyle = "rgba(56, 176, 0, 0.02)";
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvasWidth; i += 30) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvasHeight); ctx.stroke();
+                }
+                for (let i = 0; i < canvasHeight; i += 30) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvasWidth, i); ctx.stroke();
+                }
+
+                // 글로벌 CPU 노드 레벨에 따라 랙(Rack) 개수 결정 (최대 10개)
+                const rackCount = Math.min(10, Math.max(2, Math.floor(gameState.upgrades.cpuNode / 2) + 2));
+                const rackWidth = 35;
+                const rackHeight = 130;
+                const startX = (canvasWidth - (rackCount * 50)) / 2;
+                const startY = 35;
+
+                for (let i = 0; i < rackCount; i++) {
+                    const rx = startX + i * 50;
+                    const ry = startY;
+
+                    // 랙 외곽 프레임
+                    ctx.strokeStyle = "rgba(100, 116, 139, 0.4)";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(rx, ry, rackWidth, rackHeight);
+                    ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
+                    ctx.fillRect(rx, ry, rackWidth, rackHeight);
+
+                    // 서버 단수 (AI 자동 백도어 레벨에 비례)
+                    const slotCount = Math.min(6, Math.max(3, Math.floor(gameState.upgrades.backdoor / 3) + 3));
+                    const slotHeight = (rackHeight - 10) / slotCount;
+
+                    for (let j = 0; j < slotCount; j++) {
+                        const sy = ry + 5 + j * slotHeight;
+                        
+                        // 서버 모듈 슬롯
+                        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                        ctx.fillRect(rx + 3, sy, rackWidth - 6, slotHeight - 4);
+                        ctx.strokeStyle = "rgba(56, 176, 0, 0.15)";
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(rx + 3, sy, rackWidth - 6, slotHeight - 4);
+
+                        // LED 불빛 파르르 깜빡임 (냉각장치 레벨에 따라 주기 단축)
+                        const ledSpeed = getUpgradePower("cooler", gameState.upgrades.cooler);
+                        const flickerThresh = 0.05 * ledSpeed;
+
+                        ctx.fillStyle = Math.random() < flickerThresh ? "var(--neon-cyan)" : "var(--neon-green)";
+                        if (Math.random() < 0.02) ctx.fillStyle = "var(--accent-gold)";
+                        
+                        ctx.beginPath();
+                        ctx.arc(rx + 10, sy + slotHeight / 2 - 2, 2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.beginPath();
+                        ctx.arc(rx + 18, sy + slotHeight / 2 - 2, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // 데이터 스트림 패킷 플로우 연출
+                // AI 백도어 작동에 따른 연산 속도가 가속될 때 패킷도 급증
+                const flowRate = getUpgradePower("backdoor", gameState.upgrades.backdoor);
+                if (packets.length < 35 && Math.random() < 0.1 * flowRate) {
+                    packets.push({
+                        x: Math.random() * canvasWidth,
+                        y: 0,
+                        speed: (2 + Math.random() * 3) * getUpgradePower("cooler", gameState.upgrades.cooler),
+                        size: 1.5 + Math.random() * 2,
+                        color: Math.random() < 0.2 ? "var(--neon-cyan)" : "var(--neon-green)"
+                    });
+                }
+
+                for (let i = packets.length - 1; i >= 0; i--) {
+                    const p = packets[i];
+                    p.y += p.speed;
+
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = p.color;
+                    
+                    ctx.fillRect(p.x, p.y, p.size, p.size * 4);
+                    
+                    ctx.shadowBlur = 0; // 그림자 초기화
+
+                    if (p.y > canvasHeight) {
+                        packets.splice(i, 1);
+                    }
+                }
+            }
+
+            // 실시간 기여 피드 로그 추가
+            function addFeed(msg, type = '') {
+                const list = document.getElementById('feed-list');
+                const li = document.createElement('li');
+                li.className = `feed-item ${type}`;
+                li.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                list.appendChild(li);
+                list.scrollTop = list.scrollHeight;
+                while (list.children.length > 20) {
+                    list.removeChild(list.firstChild);
+                }
+            }
+
+            // DB 연동 및 클라이언트 초기화 (SQL 인젝션 방어형 안전 SDK 사용)
+            function initSupabase() {
+                const savedConfig = localStorage.getItem('pixel_hacknet_db_config');
+                if (savedConfig) {
+                    try {
+                        const { url, key } = JSON.parse(savedConfig);
+                        if (url && key) {
+                            supabaseClient = supabase.createClient(url, key);
+                            isOnlineMode = true;
+                            document.getElementById('cfg-db-url').value = url;
+                            document.getElementById('cfg-db-key').value = key;
+                            addLog("보안 데이터베이스 라이브러리(Supabase) 연동에 성공했습니다.", "success");
+                            document.getElementById('network-mode-badge').innerText = "LIVE GRID ONLINE";
+                            document.getElementById('network-mode-badge').style.color = "var(--neon-cyan)";
+                            return;
+                        }
+                    } catch(e) {
+                        console.error("DB Config parsing failed", e);
+                    }
+                }
+
+                // DB 없을 시 로컬 폴백
+                isOnlineMode = false;
+                document.getElementById('network-mode-badge').innerText = "LOCAL GRID OFFLINE";
+                document.getElementById('network-mode-badge').style.color = "var(--text-muted)";
+                addLog("DB 설정이 없습니다. 로컬 오프라인 모드로 자동 전환하여 기동합니다.", "info");
+            }
+
+            // 회원가입 및 로그인 계정 시스템 (SQL Prepared-statements API)
+            async function handleGatewaySubmit() {
+                const username = document.getElementById('gate-user').value.trim();
+                const pass = document.getElementById('gate-pass').value;
+
+                if (!username || !pass) {
+                    alert("ID와 비밀 키를 기입해 주십시오.");
+                    return;
+                }
+
+                // 비밀 키는 로컬 단에서 SHA-256 해시화하여 prepared statement 전송
+                const passHash = sha256_pure(pass);
+
+                if (isOnlineMode && supabaseClient) {
+                    try {
+                        if (isGateRegisterMode) {
+                            // 1. 회원가입: prepared statement 형태의 SDK 바인딩으로 SQL Injection 원천 불가
+                            const { data: existUser, error: checkErr } = await supabaseClient
+                                .from('hacknet_users')
+                                .select('*')
+                                .eq('username', username);
+
+                            if (existUser && existUser.length > 0) {
+                                alert("이미 존재하는 해커 ID입니다.");
+                                return;
+                            }
+
+                            const { error: insErr } = await supabaseClient
+                                .from('hacknet_users')
+                                .insert([{ username, password_hash: passHash }]);
+
+                            if (insErr) {
+                                alert("계정 생성 실패: " + insErr.message);
+                                return;
+                            }
+
+                            alert("신규 해커 ID가 안전하게 등록되었습니다! 로그인을 진행해 주십시오.");
+                            isGateRegisterMode = false;
+                            document.getElementById('btn-gate-toggle').innerText = "계정이 없으신가요? 신규 ID 발급 등록";
+                            document.getElementById('btn-gate-action').innerText = "그리드 터미널 접속";
+                        } else {
+                            // 2. 로그인: prepared statement 형태의 SDK 바인딩으로 SQL Injection 원천 불가
+                            const { data: userData, error: loginErr } = await supabaseClient
+                                .from('hacknet_users')
+                                .select('*')
+                                .eq('username', username)
+                                .eq('password_hash', passHash);
+
+                            if (loginErr || !userData || userData.length === 0) {
+                                alert("인증 실패: 잘못된 ID 혹은 보안 키입니다.");
+                                return;
+                            }
+
+                            // 로그인 성공
+                            currentHackerNick = username;
+                            loginSuccess();
+                        }
+                    } catch(e) {
+                        alert("데이터베이스 통신 오류: 로컬 모드로 우회 접속합니다.");
+                        currentHackerNick = username || "Hacker_Offline";
+                        loginSuccess();
+                    }
+                } else {
+                    // 오프라인/로컬 모드 로그인 프리패스
+                    currentHackerNick = username || "LocalHacker";
+                    loginSuccess();
+                }
+            }
+
+            // 로그인 성공 시 룸 동기화 채널 개방 및 상태 수립
+            async function loginSuccess() {
+                document.getElementById('gateway-overlay').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('gateway-overlay').style.display = 'none';
+                    document.getElementById('game-wrapper').style.display = 'flex';
+                }, 400);
+
+                document.getElementById('user-tag-display').innerText = `@${currentHackerNick}`;
+                addFeed(`익명의 해커 @${currentHackerNick}님이 게이트웨이 인증을 통과해 그리드에 안착했습니다.`, "sys");
+
+                if (isOnlineMode && supabaseClient) {
+                    // Supabase Realtime 데이터 동기화 채널 구축
+                    realtimeChannel = supabaseClient.channel('grid-room')
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'shared_state' }, payload => {
+                            if (payload.new) {
+                                syncStateFromDB(payload.new);
+                            }
+                        })
+                        .subscribe();
+
+                    // 최초 DB 로드
+                    await fetchGameState();
+                } else {
+                    // 로컬 스토리지 데이터 로드
+                    loadLocalGame();
+                }
+                
+                renderShop();
+                updateUI();
+
+                // admin 계정 로그인 시 어드민 제어창 활성화
+                if (currentHackerNick === 'admin') {
+                    enableAdminConsole();
+                }
+                
+                // 오프라인 방치 채굴 루프 및 메인 틱 가동
+                setInterval(mainAutoMiningTick, 1000);
+            }
+
+            // DB에서 공용 상태 가져오기
+            async function fetchGameState() {
+                if (!supabaseClient) return;
+                const { data, error } = await supabaseClient
+                    .from('shared_state')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+
+                if (data) {
+                    syncStateFromDB(data);
+                } else if (error) {
+                    // 테이블이 비었거나 오류 시 최초 행 삽입 시도
+                    await supabaseClient.from('shared_state').insert([{
+                        id: 1,
+                        gold: 1000,
+                        hashrate: 1,
+                        upgrades: { cpuNode: 1, backdoor: 1, uplink: 1, cooler: 1 },
+                        last_updated_by: "system"
+                    }]);
+                }
+            }
+
+            // 수신 데이터 동기화
+            function syncStateFromDB(dbRow) {
+                gameState.gold = dbRow.gold;
+                gameState.hashrate = dbRow.hashrate;
+                gameState.upgrades = typeof dbRow.upgrades === 'string' ? JSON.parse(dbRow.upgrades) : dbRow.upgrades;
+                
+                // 피드 브리핑
+                if (dbRow.last_updated_by !== currentHackerNick && dbRow.last_updated_by !== "system") {
+                    addFeed(`동기화: @${dbRow.last_updated_by}님에 의해 그리드 코어 데이터가 갱신되었습니다.`, "sys");
+                }
+                
+                renderShop();
+                updateUI();
+            }
+
+            // DB 상태 쓰기 (SQL Injection 방어형 SDK 사용)
+            async function pushGameState() {
+                if (isOnlineMode && supabaseClient) {
+                    try {
+                        await supabaseClient
+                            .from('shared_state')
+                            .update({
+                                gold: gameState.gold,
+                                hashrate: gameState.hashrate,
+                                upgrades: gameState.upgrades,
+                                last_updated_by: currentHackerNick
+                            })
+                            .eq('id', 1);
+                    } catch(e) {
+                        console.error("DB push state failed", e);
+                    }
+                } else {
+                    saveLocalGame();
+                }
+            }
+
+            // 로컬 스토리지 로드
+            function loadLocalGame() {
+                const saved = localStorage.getItem(LOCAL_SAVE_KEY);
+                if (saved) {
+                    try {
+                        gameState = JSON.parse(saved);
+                        addFeed("로컬 오프라인 게이트 세이브를 정상 수급했습니다.", "sys");
+                    } catch(e) {
+                        console.error("Local save load failed", e);
+                    }
+                }
+            }
+
+            // 로컬 스토리지 저장
+            function saveLocalGame() {
+                localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(gameState));
+            }
+
+            function updateUI() {
+                document.getElementById('global-hash-val').innerText = `${gameState.hashrate.toLocaleString()} GH/s`;
+                document.getElementById('global-gold-val').innerText = `${gameState.gold.toLocaleString()} 🪙`;
+            }
+
+            // 탭 클릭 기여
+            function handleCoreTap(e) {
+                sfx.playClick();
+                
+                // 수동 탭당 GH/s 효율은 CPU 노드 레벨에 따라 규칙 산출
+                const tapPower = getUpgradePower("cpuNode", gameState.upgrades.cpuNode);
+                gameState.hashrate += tapPower;
+                gameState.gold += Math.round(tapPower * 0.5 * getUpgradePower("uplink", gameState.upgrades.uplink));
+                
+                createFloatingText(e);
+                pushGameState();
+                updateUI();
+            }
+
+            // 플로팅 연산 기여 수치 텍스트 팝업
+            function createFloatingText(e) {
+                const core = document.getElementById('quantum-core');
+                const rect = core.getBoundingClientRect();
+                let x = rect.left + rect.width / 2;
+                let y = rect.top + rect.height / 2;
+
+                if (e) {
+                    x = e.clientX || x;
+                    y = e.clientY || y;
+                }
+
+                const floatDiv = document.createElement('div');
+                floatDiv.className = 'floating-text';
+                
+                const tapPower = getUpgradePower("cpuNode", gameState.upgrades.cpuNode);
+                floatDiv.innerText = `+${tapPower} GH/s`;
+                
+                floatDiv.style.left = `${x}px`;
+                floatDiv.style.top = `${y}px`;
+                document.body.appendChild(floatDiv);
+
+                setTimeout(() => { floatDiv.remove(); }, 800);
+            }
+
+            // 무제한 상점 UI 그리기
+            function renderShop() {
+                const container = document.getElementById('shop-items-grid');
+                container.innerHTML = '';
+
+                Object.keys(UPGRADE_TYPES).forEach(key => {
+                    const meta = UPGRADE_TYPES[key];
+                    const lv = gameState.upgrades[key] || 1;
+                    
+                    const cost = getUpgradeCost(key, lv);
+                    const power = getUpgradePower(key, lv);
+                    const nextPower = getUpgradePower(key, lv + 1);
+
+                    let descStr = meta.desc;
+                    if (meta.type === "click") descStr = `코어 클릭당 +${power} GH/s 연산력 지원 (다음: +${nextPower})`;
+                    else if (meta.type === "auto") descStr = `1초당 공동 비트코인 +${power} 🪙 자동 채굴 (다음: +${nextPower})`;
+                    else if (meta.type === "multiplier") descStr = `클릭/자동 수익을 ${(power * 100).toFixed(0)}%로 복리 증폭 (다음: ${(nextPower * 100).toFixed(0)}%)`;
+                    else if (meta.type === "speed") descStr = `자동 해킹 주기 효율 ${(power * 100).toFixed(0)}% 가속 (다음: ${(nextPower * 100).toFixed(0)}%)`;
+
+                    const card = document.createElement('div');
+                    card.className = 'shop-card';
+                    card.innerHTML = `
+                        <div class="shop-card-info">
+                            <span class="shop-card-name">${meta.name} (Lv.${lv})</span>
+                            <span class="shop-card-desc">${descStr}</span>
+                            <span class="shop-card-cost">🪙 ${cost.toLocaleString()}</span>
+                        </div>
+                        <button class="btn-buy-upgrade" id="btn-buy-${key}">업그레이드</button>
+                    `;
+
+                    container.appendChild(card);
+
+                    const btn = document.getElementById(`btn-buy-${key}`);
+                    btn.disabled = gameState.gold < cost;
+                    btn.addEventListener('click', () => buyUpgrade(key, cost));
+                });
+            }
+
+            // 공동 업그레이드 전 세계 무제한 구매
+            async function buyUpgrade(key, cost) {
+                if (gameState.gold >= cost) {
+                    gameState.gold -= cost;
+                    gameState.upgrades[key] = (gameState.upgrades[key] || 1) + 1;
+                    
+                    sfx.playUpgrade();
+                    addFeed(`@${currentHackerNick}님이 공동 전력을 소모하여 [${UPGRADE_TYPES[key].name}]을 Lv.${gameState.upgrades[key]}로 업그레이드했습니다.`, "upg");
+                    
+                    pushGameState();
+                    renderShop();
+                    updateUI();
+                }
+            }
+
+            // 1초당 AI 백도어 자동 채굴 틱 구동
+            function mainAutoMiningTick() {
+                if (gameState.upgrades.backdoor > 1) {
+                    // 자동 획득량 연산: (백도어 파워 * 위성 증폭 비율)
+                    const autoPower = getUpgradePower("backdoor", gameState.upgrades.backdoor);
+                    const mult = getUpgradePower("uplink", gameState.upgrades.uplink);
+                    
+                    // 냉각 시스템 틱 속도 배율
+                    const speedMult = getUpgradePower("cooler", gameState.upgrades.cooler);
+                    
+                    const addedGold = Math.round(autoPower * mult * speedMult);
+                    gameState.gold += addedGold;
+                    
+                    // 연산 GH/s도 1초당 소폭 자동 증가
+                    gameState.hashrate += Math.round(autoPower * 0.2);
+
+                    updateUI();
+                    
+                    // 10회에 한 번 주기적인 세이브 전송
+                    if (Math.random() < 0.2) {
+                        pushGameState();
+                    }
+                }
+            }
+
+            // 환경설정 모달 제어
+            function setupSettings() {
+                const modal = document.getElementById('settings-modal');
+                document.getElementById('btn-settings-open').addEventListener('click', () => {
+                    modal.style.display = 'flex';
+                });
+                document.getElementById('btn-settings-close').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+
+                document.getElementById('btn-settings-save').addEventListener('click', () => {
+                    const url = document.getElementById('cfg-db-url').value.trim();
+                    const key = document.getElementById('cfg-db-key').value.trim();
+
+                    if (url && key) {
+                        localStorage.setItem('pixel_hacknet_db_config', JSON.stringify({ url, key }));
+                        alert("데이터베이스 연동이 구성되었습니다. 그리드 재배선을 위해 페이지가 새로고침됩니다.");
+                        window.location.reload();
+                    } else {
+                        // 세팅 삭제 시 로컬 폴백
+                        localStorage.removeItem('pixel_hacknet_db_config');
+                        alert("연동 설정이 제거되었습니다. 로컬 기지 모드로 작동하기 위해 새로고침됩니다.");
+                        window.location.reload();
+                    }
+                });
+            }
+
+            // 어드민 콘솔 제어 활성화 (admin 아이디 전용)
+            function enableAdminConsole() {
+                const devToggle = document.getElementById('dev-toggle-btn');
+                devToggle.style.display = 'flex';
+                
+                const devConsole = document.getElementById('dev-console');
+                devToggle.addEventListener('click', () => {
+                    devConsole.style.display = devConsole.style.display === 'block' ? 'none' : 'block';
+                });
+
+                document.getElementById('btn-cheat-gold').addEventListener('click', () => {
+                    gameState.gold += 5000;
+                    addFeed("[어드민 신호] 공동 자재 자금 🪙5,000 치트 투입 완료.", "sys");
+                    pushGameState();
+                    updateUI();
+                });
+
+                document.getElementById('btn-cheat-hash').addEventListener('click', () => {
+                    gameState.hashrate += 500;
+                    addFeed("[어드민 신호] 공동 그리드 연산력 +500 GH/s 치트 주입 완료.", "sys");
+                    pushGameState();
+                    updateUI();
+                });
+
+                document.getElementById('btn-cheat-sync').addEventListener('click', async () => {
+                    if (isOnlineMode) {
+                        await fetchGameState();
+                        addFeed("[어드민 신호] 글로벌 데이터베이스 기기 즉시 새로고침 강제 실행.", "sys");
+                    }
+                });
+            }
+
+            // 게이트웨이 인증 토글 링크
+            document.getElementById('btn-gate-toggle').addEventListener('click', () => {
+                isGateRegisterMode = !isGateRegisterMode;
+                if (isGateRegisterMode) {
+                    document.getElementById('btn-gate-toggle').innerText = "이미 ID가 있으신가요? 기존 ID로 접속";
+                    document.getElementById('btn-gate-action').innerText = "신규 해커 등록 발급";
+                } else {
+                    document.getElementById('btn-gate-toggle').innerText = "계정이 없으신가요? 신규 ID 발급 등록";
+                    document.getElementById('btn-gate-action').innerText = "그리드 터미널 접속";
+                }
+            });
+
+            document.getElementById('btn-gate-action').addEventListener('click', handleGatewaySubmit);
+            document.getElementById('quantum-core').addEventListener('click', handleCoreTap);
+            
+            document.getElementById('btn-reset-game').addEventListener('click', () => {
+                if (confirm("정말로 전체 해커 기지 공용 상태를 포맷하시겠습니까? (DB 연동 시 모든 유저의 데이터가 함께 파괴됩니다!)")) {
+                    gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+                    pushGameState();
+                    addFeed("⚠️ 경고: 공동 데이터베이스 그리드가 공장 초기화로 완전 포맷되었습니다.", "sys");
+                    updateUI();
+                    renderShop();
+                }
+            });
+
+            // 시동 개시
+            initSupabase();
+            setupSettings();
+            renderServerRoom();
+
+        })();
+    </script>
+</body>
+</html>

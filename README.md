@@ -14,10 +14,9 @@ A collection of various HTML/JS experiments and small applications.
 - **[playground/](./playground/)**: Miscellaneous tests and experiments.
   - [font-test.html](./playground/font-test.html): A simple font rendering test.
 - **[tycoon/](./tycoon/)**: Tycoon games.
-  - **[cafe/](./tycoon/cafe/)**: 3D Automation Factory Tycoon.
-    - [index.html](./tycoon/cafe/index.html): Cafe tycoon simulation (Pixel Brew Café).
-  - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
-    - [index.html](./tycoon/factory/index.html): 3D block-placement factory automation simulator (inspired by MOMOISDOG's 'Ma-Gong-Jang').
+  - [index.html](./tycoon/index.html): Cafe tycoon simulation (Pixel Brew Café).
+- **[shared/](./tycoon/shared/)**: Real-Time Shared Cooperative Tycoon.
+  - [index.html](./tycoon/shared/index.html): A multiplayer cooperative hacknet tycoon where all stats, balances, and upgrades are fully synchronized in real-time using a secure Supabase SQL database.
 
 
 ## How to Run
