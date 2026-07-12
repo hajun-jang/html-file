@@ -21,8 +21,10 @@ A collection of various HTML/JS experiments and small applications.
     - [index.html](./tycoon/cafe/index.html): Premium Coffee Shop Tycoon with local storage saving, audio synthesis, and admin command panel.
   - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
     - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
-  - **[shared/](./tycoon/shared/)**: Real-Time Shared Cooperative Hacknet Tycoon.
-    - [index.html](./tycoon/shared/index.html): A multiplayer cooperative hacknet tycoon where all stats, balances, and upgrades are fully synchronized in real-time using a secure Supabase SQL database (SQL injection-protected).
+  - **[hacknet/](./tycoon/hacknet/)**: Real-Time Shared Cooperative Hacknet Tycoon.
+    - [index.html](./tycoon/hacknet/index.html): The main game board of the multiplayer cooperative hacknet tycoon, which checks user credentials and routes to auth nested subdirectories if unauthenticated.
+    - [login/index.html](./tycoon/hacknet/login/index.html): Parameterized secure gateway authentication terminal for general users and the admin.
+    - [signup/index.html](./tycoon/hacknet/signup/index.html): Registration interface supporting matching password validation and auto-login redirecting.
 
 ## How to Run
 
