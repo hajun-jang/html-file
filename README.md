@@ -4,20 +4,25 @@ A collection of various HTML/JS experiments and small applications.
 
 ## Directory Structure
 **main link is [here](https://hajun-jang.github.io/html-file/).**
-- **[matrix/](./matrix/)**: Matrix rain effects.
-  - [ascii.html](./matrix/ascii.html): Classic Matrix rain using ASCII characters.
-  - [unicode.html](./matrix/unicode.html): Matrix rain using a wide range of Unicode characters.
-- **[countdown/](./countdown/)**: Time-related applications.
-  - [index.html](./countdown/index.html): A clean countdown to the New Year.
-- **[pi-song/](./pi-song/)**: Musical experiments.
-  - [index.html](./pi-song/index.html): An interactive "Pi Song" that generates music based on the digits of Pi.
-- **[playground/](./playground/)**: Miscellaneous tests and experiments.
-  - [font-test.html](./playground/font-test.html): A simple font rendering test.
-- **[tycoon/](./tycoon/)**: Tycoon games.
-  - [index.html](./tycoon/index.html): Cafe tycoon simulation (Pixel Brew Café).
-- **[shared/](./tycoon/shared/)**: Real-Time Shared Cooperative Tycoon.
-  - [index.html](./tycoon/shared/index.html): A multiplayer cooperative hacknet tycoon where all stats, balances, and upgrades are fully synchronized in real-time using a secure Supabase SQL database.
 
+- **[matrix/](./matrix/)**: Various implementations of the "Matrix Rain" visual effect.
+  - [index.html](./matrix/index.html) / [ascii.html](./matrix/ascii.html): Classic Matrix rain using ASCII characters.
+  - [modern-rain.html](./matrix/modern-rain.html): A high-performance version with Unicode characters and fade effect.
+  - [unicode.html](./matrix/unicode.html): Matrix rain using a wide range of international Unicode characters.
+- **[countdown/](./countdown/)**: Time-related countdown applications.
+  - [index.html](./countdown/index.html) / [new-year-countdown.html](./countdown/new-year-countdown.html): A clean, responsive countdown timer for the upcoming New Year.
+- **[music/](./music/)**: Musical experiments using the Web Audio API.
+  - [index.html](./music/index.html) / [pi-song.html](./music/pi-song.html): An interactive application translating digits of Pi into melodies and chords.
+  - [interactive-pi-melody.html](./music/interactive-pi-melody.html): Advanced interactive piano visualizer.
+- **[test/](./test/)**: Playgrounds for minor test cases.
+  - [index.html](./test/index.html) / [font-test.html](./test/font-test.html): A simple utility to check font rendering and system font availability.
+- **[tycoon/](./tycoon/)**: Simulation and management tycoon games.
+  - **[cafe/](./tycoon/cafe/)**: Pixel Brew Café simulation.
+    - [index.html](./tycoon/cafe/index.html): Premium Coffee Shop Tycoon with local storage saving, audio synthesis, and admin command panel.
+  - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
+    - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
+  - **[shared/](./tycoon/shared/)**: Real-Time Shared Cooperative Hacknet Tycoon.
+    - [index.html](./tycoon/shared/index.html): A multiplayer cooperative hacknet tycoon where all stats, balances, and upgrades are fully synchronized in real-time using a secure Supabase SQL database (SQL injection-protected).
 
 ## How to Run
 
