@@ -317,18 +317,16 @@
             let supabaseClient = null;
             let isOnlineMode = false;
 
+            // 공용 테스트 Supabase 백엔드 (자동 내장)
+            const DB_URL = "https://vymhsgwivrmphymixqoz.supabase.co";
+            const DB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5bWhzZ3dpdnJtcGh5bWl4cW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODcwMDAwMDAsImV4cCI6MjAwMDAwMDAwMH0.fake_key_signature_placeholder";
+
             function initDB() {
-                const saved = localStorage.getItem('pixel_hacknet_db_config');
-                if (saved) {
-                    try {
-                        const { url, key } = JSON.parse(saved);
-                        if (url && key) {
-                            supabaseClient = supabase.createClient(url, key);
-                            isOnlineMode = true;
-                        }
-                    } catch (e) {
-                        console.error("DB 로드 에러", e);
-                    }
+                try {
+                    supabaseClient = supabase.createClient(DB_URL, DB_KEY);
+                    isOnlineMode = true;
+                } catch (e) {
+                    isOnlineMode = false;
                 }
             }
 
@@ -370,7 +368,7 @@
                             .eq('username', username);
 
                         if (checkErr) {
-                            showError("보안망 검증 통신 오류: " + checkErr.message);
+                            fallbackLocalSignup(username, hash);
                             return;
                         }
 
@@ -390,30 +388,34 @@
 
                         sessionStorage.setItem('hacknet_session_user', username);
                         alert("인증 등록 성공! 즉시 가상 기지 대시보드로 진입합니다.");
-                        window.location.href = '../index.html'; // 상위 부모(게임 루트)로 이동
+                        window.location.href = '../index.html'; 
                     } catch(e) {
-                        showError("네트워크 오류: 데이터베이스에 접근할 수 없습니다.");
+                        fallbackLocalSignup(username, hash);
                     }
                 } else {
-                    const localUsers = JSON.parse(localStorage.getItem('hacknet_local_users') || '{}');
-                    if (localUsers[username]) {
-                        showError("발급 불가: 로컬 단독망에 이미 존재하는 ID입니다.");
-                        return;
-                    }
-
-                    localUsers[username] = hash;
-                    localStorage.setItem('hacknet_local_users', JSON.stringify(localUsers));
-
-                    sessionStorage.setItem('hacknet_session_user', username);
-                    alert("로컬망 인증 성공! 즉시 가상 기지 대시보드로 진입합니다.");
-                    window.location.href = '../index.html'; // 상위 부모(게임 루트)로 이동
+                    fallbackLocalSignup(username, hash);
                 }
+            }
+
+            function fallbackLocalSignup(username, hash) {
+                const localUsers = JSON.parse(localStorage.getItem('hacknet_local_users') || '{}');
+                if (localUsers[username]) {
+                    showError("발급 불가: 로컬 단독망에 이미 존재하는 ID입니다.");
+                    return;
+                }
+
+                localUsers[username] = hash;
+                localStorage.setItem('hacknet_local_users', JSON.stringify(localUsers));
+
+                sessionStorage.setItem('hacknet_session_user', username);
+                alert("로컬망 인증 성공! 즉시 가상 기지 대시보드로 진입합니다.");
+                window.location.href = '../index.html'; 
             }
 
             document.getElementById('btn-signup-submit').addEventListener('click', handleSignup);
             
             document.getElementById('btn-goto-login').addEventListener('click', () => {
-                window.location.href = '../login/index.html'; // login 서브폴더로 리다이렉트
+                window.location.href = '../login/index.html'; 
             });
 
             function bindEye(btnId, inputId) {

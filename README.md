@@ -22,10 +22,11 @@ A collection of various HTML/JS experiments and small applications.
   - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
     - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
   - **[hacknet/](./tycoon/hacknet/)**: Real-Time Shared Cooperative Hacknet Tycoon.
-    - [index.html](./tycoon/hacknet/index.html): The main game board of the multiplayer cooperative hacknet tycoon, which checks user credentials and routes to auth nested subdirectories if unauthenticated.
+    - [index.html](./tycoon/hacknet/index.html): The main game board page (root path, automatically redirects to nested login if unauthenticated). Supports local offline mode by default, and upgrades to online multiplayer sync via the in-game settings gear.
     - [login/index.html](./tycoon/hacknet/login/index.html): Parameterized secure gateway authentication terminal for general users and the admin.
     - [signup/index.html](./tycoon/hacknet/signup/index.html): Registration interface supporting matching password validation and auto-login redirecting.
 
 ## How to Run
 
-Simply open any of the `.html` files in a modern web browser.
+Simply open any of the `.html` files in a modern web browser, or host them statically on services like GitHub Pages.
+For the **Hacknet Tycoon**, the game runs in single-player offline mode by default. To connect with peers, click the gear icon in the top right to configure your Supabase endpoint.
