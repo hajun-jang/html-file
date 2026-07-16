@@ -25,6 +25,9 @@ A collection of various HTML/JS experiments and small applications.
     - [index.html](./tycoon/hacknet/index.html): The main game board page (root path, automatically redirects to nested login if unauthenticated). Supports local offline mode by default, and upgrades to online multiplayer sync via the in-game settings gear.
     - [login/index.html](./tycoon/hacknet/login/index.html): Parameterized secure gateway authentication terminal for general users and the admin.
     - [signup/index.html](./tycoon/hacknet/signup/index.html): Registration interface supporting matching password validation and auto-login redirecting.
+- **[life/](./life/)**: Conway's Game of Life simulation.
+  - [index.html](./life/index.html): Premium Conway's Game of Life simulation featuring high-performance Canvas rendering, cellular aging gradients, toroidal grid wrapping, famous pattern presets, and interactive Web Audio API synthesis.
+
 
 ## How to Run
 
