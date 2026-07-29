@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft Map Image Uploader</title>
-  <meta name="description" content="마인크래프트 서버 연동 전용 이미지 업로더 - Cloudinary (zeioqxwq)">
+  <meta name="description" content="마인크래프트 서버 연동 전용 이미지 업로더">
   
   <!-- Google Fonts & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,12 +137,6 @@
       font-weight: 600;
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -191,51 +185,6 @@
     .btn-icon-only {
       padding: 0.6rem;
       border-radius: var(--radius-md);
-    }
-
-    /* Collapsible Auth Config Drawer */
-    .auth-drawer {
-      background: rgba(14, 23, 19, 0.95);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      display: none;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    .auth-drawer.active {
-      display: block;
-    }
-
-    .auth-drawer-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .auth-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .form-input {
-      padding: 0.55rem 0.85rem;
-      background: rgba(8, 13, 10, 0.9);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
     }
 
     /* Main Workspace */
@@ -298,18 +247,18 @@
       color: var(--accent-emerald-bright);
     }
 
-    /* Error Alert Box */
-    .preset-alert-box {
+    /* Cloudinary Mode Guide Alert Box */
+    .mode-alert-box {
       background: rgba(248, 113, 113, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.3);
+      border: 1px solid rgba(248, 113, 113, 0.35);
       border-radius: var(--radius-md);
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.3rem;
       display: none;
       gap: 0.85rem;
       align-items: flex-start;
       color: #fca5a5;
       font-size: 0.875rem;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     /* Drag and Drop Zone */
@@ -318,7 +267,7 @@
       background: rgba(15, 26, 21, 0.5);
       backdrop-filter: blur(12px);
       border-radius: var(--radius-lg);
-      padding: 3.5rem 2rem;
+      padding: 3.8rem 2rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -396,6 +345,23 @@
       gap: 0.6rem;
       flex: 1;
       justify-content: flex-end;
+    }
+
+    .form-input {
+      padding: 0.45rem 0.7rem;
+      background: rgba(8, 13, 10, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
     }
 
     .input-compact {
@@ -644,11 +610,6 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
@@ -661,47 +622,19 @@
     <div class="header-container">
       <a href="#" class="brand">
         <div class="brand-icon">
-          <i class="fa-solid fa-image"></i>
+          <i class="fa-solid fa-map-location-dot"></i>
         </div>
         <div>
           <span class="brand-title">Minecraft Map Image Uploader</span>
-          <span class="brand-tag">Cloud: zeioqxwq</span>
+          <span class="brand-tag">Map Art Direct CDN</span>
         </div>
       </a>
 
-      <div class="header-actions">
-        <button id="btnToggleAuthDrawer" class="btn btn-secondary" title="Cloudinary 인증 설정">
-          <i class="fa-solid fa-key"></i> <span id="authStatusText">인증 설정</span>
-        </button>
-        <button id="btnUploadAll" class="btn btn-primary" disabled>
-          <i class="fa-solid fa-cloud-arrow-up"></i> 이미지 업로드
-        </button>
-      </div>
+      <button id="btnUploadAll" class="btn btn-primary" disabled>
+        <i class="fa-solid fa-cloud-arrow-up"></i> 이미지 업로드
+      </button>
     </div>
   </header>
-
-  <!-- Collapsible Auth Credentials Drawer -->
-  <div id="authDrawer" class="auth-drawer">
-    <div class="auth-drawer-container">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-weight: 600; font-size: 0.875rem; color: var(--accent-emerald-bright);">
-          <i class="fa-solid fa-lock" style="margin-right: 0.4rem;"></i> Cloudinary 인증 정보 (zeioqxwq)
-        </span>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">
-          CLOUDINARY_URL을 입력하면 서명 방식(Signed)으로 무제한 업로드됩니다.
-        </span>
-      </div>
-      <div class="auth-row">
-        <input type="password" id="inputCloudinaryUrl" class="form-input" style="flex: 1; min-width: 280px;" 
-               placeholder="CLOUDINARY_URL (예: cloudinary://<api_key>:<api_secret>@zeioqxwq)">
-        <input type="text" id="inputUploadPreset" class="form-input" style="width: 220px;" 
-               placeholder="또는 Upload Preset 이름">
-        <button id="btnSaveAuth" class="btn btn-primary" style="padding: 0.55rem 1rem; font-size: 0.825rem;">
-          <i class="fa-solid fa-floppy-disk"></i> 저장
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Main Workspace -->
   <main>
@@ -712,26 +645,23 @@
         <div class="rule-info">
           <i class="fa-solid fa-shield-cat rule-icon"></i>
           <div class="rule-text">
-            <strong>마인크래프트 서버 연동 전용 이미지 업로더</strong><br>
-            오직 <strong>이미지 파일</strong>만 업로드되며, 파일명은 규칙 <code>[a-z0-9._/-]</code> 범위로 자동 치환됩니다.
+            <strong>마인크래프트 지도 전용 이미지 업로더</strong><br>
+            이미지 파일만 업로드되며, 파일명은 마인크래프트 호환 규칙 <code>[a-z0-9._/-]</code> 로 자동 치환됩니다.
           </div>
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-emerald-bright); background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.25);">
-          허용 형식: PNG, JPG, GIF, WEBP, BMP
+          지원 형식: PNG, JPG, GIF, WEBP, BMP
         </div>
       </div>
 
-      <!-- Preset Error Alert Box -->
-      <div id="presetAlertBox" class="preset-alert-box">
-        <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.25rem; color: var(--danger); margin-top: 0.1rem;"></i>
+      <!-- Cloudinary Preset Alert Box (Shown only if ml_default Mode is set to Signed) -->
+      <div id="modeAlertBox" class="mode-alert-box">
+        <i class="fa-solid fa-circle-exclamation" style="font-size: 1.35rem; color: var(--danger); margin-top: 0.1rem;"></i>
         <div style="flex: 1;">
-          <strong style="color: #f87171; display: block; margin-bottom: 0.25rem;">Cloudinary 업로드 서명/프리셋 미설정 오류</strong>
-          Cloudinary <code>zeioqxwq</code> 계정에 Unsigned Upload Preset이 설정되지 않았거나 서명 키가 필요합니다.<br>
-          상단의 <strong>[<i class="fa-solid fa-key"></i> 인증 설정]</strong> 버튼을 누르고 <code>CLOUDINARY_URL=cloudinary://&lt;api_key&gt;:&lt;api_secret&gt;@zeioqxwq</code> 전체 주소를 붙여넣거나 생성하신 Upload Preset 이름을 입력해주세요!
+          <strong style="color: #f87171; display: block; margin-bottom: 0.3rem;">Cloudinary 업로드 설정 원클릭 안내</strong>
+          Cloudinary 콘솔 (Settings &gt; Upload &gt; Upload presets)에서 <code>ml_default</code>의 <strong>Mode</strong>가 <code>Signed</code>로 되어 있어 업로드가 차단되었습니다.<br>
+          Cloudinary 설정 페이지에서 <code>ml_default</code> 우측 <strong>[⋮] &gt; Edit</strong>을 누르고 <strong>Signing Mode</strong>를 <strong><code>Unsigned</code></strong>로 변경하시면 인증 입력 없이 바로 1초 만에 업로드가 작동합니다!
         </div>
-        <button class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="openAuthDrawer()">
-          설정하기
-        </button>
       </div>
 
       <!-- Drag & Drop Zone (STRICT IMAGE ONLY) -->
@@ -811,13 +741,11 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <script>
-    // FIXED Cloudinary Account Target Configuration for Minecraft Server
-    const credentials = {
+    // Internal target parameters (Storage ID hidden from UI)
+    const TARGET = {
       cloudName: 'zeioqxwq',
       folder: 'minecraft_maps',
-      apiKey: '',
-      apiSecret: '',
-      uploadPreset: ''
+      uploadPreset: 'ml_default'
     };
 
     const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'];
@@ -856,110 +784,14 @@
     const resultsList = document.getElementById('resultsList');
     const successCount = document.getElementById('successCount');
     const btnUploadAll = document.getElementById('btnUploadAll');
-    
-    const authDrawer = document.getElementById('authDrawer');
-    const inputCloudinaryUrl = document.getElementById('inputCloudinaryUrl');
-    const inputUploadPreset = document.getElementById('inputUploadPreset');
-    const presetAlertBox = document.getElementById('presetAlertBox');
-    const authStatusText = document.getElementById('authStatusText');
-
-    // SHA-1 calculation
-    async function sha1(str) {
-      const buffer = new TextEncoder().encode(str);
-      const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    const modeAlertBox = document.getElementById('modeAlertBox');
 
     // Initialize App
     document.addEventListener('DOMContentLoaded', () => {
-      loadAuthCredentials();
       setupEventListeners();
     });
 
-    // Load saved credentials
-    function loadAuthCredentials() {
-      const savedUrl = localStorage.getItem('mc_cloudinary_url');
-      const savedPreset = localStorage.getItem('mc_cloudinary_preset');
-
-      if (savedUrl) {
-        inputCloudinaryUrl.value = savedUrl;
-        parseCloudinaryUrl(savedUrl);
-      }
-      if (savedPreset) {
-        inputUploadPreset.value = savedPreset;
-        credentials.uploadPreset = savedPreset.trim();
-      }
-
-      updateAuthBadge();
-    }
-
-    // Parse CLOUDINARY_URL: cloudinary://API_KEY:API_SECRET@zeioqxwq
-    function parseCloudinaryUrl(urlStr) {
-      if (!urlStr) return;
-      const clean = urlStr.trim().replace('cloudinary://', '');
-      const [creds, cName] = clean.split('@');
-      if (creds) {
-        const [key, secret] = creds.split(':');
-        if (key && secret) {
-          credentials.apiKey = key.trim();
-          credentials.apiSecret = secret.trim();
-        }
-      }
-      if (cName) {
-        credentials.cloudName = cName.trim();
-      }
-    }
-
-    // Save Auth
-    function saveAuthCredentials() {
-      const rawUrl = inputCloudinaryUrl.value.trim();
-      const rawPreset = inputUploadPreset.value.trim();
-
-      if (rawUrl) {
-        parseCloudinaryUrl(rawUrl);
-        localStorage.setItem('mc_cloudinary_url', rawUrl);
-      } else {
-        localStorage.removeItem('mc_cloudinary_url');
-        credentials.apiKey = '';
-        credentials.apiSecret = '';
-      }
-
-      if (rawPreset) {
-        credentials.uploadPreset = rawPreset;
-        localStorage.setItem('mc_cloudinary_preset', rawPreset);
-      } else {
-        localStorage.removeItem('mc_cloudinary_preset');
-        credentials.uploadPreset = '';
-      }
-
-      presetAlertBox.style.display = 'none';
-      showToast('Cloudinary 인증 정보가 저장되었습니다.', 'success');
-      updateAuthBadge();
-      authDrawer.classList.remove('active');
-    }
-
-    function updateAuthBadge() {
-      if (credentials.apiKey && credentials.apiSecret) {
-        authStatusText.innerHTML = '<i class="fa-solid fa-check" style="color: var(--success)"></i> 서명 방식 (Signed)';
-      } else if (credentials.uploadPreset) {
-        authStatusText.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-diamond)"></i> Preset 적용됨';
-      } else {
-        authStatusText.innerHTML = '인증 설정';
-      }
-    }
-
-    function openAuthDrawer() {
-      authDrawer.classList.add('active');
-    }
-
     function setupEventListeners() {
-      document.getElementById('btnToggleAuthDrawer').addEventListener('click', () => {
-        authDrawer.classList.toggle('active');
-      });
-
-      document.getElementById('btnSaveAuth').addEventListener('click', saveAuthCredentials);
-
       // Drag & Drop
       ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
@@ -1165,41 +997,18 @@
       showToast('원본 파일명으로 복원되었습니다.', 'info');
     }
 
-    // Direct Upload to Cloudinary (zeioqxwq)
+    // Direct Unsigned Upload to Cloudinary
     async function uploadSingleFile(item) {
-      const cloudName = credentials.cloudName || 'zeioqxwq';
-      const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      const url = `https://api.cloudinary.com/v1_1/${TARGET.cloudName}/image/upload`;
       const formData = new FormData();
 
       formData.append('file', item.file);
-      formData.append('folder', credentials.folder || 'minecraft_maps');
+      formData.append('upload_preset', TARGET.uploadPreset);
+      formData.append('folder', TARGET.folder);
 
       const targetPublicId = sanitizeMinecraftFilename(item.name);
       if (targetPublicId) {
         formData.append('public_id', targetPublicId);
-      }
-
-      const timestamp = Math.floor(Date.now() / 1000);
-
-      // Signed upload (If API Key & API Secret provided)
-      if (credentials.apiKey && credentials.apiSecret) {
-        formData.append('api_key', credentials.apiKey);
-        formData.append('timestamp', timestamp);
-
-        const folderVal = credentials.folder || 'minecraft_maps';
-        const paramsToSign = [
-          `folder=${folderVal}`,
-          `public_id=${targetPublicId}`,
-          `timestamp=${timestamp}`
-        ].sort();
-
-        const signatureString = paramsToSign.join('&') + credentials.apiSecret;
-        const signature = await sha1(signatureString);
-        formData.append('signature', signature);
-      } else {
-        // Unsigned upload (using upload_preset)
-        const preset = credentials.uploadPreset || 'ml_default';
-        formData.append('upload_preset', preset);
       }
 
       return new Promise((resolve, reject) => {
@@ -1238,7 +1047,7 @@
               if (errResp.error && errResp.error.message) {
                 msg = errResp.error.message;
                 if (msg.includes('whitelisted for unsigned uploads')) {
-                  presetAlertBox.style.display = 'flex';
+                  modeAlertBox.style.display = 'flex';
                 }
               }
             } catch(e) {}
@@ -1285,7 +1094,7 @@
       renderResults();
       
       if (successCountNum > 0) {
-        showToast(`총 ${successCountNum}개 이미지가 Cloudinary(zeioqxwq)에 성공적으로 업로드되었습니다!`, 'success');
+        showToast(`총 ${successCountNum}개 이미지가 성공적으로 업로드되었습니다!`, 'success');
       }
     }
 
