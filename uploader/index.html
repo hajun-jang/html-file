@@ -646,7 +646,7 @@
           <i class="fa-solid fa-shield-cat rule-icon"></i>
           <div class="rule-text">
             <strong>마인크래프트 지도 전용 이미지 업로더</strong><br>
-            이미지 파일만 업로드되며, 파일명은 마인크래프트 호환 규칙 <code>[a-z0-9._/-]</code> 로 자동 치환됩니다.
+            이미지 파일만 업로드되며, 파일명은 마인크래프트 호환 규칙 <code>[a-z0-9._-]</code> (슬래시 '/' 사용 불가) 로 실시간 제한됩니다.
           </div>
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-emerald-bright); background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.25);">
@@ -654,7 +654,7 @@
         </div>
       </div>
 
-      <!-- Cloudinary Preset Alert Box (Shown only if ml_default Mode is set to Signed) -->
+      <!-- Cloudinary Preset Alert Box -->
       <div id="modeAlertBox" class="mode-alert-box">
         <i class="fa-solid fa-circle-exclamation" style="font-size: 1.35rem; color: var(--danger); margin-top: 0.1rem;"></i>
         <div style="flex: 1;">
@@ -741,7 +741,7 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <script>
-    // Internal target parameters (Storage ID hidden from UI)
+    // Internal target parameters
     const TARGET = {
       cloudName: 'zeioqxwq',
       folder: 'minecraft_maps',
@@ -755,15 +755,50 @@
       files: []
     };
 
-    // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._/-]
+    // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._-] (NO Slash '/')
     function sanitizeMinecraftFilename(str) {
       if (!str) return 'image';
       let cleaned = str.toLowerCase();
       cleaned = cleaned.replace(/\s+/g, '_');
-      cleaned = cleaned.replace(/[^a-z0-9._\-\/]/g, '_');
+      cleaned = cleaned.replace(/[^a-z0-9._\-]/g, '_');
       cleaned = cleaned.replace(/_+/g, '_');
       cleaned = cleaned.replace(/^_+|_+$/g, '');
       return cleaned || 'image';
+    }
+
+    // Real-time input validator for [a-z0-9._-]
+    let toastCooldown = false;
+    function handleRealtimeFilenameInput(inputElem, fileId) {
+      const originalValue = inputElem.value;
+      
+      // Check if invalid characters exist (outside a-z, 0-9, ., _, -)
+      if (/[^a-z0-9._\-]/g.test(originalValue)) {
+        // Red flash highlight
+        inputElem.style.borderColor = '#f87171';
+        inputElem.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.35)';
+
+        if (!toastCooldown) {
+          showToast("경고: [a-z0-9._-] 이외의 문자는 입력할 수 없습니다! (슬래시 '/', 대문자, 한글, 공백 등 제외됨)", "warning");
+          toastCooldown = true;
+          setTimeout(() => { toastCooldown = false; }, 2000);
+        }
+
+        setTimeout(() => {
+          inputElem.style.borderColor = '';
+          inputElem.style.boxShadow = '';
+        }, 1200);
+
+        // Sanitize real-time
+        const sanitized = sanitizeMinecraftFilename(originalValue);
+        inputElem.value = sanitized;
+      }
+
+      if (fileId) {
+        const item = state.files.find(f => f.id === fileId);
+        if (item) {
+          item.name = inputElem.value;
+        }
+      }
     }
 
     function isImageFile(file) {
@@ -785,6 +820,8 @@
     const successCount = document.getElementById('successCount');
     const btnUploadAll = document.getElementById('btnUploadAll');
     const modeAlertBox = document.getElementById('modeAlertBox');
+    const batchPrefix = document.getElementById('batchPrefix');
+    const batchSuffix = document.getElementById('batchSuffix');
 
     // Initialize App
     document.addEventListener('DOMContentLoaded', () => {
@@ -792,6 +829,10 @@
     });
 
     function setupEventListeners() {
+      // Realtime validation on batch input fields
+      batchPrefix.addEventListener('input', (e) => handleRealtimeFilenameInput(e.target));
+      batchSuffix.addEventListener('input', (e) => handleRealtimeFilenameInput(e.target));
+
       // Drag & Drop
       ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
@@ -923,8 +964,8 @@
           <div class="file-info">
             <div class="file-name-container">
               <input type="text" class="file-name-input" value="${item.name}" 
-                     oninput="updateFileName('${item.id}', this.value)" 
-                     placeholder="[a-z0-9._/-] 규칙 반영"
+                     oninput="handleRealtimeFilenameInput(this, '${item.id}')" 
+                     placeholder="[a-z0-9._-] 만 허용"
                      ${item.status === 'uploading' ? 'disabled' : ''}>
               <span class="file-ext">${item.ext}</span>
             </div>
@@ -948,13 +989,6 @@
       });
     }
 
-    window.updateFileName = function(id, inputVal) {
-      const item = state.files.find(f => f.id === id);
-      if (item) {
-        item.name = sanitizeMinecraftFilename(inputVal);
-      }
-    };
-
     window.removeFile = function(id) {
       state.files = state.files.filter(f => f.id !== id);
       renderFileList();
@@ -967,8 +1001,8 @@
     }
 
     function applyBatchRename() {
-      const prefix = document.getElementById('batchPrefix').value.trim();
-      const suffix = document.getElementById('batchSuffix').value.trim();
+      const prefix = sanitizeMinecraftFilename(batchPrefix.value.trim());
+      const suffix = sanitizeMinecraftFilename(batchSuffix.value.trim());
 
       if (!prefix && !suffix) {
         showToast('접두사 또는 접미사를 입력하세요.', 'warning');
