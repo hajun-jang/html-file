@@ -137,17 +137,10 @@
       font-weight: 600;
     }
 
-    .server-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.35rem 0.75rem;
-      background: rgba(6, 182, 212, 0.1);
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      color: var(--accent-diamond);
-      border-radius: var(--radius-md);
+    .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.75rem;
     }
 
     .btn {
@@ -198,6 +191,51 @@
     .btn-icon-only {
       padding: 0.6rem;
       border-radius: var(--radius-md);
+    }
+
+    /* Collapsible Auth Config Drawer */
+    .auth-drawer {
+      background: rgba(14, 23, 19, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .auth-drawer.active {
+      display: block;
+    }
+
+    .auth-drawer-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .auth-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .form-input {
+      padding: 0.55rem 0.85rem;
+      background: rgba(8, 13, 10, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
     }
 
     /* Main Workspace */
@@ -258,6 +296,20 @@
       border-radius: 4px;
       font-size: 0.825em;
       color: var(--accent-emerald-bright);
+    }
+
+    /* Error Alert Box */
+    .preset-alert-box {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: none;
+      gap: 0.85rem;
+      align-items: flex-start;
+      color: #fca5a5;
+      font-size: 0.875rem;
+      line-height: 1.5;
     }
 
     /* Drag and Drop Zone */
@@ -344,23 +396,6 @@
       gap: 0.6rem;
       flex: 1;
       justify-content: flex-end;
-    }
-
-    .form-input {
-      padding: 0.45rem 0.7rem;
-      background: rgba(8, 13, 10, 0.8);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.825rem;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
     }
 
     .input-compact {
@@ -609,6 +644,11 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -625,19 +665,43 @@
         </div>
         <div>
           <span class="brand-title">Minecraft Map Image Uploader</span>
+          <span class="brand-tag">Cloud: zeioqxwq</span>
         </div>
       </a>
 
-      <div class="server-badge">
-        <i class="fa-solid fa-server"></i>
-        <span>서버 연동 고정 스토리지</span>
+      <div class="header-actions">
+        <button id="btnToggleAuthDrawer" class="btn btn-secondary" title="Cloudinary 인증 설정">
+          <i class="fa-solid fa-key"></i> <span id="authStatusText">인증 설정</span>
+        </button>
+        <button id="btnUploadAll" class="btn btn-primary" disabled>
+          <i class="fa-solid fa-cloud-arrow-up"></i> 이미지 업로드
+        </button>
       </div>
-
-      <button id="btnUploadAll" class="btn btn-primary" disabled>
-        <i class="fa-solid fa-cloud-arrow-up"></i> 전체 이미지 업로드
-      </button>
     </div>
   </header>
+
+  <!-- Collapsible Auth Credentials Drawer -->
+  <div id="authDrawer" class="auth-drawer">
+    <div class="auth-drawer-container">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-weight: 600; font-size: 0.875rem; color: var(--accent-emerald-bright);">
+          <i class="fa-solid fa-lock" style="margin-right: 0.4rem;"></i> Cloudinary 인증 정보 (zeioqxwq)
+        </span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">
+          CLOUDINARY_URL을 입력하면 서명 방식(Signed)으로 무제한 업로드됩니다.
+        </span>
+      </div>
+      <div class="auth-row">
+        <input type="password" id="inputCloudinaryUrl" class="form-input" style="flex: 1; min-width: 280px;" 
+               placeholder="CLOUDINARY_URL (예: cloudinary://<api_key>:<api_secret>@zeioqxwq)">
+        <input type="text" id="inputUploadPreset" class="form-input" style="width: 220px;" 
+               placeholder="또는 Upload Preset 이름">
+        <button id="btnSaveAuth" class="btn btn-primary" style="padding: 0.55rem 1rem; font-size: 0.825rem;">
+          <i class="fa-solid fa-floppy-disk"></i> 저장
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Workspace -->
   <main>
@@ -648,13 +712,26 @@
         <div class="rule-info">
           <i class="fa-solid fa-shield-cat rule-icon"></i>
           <div class="rule-text">
-            <strong>마인크래프트 서버 전용 이미지 업로더</strong><br>
-            오직 <strong>이미지 파일</strong>만 업로드 가능하며, 파일명은 규칙 <code>[a-z0-9._/-]</code> 범위로 자동 치환됩니다.
+            <strong>마인크래프트 서버 연동 전용 이미지 업로더</strong><br>
+            오직 <strong>이미지 파일</strong>만 업로드되며, 파일명은 규칙 <code>[a-z0-9._/-]</code> 범위로 자동 치환됩니다.
           </div>
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-emerald-bright); background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.25);">
           허용 형식: PNG, JPG, GIF, WEBP, BMP
         </div>
+      </div>
+
+      <!-- Preset Error Alert Box -->
+      <div id="presetAlertBox" class="preset-alert-box">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.25rem; color: var(--danger); margin-top: 0.1rem;"></i>
+        <div style="flex: 1;">
+          <strong style="color: #f87171; display: block; margin-bottom: 0.25rem;">Cloudinary 업로드 서명/프리셋 미설정 오류</strong>
+          Cloudinary <code>zeioqxwq</code> 계정에 Unsigned Upload Preset이 설정되지 않았거나 서명 키가 필요합니다.<br>
+          상단의 <strong>[<i class="fa-solid fa-key"></i> 인증 설정]</strong> 버튼을 누르고 <code>CLOUDINARY_URL=cloudinary://&lt;api_key&gt;:&lt;api_secret&gt;@zeioqxwq</code> 전체 주소를 붙여넣거나 생성하신 Upload Preset 이름을 입력해주세요!
+        </div>
+        <button class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="openAuthDrawer()">
+          설정하기
+        </button>
       </div>
 
       <!-- Drag & Drop Zone (STRICT IMAGE ONLY) -->
@@ -735,41 +812,32 @@
 
   <script>
     // FIXED Cloudinary Account Target Configuration for Minecraft Server
-    const FIXED_CONFIG = {
+    const credentials = {
       cloudName: 'zeioqxwq',
-      folder: 'minecraft_maps', // Fixed storage folder
-      // Default URL format provided by user: CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@zeioqxwq
-      // We parse credentials from saved localStorage or default format
+      folder: 'minecraft_maps',
       apiKey: '',
       apiSecret: '',
-      uploadPreset: 'ml_default' // Unsigned fallback preset if unsigned is used
+      uploadPreset: ''
     };
 
-    // Allowed Image MIME types and extensions
-    const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'];
     const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'];
 
     // State management
     const state = {
-      files: [] // Array of { id, file, originalName, name, ext, size, status, progress, resultUrl, errorMsg }
+      files: []
     };
 
     // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._/-]
     function sanitizeMinecraftFilename(str) {
       if (!str) return 'image';
       let cleaned = str.toLowerCase();
-      // Replace spaces with underscores
       cleaned = cleaned.replace(/\s+/g, '_');
-      // Replace any character outside [a-z0-9._/-] with an underscore
       cleaned = cleaned.replace(/[^a-z0-9._\-\/]/g, '_');
-      // Collapse multiple consecutive underscores
       cleaned = cleaned.replace(/_+/g, '_');
-      // Remove leading/trailing underscores
       cleaned = cleaned.replace(/^_+|_+$/g, '');
       return cleaned || 'image';
     }
 
-    // Check if a file is a valid image
     function isImageFile(file) {
       if (!file) return false;
       if (file.type && file.type.startsWith('image/')) return true;
@@ -788,8 +856,14 @@
     const resultsList = document.getElementById('resultsList');
     const successCount = document.getElementById('successCount');
     const btnUploadAll = document.getElementById('btnUploadAll');
+    
+    const authDrawer = document.getElementById('authDrawer');
+    const inputCloudinaryUrl = document.getElementById('inputCloudinaryUrl');
+    const inputUploadPreset = document.getElementById('inputUploadPreset');
+    const presetAlertBox = document.getElementById('presetAlertBox');
+    const authStatusText = document.getElementById('authStatusText');
 
-    // SHA-1 calculation for Cloudinary Direct Upload
+    // SHA-1 calculation
     async function sha1(str) {
       const buffer = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
@@ -799,11 +873,93 @@
 
     // Initialize App
     document.addEventListener('DOMContentLoaded', () => {
+      loadAuthCredentials();
       setupEventListeners();
     });
 
-    // Setup Event Listeners
+    // Load saved credentials
+    function loadAuthCredentials() {
+      const savedUrl = localStorage.getItem('mc_cloudinary_url');
+      const savedPreset = localStorage.getItem('mc_cloudinary_preset');
+
+      if (savedUrl) {
+        inputCloudinaryUrl.value = savedUrl;
+        parseCloudinaryUrl(savedUrl);
+      }
+      if (savedPreset) {
+        inputUploadPreset.value = savedPreset;
+        credentials.uploadPreset = savedPreset.trim();
+      }
+
+      updateAuthBadge();
+    }
+
+    // Parse CLOUDINARY_URL: cloudinary://API_KEY:API_SECRET@zeioqxwq
+    function parseCloudinaryUrl(urlStr) {
+      if (!urlStr) return;
+      const clean = urlStr.trim().replace('cloudinary://', '');
+      const [creds, cName] = clean.split('@');
+      if (creds) {
+        const [key, secret] = creds.split(':');
+        if (key && secret) {
+          credentials.apiKey = key.trim();
+          credentials.apiSecret = secret.trim();
+        }
+      }
+      if (cName) {
+        credentials.cloudName = cName.trim();
+      }
+    }
+
+    // Save Auth
+    function saveAuthCredentials() {
+      const rawUrl = inputCloudinaryUrl.value.trim();
+      const rawPreset = inputUploadPreset.value.trim();
+
+      if (rawUrl) {
+        parseCloudinaryUrl(rawUrl);
+        localStorage.setItem('mc_cloudinary_url', rawUrl);
+      } else {
+        localStorage.removeItem('mc_cloudinary_url');
+        credentials.apiKey = '';
+        credentials.apiSecret = '';
+      }
+
+      if (rawPreset) {
+        credentials.uploadPreset = rawPreset;
+        localStorage.setItem('mc_cloudinary_preset', rawPreset);
+      } else {
+        localStorage.removeItem('mc_cloudinary_preset');
+        credentials.uploadPreset = '';
+      }
+
+      presetAlertBox.style.display = 'none';
+      showToast('Cloudinary 인증 정보가 저장되었습니다.', 'success');
+      updateAuthBadge();
+      authDrawer.classList.remove('active');
+    }
+
+    function updateAuthBadge() {
+      if (credentials.apiKey && credentials.apiSecret) {
+        authStatusText.innerHTML = '<i class="fa-solid fa-check" style="color: var(--success)"></i> 서명 방식 (Signed)';
+      } else if (credentials.uploadPreset) {
+        authStatusText.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-diamond)"></i> Preset 적용됨';
+      } else {
+        authStatusText.innerHTML = '인증 설정';
+      }
+    }
+
+    function openAuthDrawer() {
+      authDrawer.classList.add('active');
+    }
+
     function setupEventListeners() {
+      document.getElementById('btnToggleAuthDrawer').addEventListener('click', () => {
+        authDrawer.classList.toggle('active');
+      });
+
+      document.getElementById('btnSaveAuth').addEventListener('click', saveAuthCredentials);
+
       // Drag & Drop
       ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
@@ -832,18 +988,15 @@
         fileInput.value = '';
       });
 
-      // Batch Controls
       document.getElementById('btnApplyBatchRules').addEventListener('click', applyBatchRename);
       document.getElementById('btnResetNames').addEventListener('click', resetAllNames);
       document.getElementById('btnClearAll').addEventListener('click', clearAllFiles);
       btnUploadAll.addEventListener('click', uploadAllFiles);
 
-      // Results Actions
       document.getElementById('btnCopyAllLinks').addEventListener('click', copyAllResultLinks);
       document.getElementById('btnExportMarkdown').addEventListener('click', copyMarkdownLinks);
     }
 
-    // Process incoming files (STRICT IMAGE ONLY FILTER)
     function processIncomingFiles(rawFiles) {
       const validImages = [];
       let rejectedCount = 0;
@@ -857,7 +1010,7 @@
       });
 
       if (rejectedCount > 0) {
-        showToast(`이미지 파일만 업로드할 수 있습니다. (${rejectedCount}개 비이미지 파일 제외됨)`, 'error');
+        showToast(`이미지 파일만 업로드 가능합니다. (${rejectedCount}개 파일 제외)`, 'error');
       }
 
       if (validImages.length > 0) {
@@ -865,7 +1018,6 @@
       }
     }
 
-    // Add Files to List
     function addFiles(fileListToAdd) {
       fileListToAdd.forEach(file => {
         const lastDot = file.name.lastIndexOf('.');
@@ -876,7 +1028,6 @@
           ext = file.name.substring(lastDot).toLowerCase();
         }
 
-        // Apply strict Minecraft filename rules: [a-z0-9._/-]
         const cleanName = sanitizeMinecraftFilename(rawName);
 
         const fileObj = {
@@ -899,7 +1050,6 @@
       showToast(`${fileListToAdd.length}개 이미지 파일이 추가되었습니다.`, 'success');
     }
 
-    // Render File List
     function renderFileList() {
       if (state.files.length === 0) {
         fileSection.style.display = 'none';
@@ -920,11 +1070,9 @@
         row.className = 'file-item';
         row.id = `item_${item.id}`;
 
-        // Image Preview Thumbnail
         const imgUrl = URL.createObjectURL(item.file);
         const previewHtml = `<img src="${imgUrl}" alt="image preview">`;
 
-        // Status Badge
         let statusBadge = '';
         if (item.status === 'ready') {
           statusBadge = `<span class="status-badge status-ready"><i class="fa-regular fa-clock"></i> 대기</span>`;
@@ -968,7 +1116,6 @@
       });
     }
 
-    // Update single filename with strict sanitization
     window.updateFileName = function(id, inputVal) {
       const item = state.files.find(f => f.id === id);
       if (item) {
@@ -976,20 +1123,17 @@
       }
     };
 
-    // Remove single file
     window.removeFile = function(id) {
       state.files = state.files.filter(f => f.id !== id);
       renderFileList();
     };
 
-    // Clear all files
     function clearAllFiles() {
       state.files = [];
       renderFileList();
       showToast('목록이 비워졌습니다.', 'info');
     }
 
-    // Batch Apply Prefix / Suffix
     function applyBatchRename() {
       const prefix = document.getElementById('batchPrefix').value.trim();
       const suffix = document.getElementById('batchSuffix').value.trim();
@@ -1008,7 +1152,6 @@
       showToast('일괄 규칙이 적용되었습니다.', 'success');
     }
 
-    // Reset names to original (sanitized)
     function resetAllNames() {
       state.files.forEach(item => {
         const lastDot = item.originalName.lastIndexOf('.');
@@ -1022,16 +1165,15 @@
       showToast('원본 파일명으로 복원되었습니다.', 'info');
     }
 
-    // Direct Upload Single File to FIXED Cloudinary account (zeioqxwq)
+    // Direct Upload to Cloudinary (zeioqxwq)
     async function uploadSingleFile(item) {
-      const cloudName = FIXED_CONFIG.cloudName;
+      const cloudName = credentials.cloudName || 'zeioqxwq';
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       const formData = new FormData();
 
       formData.append('file', item.file);
-      formData.append('folder', FIXED_CONFIG.folder);
+      formData.append('folder', credentials.folder || 'minecraft_maps');
 
-      // Target Public ID with strict sanitization
       const targetPublicId = sanitizeMinecraftFilename(item.name);
       if (targetPublicId) {
         formData.append('public_id', targetPublicId);
@@ -1039,23 +1181,25 @@
 
       const timestamp = Math.floor(Date.now() / 1000);
 
-      // Try signed upload if credentials exist or fallback to preset
-      if (FIXED_CONFIG.apiKey && FIXED_CONFIG.apiSecret) {
-        formData.append('api_key', FIXED_CONFIG.apiKey);
+      // Signed upload (If API Key & API Secret provided)
+      if (credentials.apiKey && credentials.apiSecret) {
+        formData.append('api_key', credentials.apiKey);
         formData.append('timestamp', timestamp);
 
+        const folderVal = credentials.folder || 'minecraft_maps';
         const paramsToSign = [
-          `folder=${FIXED_CONFIG.folder}`,
+          `folder=${folderVal}`,
           `public_id=${targetPublicId}`,
           `timestamp=${timestamp}`
         ].sort();
 
-        const signatureString = paramsToSign.join('&') + FIXED_CONFIG.apiSecret;
+        const signatureString = paramsToSign.join('&') + credentials.apiSecret;
         const signature = await sha1(signatureString);
         formData.append('signature', signature);
       } else {
-        // Fallback to unsigned preset
-        formData.append('upload_preset', FIXED_CONFIG.uploadPreset);
+        // Unsigned upload (using upload_preset)
+        const preset = credentials.uploadPreset || 'ml_default';
+        formData.append('upload_preset', preset);
       }
 
       return new Promise((resolve, reject) => {
@@ -1093,6 +1237,9 @@
               const errResp = JSON.parse(xhr.responseText);
               if (errResp.error && errResp.error.message) {
                 msg = errResp.error.message;
+                if (msg.includes('whitelisted for unsigned uploads')) {
+                  presetAlertBox.style.display = 'flex';
+                }
               }
             } catch(e) {}
             item.errorMsg = msg;
@@ -1112,7 +1259,6 @@
       });
     }
 
-    // Upload All Files
     async function uploadAllFiles() {
       const readyFiles = state.files.filter(f => f.status === 'ready' || f.status === 'error');
       if (readyFiles.length === 0) {
@@ -1143,7 +1289,6 @@
       }
     }
 
-    // Render Uploaded Results Gallery
     function renderResults() {
       const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
       if (successFiles.length === 0) {
@@ -1181,7 +1326,6 @@
       });
     }
 
-    // Clipboard helper
     window.copyToClipboard = function(text) {
       navigator.clipboard.writeText(text).then(() => {
         showToast('이미지 URL이 클립보드에 복사되었습니다.', 'success');
@@ -1190,21 +1334,18 @@
       });
     };
 
-    // Copy all result links
     function copyAllResultLinks() {
       const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
       const links = successFiles.map(f => f.resultUrl).join('\n');
       copyToClipboard(links);
     }
 
-    // Copy Markdown format
     function copyMarkdownLinks() {
       const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
       const md = successFiles.map(f => `![${f.name}](${f.resultUrl})`).join('\n');
       copyToClipboard(md);
     }
 
-    // Format Byte Size
     function formatBytes(bytes, decimals = 2) {
       if (bytes === 0) return '0 Bytes';
       const k = 1024;
@@ -1214,7 +1355,6 @@
       return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    // Toast Notification System
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
