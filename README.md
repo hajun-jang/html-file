@@ -23,8 +23,9 @@ A collection of various HTML/JS experiments and small applications.
     - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
 - **[life/](./life/)**: Conway's Game of Life simulation.
   - [index.html](./life/index.html): Premium Conway's Game of Life simulation featuring high-performance Canvas rendering, cellular aging gradients, toroidal grid wrapping, famous pattern presets, and interactive Web Audio API synthesis.
-- **[uploader/](./uploader/)**: Minecraft Map Art Direct Cloudinary Uploader.
-  - [index.html](./uploader/index.html): A client-side static web application for dragging & dropping, batch/individual renaming with strict `[a-z0-9._/-]` sanitization, and direct Cloudinary uploading for Minecraft map art and `.dat` files using Web Crypto SHA-1 signatures or unsigned presets.
+- **[uploader/](./uploader/)**: Minecraft Map Image Cloudinary Direct Uploader.
+  - [index.html](./uploader/index.html): A client-side static web application strictly for dragging & dropping image files (.png, .jpg, .gif, .webp, .bmp), batch/individual renaming with strict `[a-z0-9._/-]` sanitization, and direct uploading to the fixed Cloudinary account (`zeioqxwq`) for Minecraft server integration.
+
 
 
 

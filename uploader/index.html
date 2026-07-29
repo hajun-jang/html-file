@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft Map Direct Uploader</title>
-  <meta name="description" content="마인크래프트 지도 이미지 및 .dat 파일 전용 Cloudinary 업로더 & 이름 정제 도구">
+  <title>Minecraft Map Image Uploader</title>
+  <meta name="description" content="마인크래프트 서버 연동 전용 이미지 업로더 - Cloudinary (zeioqxwq)">
   
   <!-- Google Fonts & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,12 +14,10 @@
 
   <style>
     :root {
-      --bg-primary: #090e0c;
-      --bg-secondary: #101915;
-      --bg-card: rgba(18, 29, 24, 0.75);
-      --bg-card-hover: rgba(25, 41, 34, 0.85);
-      --border-color: rgba(52, 211, 153, 0.12);
-      --border-focus: rgba(52, 211, 153, 0.5);
+      --bg-primary: #080d0a;
+      --bg-secondary: #0e1713;
+      --bg-card: rgba(15, 26, 21, 0.85);
+      --border-color: rgba(52, 211, 153, 0.15);
       
       --accent-emerald: #10b981;
       --accent-emerald-bright: #34d399;
@@ -41,7 +39,7 @@
       --radius-lg: 16px;
       --radius-full: 9999px;
       
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      --glass-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
       --glow-emerald: 0 0 25px rgba(16, 185, 129, 0.25);
     }
 
@@ -60,13 +58,12 @@
       flex-direction: column;
       overflow-x: hidden;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.04) 0%, transparent 60%);
+        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
       background-attachment: fixed;
     }
 
-    /* Pixel Art Grid Overlay Background */
+    /* Ambient Pixel Overlay */
     .bg-ambient {
       position: fixed;
       top: 0;
@@ -80,50 +77,19 @@
       background-size: 32px 32px;
     }
 
-    .bg-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(90px);
-      opacity: 0.35;
-      animation: floatBlob 22s infinite alternate ease-in-out;
-    }
-
-    .blob-1 {
-      width: 450px;
-      height: 450px;
-      background: #059669;
-      top: -120px;
-      left: -100px;
-    }
-
-    .blob-2 {
-      width: 500px;
-      height: 500px;
-      background: #0891b2;
-      bottom: -150px;
-      right: -100px;
-      animation-delay: -8s;
-    }
-
-    @keyframes floatBlob {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(50px, 30px) scale(1.08); }
-      100% { transform: translate(-30px, 60px) scale(0.95); }
-    }
-
     header {
       position: sticky;
       top: 0;
       z-index: 50;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      background: rgba(9, 14, 12, 0.85);
+      background: rgba(8, 13, 10, 0.88);
       border-bottom: 1px solid var(--border-color);
-      padding: 0.85rem 2rem;
+      padding: 1rem 2rem;
     }
 
     .header-container {
-      max-width: 1300px;
+      max-width: 1100px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -133,7 +99,7 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       text-decoration: none;
       color: var(--text-main);
     }
@@ -146,7 +112,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       color: #fff;
       box-shadow: var(--glow-emerald);
       border: 1px solid rgba(52, 211, 153, 0.4);
@@ -154,7 +120,7 @@
 
     .brand-title {
       font-family: 'VT323', monospace;
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       letter-spacing: 0.05em;
       color: #ecfdf5;
       text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
@@ -162,17 +128,16 @@
 
     .brand-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.725rem;
-      padding: 0.2rem 0.55rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
       border-radius: var(--radius-full);
       background: rgba(16, 185, 129, 0.15);
       color: var(--accent-emerald-bright);
       border: 1px solid rgba(52, 211, 153, 0.3);
       font-weight: 600;
-      margin-left: 0.5rem;
     }
 
-    .rule-pill {
+    .server-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
       padding: 0.35rem 0.75rem;
@@ -185,20 +150,14 @@
       gap: 0.4rem;
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.6rem 1.2rem;
+      padding: 0.65rem 1.3rem;
       border-radius: var(--radius-md);
       font-weight: 600;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
@@ -241,10 +200,10 @@
       border-radius: var(--radius-md);
     }
 
-    /* Main Container */
+    /* Main Workspace */
     main {
       flex: 1;
-      max-width: 1300px;
+      max-width: 1100px;
       width: 100%;
       margin: 2rem auto;
       padding: 0 1.5rem;
@@ -252,157 +211,79 @@
       z-index: 1;
     }
 
-    /* Grid Layout */
-    .app-layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.75rem;
-    }
-
-    @media (min-width: 1024px) {
-      .app-layout {
-        grid-template-columns: 360px 1fr;
-      }
-    }
-
-    /* Sidebar Panel */
-    .panel {
-      background: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      box-shadow: var(--glass-shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      height: fit-content;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.85rem;
-    }
-
-    .panel-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-main);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .form-label {
-      font-size: 0.825rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .form-input, .form-select {
-      width: 100%;
-      padding: 0.65rem 0.85rem;
-      background: rgba(9, 14, 12, 0.7);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus, .form-select:focus {
-      outline: none;
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-    }
-
-    .help-text {
-      font-size: 0.75rem;
-      color: rgba(148, 163, 184, 0.8);
-      line-height: 1.4;
-    }
-
-    .badge-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: var(--radius-full);
-      font-weight: 600;
-    }
-
-    .status-configured {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .status-missing {
-      background: rgba(251, 191, 36, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.3);
-    }
-
-    /* Notice Banner for Minecraft Rules */
-    .mc-rule-banner {
-      background: rgba(6, 182, 212, 0.08);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      border-radius: var(--radius-md);
-      padding: 0.85rem 1rem;
-      font-size: 0.8rem;
-      color: #a5f3fc;
-      display: flex;
-      gap: 0.6rem;
-      align-items: flex-start;
-      line-height: 1.5;
-    }
-
-    /* Workspace */
     .workspace {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
     }
 
+    /* Notice Banner */
+    .rule-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .rule-info {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .rule-icon {
+      font-size: 1.6rem;
+      color: var(--accent-emerald-bright);
+    }
+
+    .rule-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .rule-text strong {
+      color: #f0fdf4;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.825em;
+      color: var(--accent-emerald-bright);
+    }
+
     /* Drag and Drop Zone */
     .drop-zone {
       border: 2px dashed rgba(16, 185, 129, 0.4);
-      background: rgba(18, 29, 24, 0.4);
-      backdrop-filter: blur(8px);
+      background: rgba(15, 26, 21, 0.5);
+      backdrop-filter: blur(12px);
       border-radius: var(--radius-lg);
-      padding: 3.2rem 2rem;
+      padding: 3.5rem 2rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
+      box-shadow: var(--glass-shadow);
     }
 
     .drop-zone:hover, .drop-zone.dragover {
       border-color: var(--accent-emerald-bright);
-      background: rgba(16, 185, 129, 0.08);
+      background: rgba(16, 185, 129, 0.09);
       transform: translateY(-2px);
       box-shadow: var(--glow-emerald);
     }
 
     .drop-zone-icon {
-      font-size: 3.5rem;
+      font-size: 3.8rem;
       margin-bottom: 1rem;
       background: var(--accent-gradient);
       -webkit-background-clip: text;
@@ -417,7 +298,7 @@
 
     .drop-zone-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.4rem;
+      font-size: 1.45rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
       color: #f0fdf4;
@@ -426,7 +307,7 @@
     .drop-zone-subtitle {
       color: var(--text-muted);
       font-size: 0.9rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.35rem;
     }
 
     .file-input-hidden {
@@ -444,6 +325,7 @@
       gap: 0.75rem;
       align-items: center;
       justify-content: space-between;
+      box-shadow: var(--glass-shadow);
     }
 
     .batch-title {
@@ -464,13 +346,28 @@
       justify-content: flex-end;
     }
 
-    .input-compact {
-      max-width: 140px;
-      padding: 0.45rem 0.65rem;
-      font-size: 0.8rem;
+    .form-input {
+      padding: 0.45rem 0.7rem;
+      background: rgba(8, 13, 10, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      transition: all 0.2s;
     }
 
-    /* File List Table / Cards */
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .input-compact {
+      max-width: 150px;
+    }
+
+    /* File List Section */
     .file-section {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -485,7 +382,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(9, 14, 12, 0.4);
+      background: rgba(8, 13, 10, 0.5);
     }
 
     .file-count {
@@ -500,8 +397,8 @@
 
     .file-item {
       display: grid;
-      grid-template-columns: 52px 1fr auto;
-      gap: 1rem;
+      grid-template-columns: 60px 1fr auto;
+      gap: 1.25rem;
       padding: 1rem 1.25rem;
       align-items: center;
       transition: background 0.2s;
@@ -517,11 +414,11 @@
     }
 
     .file-preview {
-      width: 50px;
-      height: 50px;
+      width: 56px;
+      height: 56px;
       border-radius: var(--radius-sm);
       overflow: hidden;
-      background: rgba(9, 14, 12, 0.8);
+      background: rgba(8, 13, 10, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -532,11 +429,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
-
-    .file-preview-icon {
-      font-size: 1.4rem;
-      color: var(--accent-emerald);
     }
 
     .file-info {
@@ -553,15 +445,15 @@
     }
 
     .file-name-input {
-      background: rgba(9, 14, 12, 0.8);
+      background: rgba(8, 13, 10, 0.8);
       border: 1px solid var(--border-color);
       color: var(--accent-emerald-bright);
-      padding: 0.4rem 0.6rem;
+      padding: 0.4rem 0.65rem;
       border-radius: var(--radius-sm);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.875rem;
       width: 100%;
-      max-width: 380px;
+      max-width: 420px;
       transition: all 0.2s;
     }
 
@@ -657,7 +549,7 @@
     }
 
     .result-card {
-      background: rgba(9, 14, 12, 0.7);
+      background: rgba(8, 13, 10, 0.75);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 0.85rem 1rem;
@@ -682,7 +574,7 @@
       outline: none;
     }
 
-    /* Toast Notification */
+    /* Toast Container */
     .toast-container {
       position: fixed;
       bottom: 2rem;
@@ -694,7 +586,7 @@
     }
 
     .toast {
-      background: rgba(16, 25, 21, 0.95);
+      background: rgba(14, 23, 19, 0.95);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
       border-left: 4px solid var(--accent-emerald);
@@ -717,283 +609,124 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      width: 90%;
-      max-width: 540px;
-      padding: 2rem;
-      box-shadow: var(--glass-shadow);
-      transform: translateY(20px);
-      transition: transform 0.3s;
-    }
-
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-footer {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
-
-    code {
-      font-family: 'JetBrains Mono', monospace;
-      background: rgba(16, 185, 129, 0.15);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-size: 0.8em;
-      color: var(--accent-emerald-bright);
-    }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Glow & Minecraft Pixel Grid -->
-  <div class="bg-ambient">
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-  </div>
+  <!-- Ambient Pixel Grid -->
+  <div class="bg-ambient"></div>
 
   <!-- Header -->
   <header>
     <div class="header-container">
       <a href="#" class="brand">
         <div class="brand-icon">
-          <i class="fa-solid fa-map"></i>
+          <i class="fa-solid fa-image"></i>
         </div>
         <div>
-          <span class="brand-title">Minecraft Map Uploader</span>
-          <span class="brand-tag">Cloudinary Storage</span>
+          <span class="brand-title">Minecraft Map Image Uploader</span>
+          <span class="brand-tag">Cloudinary: zeioqxwq</span>
         </div>
       </a>
 
-      <div class="rule-pill">
-        <i class="fa-solid fa-shield-halved"></i>
-        <span>파일명 허용 규격: <code>[a-z0-9._/-]</code></span>
+      <div class="server-badge">
+        <i class="fa-solid fa-server"></i>
+        <span>서버 연동 고정 스토리지</span>
       </div>
 
-      <div class="header-actions">
-        <button id="btnQuickConfig" class="btn btn-secondary">
-          <i class="fa-solid fa-gear"></i> Cloudinary 설정
-        </button>
-        <button id="btnUploadAll" class="btn btn-primary" disabled>
-          <i class="fa-solid fa-upload"></i> 전체 업로드
-        </button>
-      </div>
+      <button id="btnUploadAll" class="btn btn-primary" disabled>
+        <i class="fa-solid fa-cloud-arrow-up"></i> 전체 이미지 업로드
+      </button>
     </div>
   </header>
 
   <!-- Main Workspace -->
   <main>
-    <div class="app-layout">
+    <div class="workspace">
       
-      <!-- Left: Configuration Panel -->
-      <aside class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <i class="fa-solid fa-sliders" style="color: var(--accent-emerald-bright)"></i>
-            업로드 서버 설정
-          </div>
-          <span id="configStatusBadge" class="badge-status status-configured">
-            <i class="fa-solid fa-circle-check"></i> 준비됨
-          </span>
-        </div>
-
-        <!-- Minecraft Rule Tip -->
-        <div class="mc-rule-banner">
-          <i class="fa-solid fa-circle-info" style="font-size: 1.1rem; margin-top: 0.1rem; color: var(--accent-diamond);"></i>
-          <div>
-            <strong>마인크래프트 파일 규격 자동 반영</strong><br>
-            업로드되는 파일명은 마인크래프트 허용 문자(소문자, 숫자, 점, 밑줄, 하이픈, 슬래시) 범위로 그대로 깔끔하게 치환됩니다.
+      <!-- Notice Banner -->
+      <div class="rule-banner">
+        <div class="rule-info">
+          <i class="fa-solid fa-shield-cat rule-icon"></i>
+          <div class="rule-text">
+            <strong>마인크래프트 서버 전용 이미지 업로더</strong><br>
+            오직 <strong>이미지 파일</strong>만 업로드 가능하며, 파일명은 규칙 <code>[a-z0-9._/-]</code> 범위로 자동 치환됩니다.
           </div>
         </div>
-
-        <!-- Connection Mode Toggle -->
-        <div class="form-group">
-          <label class="form-label">인증 방식</label>
-          <select id="authMethod" class="form-select">
-            <option value="url">CLOUDINARY_URL 파싱 (자동)</option>
-            <option value="signed">API Key & API Secret (서명 업로드)</option>
-            <option value="unsigned">Unsigned Upload Preset (미서명 업로드)</option>
-          </select>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-emerald-bright); background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.25);">
+          허용 형식: PNG, JPG, GIF, WEBP, BMP
         </div>
+      </div>
 
-        <!-- Cloudinary URL Input -->
-        <div id="groupCloudinaryUrl" class="form-group">
-          <label class="form-label">
-            CLOUDINARY_URL
-            <i class="fa-solid fa-circle-question" title="cloudinary://<key>:<secret>@<cloud_name> 형식"></i>
-          </label>
-          <input type="password" id="inputCloudinaryUrl" class="form-input" placeholder="cloudinary://api_key:api_secret@zeioqxwq" value="cloudinary://API_KEY:API_SECRET@zeioqxwq">
-          <span class="help-text">CLOUDINARY_URL을 입력하면 계정 키와 서명이 자동 계산됩니다.</span>
-        </div>
-
-        <!-- Cloud Name -->
-        <div class="form-group">
-          <label class="form-label">Cloud Name (클라우드 이름)</label>
-          <input type="text" id="inputCloudName" class="form-input" placeholder="zeioqxwq" value="zeioqxwq">
-        </div>
-
-        <!-- API Key & Secret (Visible when Signed) -->
-        <div id="groupSignedKeys" class="form-group" style="display: none;">
-          <div class="form-group" style="margin-bottom: 0.5rem;">
-            <label class="form-label">API Key</label>
-            <input type="text" id="inputApiKey" class="form-input" placeholder="API Key 입력">
-          </div>
-          <div class="form-group">
-            <label class="form-label">API Secret</label>
-            <input type="password" id="inputApiSecret" class="form-input" placeholder="API Secret 입력">
-          </div>
-        </div>
-
-        <!-- Unsigned Upload Preset (Visible when Unsigned) -->
-        <div id="groupUnsignedPreset" class="form-group" style="display: none;">
-          <label class="form-label">Upload Preset Name</label>
-          <input type="text" id="inputUploadPreset" class="form-input" placeholder="예: ml_default">
-          <span class="help-text">Cloudinary 설정에서 Unsigned preset으로 생성한 이름을 입력하세요.</span>
-        </div>
-
-        <!-- Cloudinary Target Folder -->
-        <div class="form-group">
-          <label class="form-label">Cloudinary 저장 폴더</label>
-          <input type="text" id="inputFolder" class="form-input" placeholder="minecraft_maps" value="minecraft_maps">
-        </div>
-
-        <!-- Options -->
-        <div class="form-group">
-          <label class="form-label" style="cursor: pointer;">
-            <input type="checkbox" id="checkUseFilename" checked style="accent-color: var(--accent-emerald);">
-            수정한 파일명을 Public ID로 적용
-          </label>
-          <span class="help-text">체크 시 Cloudinary 저장 URL에 수정된 파일명이 반영됩니다.</span>
-        </div>
-
-        <button id="btnSaveSettings" class="btn btn-secondary" style="width: 100%; justify-content: center;">
-          <i class="fa-solid fa-floppy-disk"></i> 설정 저장
+      <!-- Drag & Drop Zone (STRICT IMAGE ONLY) -->
+      <div id="dropZone" class="drop-zone">
+        <i class="fa-solid fa-file-image drop-zone-icon"></i>
+        <h2 class="drop-zone-title">마인크래프트 지도용 이미지를 드래그 앤 드롭하세요</h2>
+        <p class="drop-zone-subtitle">이미지 파일만 지원됩니다 (.png, .jpg, .gif, .webp, .bmp 등)</p>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+          <i class="fa-solid fa-images"></i> 이미지 파일 선택하기
         </button>
-      </aside>
+        <!-- STRICT IMAGE INPUT -->
+        <input type="file" id="fileInput" class="file-input-hidden" accept="image/*,.png,.jpg,.jpeg,.gif,.webp,.bmp" multiple>
+      </div>
 
-      <!-- Right: Main Upload Workspace -->
-      <section class="workspace">
-
-        <!-- Drag & Drop Zone -->
-        <div id="dropZone" class="drop-zone">
-          <i class="fa-solid fa-map-location-dot drop-zone-icon"></i>
-          <h2 class="drop-zone-title">마인크래프트 지도 파일 / 이미지를 드래그 앤 드롭하세요</h2>
-          <p class="drop-zone-subtitle">지도 이미지 (.png, .jpg, .webp 등) 및 지도 데이터 파일 (.dat 등) 모두 업로드 가능합니다.</p>
-          <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-            <i class="fa-solid fa-folder-open"></i> 파일 선택하기
+      <!-- Batch Toolbar -->
+      <div id="batchToolbar" class="batch-toolbar" style="display: none;">
+        <div class="batch-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-gold);"></i> 이미지 파일명 일괄 수정
+        </div>
+        <div class="batch-controls">
+          <input type="text" id="batchPrefix" class="form-input input-compact" placeholder="접두사 (Prefix)">
+          <input type="text" id="batchSuffix" class="form-input input-compact" placeholder="접미사 (Suffix)">
+          <button id="btnApplyBatchRules" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
+            <i class="fa-solid fa-check"></i> 적용
           </button>
-          <input type="file" id="fileInput" class="file-input-hidden" multiple>
+          <button id="btnResetNames" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
+            <i class="fa-solid fa-rotate-left"></i> 원본 이름으로
+          </button>
         </div>
+      </div>
 
-        <!-- Batch Toolbar -->
-        <div id="batchToolbar" class="batch-toolbar" style="display: none;">
-          <div class="batch-title">
-            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-gold);"></i> 파일명 일괄 변경
+      <!-- File List Section -->
+      <div id="fileSection" class="file-section" style="display: none;">
+        <div class="file-section-header">
+          <div class="file-count">
+            <i class="fa-solid fa-list-check" style="color: var(--accent-emerald-bright); margin-right: 0.4rem;"></i>
+            대기 중인 이미지 (<span id="totalFileCount">0</span>개)
           </div>
-          <div class="batch-controls">
-            <input type="text" id="batchPrefix" class="form-input input-compact" placeholder="접두사 (Prefix)">
-            <input type="text" id="batchSuffix" class="form-input input-compact" placeholder="접미사 (Suffix)">
-            <button id="btnApplyBatchRules" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
-              <i class="fa-solid fa-check"></i> 적용
+          <div>
+            <button id="btnClearAll" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+              <i class="fa-solid fa-trash-can"></i> 전체 비우기
             </button>
-            <button id="btnResetNames" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
-              <i class="fa-solid fa-rotate-left"></i> 원본 이름으로
+          </div>
+        </div>
+
+        <div id="fileList" class="file-list">
+          <!-- Dynamic Image File Items -->
+        </div>
+      </div>
+
+      <!-- Uploaded Results Gallery -->
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <div class="results-header">
+          <h3 class="panel-title" style="font-family: 'Outfit', sans-serif;">
+            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i>
+            Cloudinary 이미지 업로드 성공 (<span id="successCount">0</span>)
+          </h3>
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="btnCopyAllLinks" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+              <i class="fa-solid fa-copy"></i> 전체 URL 복사
+            </button>
+            <button id="btnExportMarkdown" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+              <i class="fa-brands fa-markdown"></i> Markdown 복사
             </button>
           </div>
         </div>
 
-        <!-- File List Section -->
-        <div id="fileSection" class="file-section" style="display: none;">
-          <div class="file-section-header">
-            <div class="file-count">
-              <i class="fa-solid fa-boxes-stacked" style="color: var(--accent-emerald-bright); margin-right: 0.4rem;"></i>
-              업로드 대기 목록 (<span id="totalFileCount">0</span>개)
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-              <button id="btnClearAll" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
-                <i class="fa-solid fa-trash-can"></i> 전체 비우기
-              </button>
-            </div>
-          </div>
-
-          <div id="fileList" class="file-list">
-            <!-- Dynamic File Items -->
-          </div>
+        <div id="resultsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Uploaded Link Cards -->
         </div>
-
-        <!-- Uploaded Results Gallery -->
-        <div id="resultsSection" class="results-section" style="display: none;">
-          <div class="results-header">
-            <h3 class="panel-title">
-              <i class="fa-solid fa-circle-check" style="color: var(--success);"></i>
-              Cloudinary 업로드 완료 목록 (<span id="successCount">0</span>)
-            </h3>
-            <div style="display: flex; gap: 0.5rem;">
-              <button id="btnCopyAllLinks" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
-                <i class="fa-solid fa-copy"></i> 전체 URL 복사
-              </button>
-              <button id="btnExportMarkdown" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
-                <i class="fa-brands fa-markdown"></i> Markdown 복사
-              </button>
-            </div>
-          </div>
-
-          <div id="resultsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <!-- Uploaded Link Cards -->
-          </div>
-        </div>
-
-      </section>
+      </div>
 
     </div>
   </main>
@@ -1001,58 +734,30 @@
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Settings Modal -->
-  <div id="modalConfig" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">
-          <i class="fa-solid fa-cloud" style="color: var(--accent-emerald-bright)"></i> Cloudinary 연결 가이드
-        </h3>
-        <button class="btn btn-secondary btn-icon-only" onclick="toggleModal(false)">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-          마인크래프트 지도 파일 전용 업로더입니다.
-        </p>
-        <div style="background: rgba(9, 14, 12, 0.7); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <strong style="color: var(--accent-emerald-bright); display: block; margin-bottom: 0.5rem;">사용 가능 안내:</strong>
-          <ol style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
-            <li><strong>CLOUDINARY_URL 자동 입력:</strong><br>
-                <code>cloudinary://API_KEY:API_SECRET@zeioqxwq</code> 형태의 접속 URL을 붙여넣으면 즉시 활성화됩니다.
-            </li>
-            <li><strong>파일명 자동 정제 규칙:</strong><br>
-                입력되는 파일명은 원래 이름을 유지한 상태에서 마인크래프트 허용 문자 범위 <code>[a-z0-9._/-]</code> 로 자동 치환(대문자 &rarr; 소문자, 공백 &rarr; 밑줄)됩니다.
-            </li>
-          </ol>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" onclick="toggleModal(false)">확인</button>
-      </div>
-    </div>
-  </div>
-
   <script>
+    // FIXED Cloudinary Account Target Configuration for Minecraft Server
+    const FIXED_CONFIG = {
+      cloudName: 'zeioqxwq',
+      folder: 'minecraft_maps', // Fixed storage folder
+      // Default URL format provided by user: CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@zeioqxwq
+      // We parse credentials from saved localStorage or default format
+      apiKey: '',
+      apiSecret: '',
+      uploadPreset: 'ml_default' // Unsigned fallback preset if unsigned is used
+    };
+
+    // Allowed Image MIME types and extensions
+    const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'];
+    const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'];
+
     // State management
     const state = {
-      files: [], // Array of { id, file, originalName, name, ext, size, status, progress, resultUrl, errorMsg }
-      config: {
-        authMethod: 'url',
-        cloudinaryUrl: 'cloudinary://API_KEY:API_SECRET@zeioqxwq',
-        cloudName: 'zeioqxwq',
-        apiKey: '',
-        apiSecret: '',
-        uploadPreset: '',
-        folder: 'minecraft_maps',
-        useFilename: true
-      }
+      files: [] // Array of { id, file, originalName, name, ext, size, status, progress, resultUrl, errorMsg }
     };
 
     // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._/-]
     function sanitizeMinecraftFilename(str) {
-      if (!str) return '';
+      if (!str) return 'image';
       let cleaned = str.toLowerCase();
       // Replace spaces with underscores
       cleaned = cleaned.replace(/\s+/g, '_');
@@ -1062,7 +767,15 @@
       cleaned = cleaned.replace(/_+/g, '_');
       // Remove leading/trailing underscores
       cleaned = cleaned.replace(/^_+|_+$/g, '');
-      return cleaned;
+      return cleaned || 'image';
+    }
+
+    // Check if a file is a valid image
+    function isImageFile(file) {
+      if (!file) return false;
+      if (file.type && file.type.startsWith('image/')) return true;
+      const fileNameLower = file.name.toLowerCase();
+      return ALLOWED_EXTENSIONS.some(ext => fileNameLower.endsWith(ext));
     }
 
     // DOM Elements
@@ -1076,30 +789,8 @@
     const resultsList = document.getElementById('resultsList');
     const successCount = document.getElementById('successCount');
     const btnUploadAll = document.getElementById('btnUploadAll');
-    
-    // Config Elements
-    const authMethodSelect = document.getElementById('authMethod');
-    const groupCloudinaryUrl = document.getElementById('groupCloudinaryUrl');
-    const groupSignedKeys = document.getElementById('groupSignedKeys');
-    const groupUnsignedPreset = document.getElementById('groupUnsignedPreset');
-    const inputCloudinaryUrl = document.getElementById('inputCloudinaryUrl');
-    const inputCloudName = document.getElementById('inputCloudName');
-    const inputApiKey = document.getElementById('inputApiKey');
-    const inputApiSecret = document.getElementById('inputApiSecret');
-    const inputUploadPreset = document.getElementById('inputUploadPreset');
-    const inputFolder = document.getElementById('inputFolder');
-    const checkUseFilename = document.getElementById('checkUseFilename');
-    const btnSaveSettings = document.getElementById('btnSaveSettings');
-    const configStatusBadge = document.getElementById('configStatusBadge');
 
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', () => {
-      loadSettings();
-      setupEventListeners();
-      updateConfigUI();
-    });
-
-    // SHA-1 calculation for Signed Cloudinary Upload
+    // SHA-1 calculation for Cloudinary Direct Upload
     async function sha1(str) {
       const buffer = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
@@ -1107,110 +798,13 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Load Settings
-    function loadSettings() {
-      const saved = localStorage.getItem('mc_map_uploader_config');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          state.config = { ...state.config, ...parsed };
-        } catch (e) {
-          console.error("설정 로드 오류:", e);
-        }
-      }
-
-      authMethodSelect.value = state.config.authMethod || 'url';
-      inputCloudinaryUrl.value = state.config.cloudinaryUrl || '';
-      inputCloudName.value = state.config.cloudName || 'zeioqxwq';
-      inputApiKey.value = state.config.apiKey || '';
-      inputApiSecret.value = state.config.apiSecret || '';
-      inputUploadPreset.value = state.config.uploadPreset || '';
-      inputFolder.value = state.config.folder || 'minecraft_maps';
-      checkUseFilename.checked = state.config.useFilename !== false;
-
-      parseCloudinaryUrlIfNeeded();
-    }
-
-    // Save Settings
-    function saveSettings() {
-      state.config.authMethod = authMethodSelect.value;
-      state.config.cloudinaryUrl = inputCloudinaryUrl.value.trim();
-      state.config.cloudName = inputCloudName.value.trim();
-      state.config.apiKey = inputApiKey.value.trim();
-      state.config.apiSecret = inputApiSecret.value.trim();
-      state.config.uploadPreset = inputUploadPreset.value.trim();
-      state.config.folder = sanitizeMinecraftFilename(inputFolder.value.trim()) || 'minecraft_maps';
-      state.config.useFilename = checkUseFilename.checked;
-
-      parseCloudinaryUrlIfNeeded();
-
-      localStorage.setItem('mc_map_uploader_config', JSON.stringify(state.config));
-      showToast('Cloudinary 설정이 저장되었습니다.', 'success');
-      updateConfigUI();
-    }
-
-    // Parse CLOUDINARY_URL
-    function parseCloudinaryUrlIfNeeded() {
-      const url = inputCloudinaryUrl.value.trim();
-      if (url.startsWith('cloudinary://')) {
-        try {
-          const clean = url.replace('cloudinary://', '');
-          const [creds, cName] = clean.split('@');
-          if (creds && cName) {
-            const [key, secret] = creds.split(':');
-            if (key && secret) {
-              state.config.apiKey = key;
-              state.config.apiSecret = secret;
-              state.config.cloudName = cName;
-              inputApiKey.value = key;
-              inputApiSecret.value = secret;
-              inputCloudName.value = cName;
-            }
-          }
-        } catch (err) {
-          console.warn("Cloudinary URL 파싱 실패:", err);
-        }
-      }
-    }
-
-    // Update Form UI
-    function updateConfigUI() {
-      const method = authMethodSelect.value;
-      groupCloudinaryUrl.style.display = (method === 'url') ? 'flex' : 'none';
-      groupSignedKeys.style.display = (method === 'signed') ? 'flex' : 'none';
-      groupUnsignedPreset.style.display = (method === 'unsigned') ? 'flex' : 'none';
-
-      let isReady = false;
-      if (method === 'url' || method === 'signed') {
-        isReady = !!(state.config.cloudName && state.config.apiKey && state.config.apiSecret);
-      } else {
-        isReady = !!(state.config.cloudName && state.config.uploadPreset);
-      }
-
-      if (isReady) {
-        configStatusBadge.className = 'badge-status status-configured';
-        configStatusBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> 준비됨';
-      } else {
-        configStatusBadge.className = 'badge-status status-missing';
-        configStatusBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 설정 필요';
-      }
-    }
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+    });
 
     // Setup Event Listeners
     function setupEventListeners() {
-      authMethodSelect.addEventListener('change', () => {
-        state.config.authMethod = authMethodSelect.value;
-        updateConfigUI();
-      });
-
-      inputCloudinaryUrl.addEventListener('input', () => {
-        parseCloudinaryUrlIfNeeded();
-        updateConfigUI();
-      });
-
-      btnSaveSettings.addEventListener('click', saveSettings);
-      document.getElementById('btnQuickConfig').addEventListener('click', () => toggleModal(true));
-
       // Drag & Drop
       ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
@@ -1229,17 +823,13 @@
       });
 
       dropZone.addEventListener('drop', (e) => {
-        const files = Array.from(e.dataTransfer.files);
-        if (files.length > 0) {
-          addFiles(files);
-        }
+        const rawFiles = Array.from(e.dataTransfer.files);
+        processIncomingFiles(rawFiles);
       });
 
       fileInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-          addFiles(files);
-        }
+        const rawFiles = Array.from(e.target.files);
+        processIncomingFiles(rawFiles);
         fileInput.value = '';
       });
 
@@ -1254,6 +844,28 @@
       document.getElementById('btnExportMarkdown').addEventListener('click', copyMarkdownLinks);
     }
 
+    // Process incoming files (STRICT IMAGE ONLY FILTER)
+    function processIncomingFiles(rawFiles) {
+      const validImages = [];
+      let rejectedCount = 0;
+
+      rawFiles.forEach(file => {
+        if (isImageFile(file)) {
+          validImages.push(file);
+        } else {
+          rejectedCount++;
+        }
+      });
+
+      if (rejectedCount > 0) {
+        showToast(`이미지 파일만 업로드할 수 있습니다. (${rejectedCount}개 비이미지 파일 제외됨)`, 'error');
+      }
+
+      if (validImages.length > 0) {
+        addFiles(validImages);
+      }
+    }
+
     // Add Files to List
     function addFiles(fileListToAdd) {
       fileListToAdd.forEach(file => {
@@ -1265,8 +877,8 @@
           ext = file.name.substring(lastDot).toLowerCase();
         }
 
-        // Apply strict Minecraft filename rules: [a-z0-9._/-] keeping the original base name
-        const cleanName = sanitizeMinecraftFilename(rawName) || 'file';
+        // Apply strict Minecraft filename rules: [a-z0-9._/-]
+        const cleanName = sanitizeMinecraftFilename(rawName);
 
         const fileObj = {
           id: 'file_' + Math.random().toString(36).substr(2, 9),
@@ -1285,7 +897,7 @@
       });
 
       renderFileList();
-      showToast(`${fileListToAdd.length}개 지도 파일이 추가되었습니다.`, 'info');
+      showToast(`${fileListToAdd.length}개 이미지 파일이 추가되었습니다.`, 'success');
     }
 
     // Render File List
@@ -1309,16 +921,9 @@
         row.className = 'file-item';
         row.id = `item_${item.id}`;
 
-        // Preview icon/image
-        let previewHtml = '';
-        if (item.file.type.startsWith('image/')) {
-          const imgUrl = URL.createObjectURL(item.file);
-          previewHtml = `<img src="${imgUrl}" alt="map preview">`;
-        } else if (item.ext === '.dat') {
-          previewHtml = `<i class="fa-solid fa-box file-preview-icon" style="color: var(--accent-gold);"></i>`;
-        } else {
-          previewHtml = `<i class="fa-solid fa-map file-preview-icon"></i>`;
-        }
+        // Image Preview Thumbnail
+        const imgUrl = URL.createObjectURL(item.file);
+        const previewHtml = `<img src="${imgUrl}" alt="image preview">`;
 
         // Status Badge
         let statusBadge = '';
@@ -1340,12 +945,12 @@
             <div class="file-name-container">
               <input type="text" class="file-name-input" value="${item.name}" 
                      oninput="updateFileName('${item.id}', this.value)" 
-                     placeholder="[a-z0-9._/-] 만 허용"
+                     placeholder="[a-z0-9._/-] 규칙 반영"
                      ${item.status === 'uploading' ? 'disabled' : ''}>
               <span class="file-ext">${item.ext}</span>
             </div>
             <div class="file-meta">
-              <span><i class="fa-regular fa-file"></i> ${item.size}</span>
+              <span><i class="fa-regular fa-image"></i> ${item.size}</span>
               <span><i class="fa-solid fa-tag"></i> 원본: ${item.originalName}</span>
             </div>
           </div>
@@ -1401,7 +1006,7 @@
       });
 
       renderFileList();
-      showToast('일괄 접두사/접미사가 적용되었습니다.', 'success');
+      showToast('일괄 규칙이 적용되었습니다.', 'success');
     }
 
     // Reset names to original (sanitized)
@@ -1412,65 +1017,46 @@
         if (lastDot !== -1) {
           rawName = item.originalName.substring(0, lastDot);
         }
-        item.name = sanitizeMinecraftFilename(rawName) || 'file';
+        item.name = sanitizeMinecraftFilename(rawName);
       });
       renderFileList();
       showToast('원본 파일명으로 복원되었습니다.', 'info');
     }
 
-    // Upload Single File to Cloudinary via XHR
+    // Direct Upload Single File to FIXED Cloudinary account (zeioqxwq)
     async function uploadSingleFile(item) {
-      const method = state.config.authMethod;
-      const cloudName = state.config.cloudName;
-
-      if (!cloudName) {
-        throw new Error("Cloud Name이 설정되지 않았습니다.");
-      }
-
-      const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+      const cloudName = FIXED_CONFIG.cloudName;
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       const formData = new FormData();
-      formData.append('file', item.file);
 
-      const folder = state.config.folder;
-      if (folder) {
-        formData.append('folder', folder);
-      }
+      formData.append('file', item.file);
+      formData.append('folder', FIXED_CONFIG.folder);
 
       // Target Public ID with strict sanitization
-      const targetPublicId = state.config.useFilename ? (sanitizeMinecraftFilename(item.name) || 'file') : null;
+      const targetPublicId = sanitizeMinecraftFilename(item.name);
       if (targetPublicId) {
         formData.append('public_id', targetPublicId);
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
 
-      if (method === 'unsigned') {
-        const preset = state.config.uploadPreset;
-        if (!preset) {
-          throw new Error("Unsigned Upload Preset 이름을 입력하세요.");
-        }
-        formData.append('upload_preset', preset);
-      } else {
-        const apiKey = state.config.apiKey;
-        const apiSecret = state.config.apiSecret;
-
-        if (!apiKey || !apiSecret) {
-          throw new Error("API Key & Secret이 필요합니다.");
-        }
-
-        formData.append('api_key', apiKey);
+      // Try signed upload if credentials exist or fallback to preset
+      if (FIXED_CONFIG.apiKey && FIXED_CONFIG.apiSecret) {
+        formData.append('api_key', FIXED_CONFIG.apiKey);
         formData.append('timestamp', timestamp);
 
-        const paramsToSign = [];
-        if (folder) paramsToSign.push(`folder=${folder}`);
-        if (targetPublicId) paramsToSign.push(`public_id=${targetPublicId}`);
-        paramsToSign.push(`timestamp=${timestamp}`);
+        const paramsToSign = [
+          `folder=${FIXED_CONFIG.folder}`,
+          `public_id=${targetPublicId}`,
+          `timestamp=${timestamp}`
+        ].sort();
 
-        paramsToSign.sort();
-        const signatureString = paramsToSign.join('&') + apiSecret;
+        const signatureString = paramsToSign.join('&') + FIXED_CONFIG.apiSecret;
         const signature = await sha1(signatureString);
-
         formData.append('signature', signature);
+      } else {
+        // Fallback to unsigned preset
+        formData.append('upload_preset', FIXED_CONFIG.uploadPreset);
       }
 
       return new Promise((resolve, reject) => {
@@ -1531,12 +1117,12 @@
     async function uploadAllFiles() {
       const readyFiles = state.files.filter(f => f.status === 'ready' || f.status === 'error');
       if (readyFiles.length === 0) {
-        showToast('업로드할 대상 파일이 없습니다.', 'warning');
+        showToast('업로드할 대상 이미지 파일이 없습니다.', 'warning');
         return;
       }
 
       btnUploadAll.disabled = true;
-      showToast(`${readyFiles.length}개 지도 파일 업로드를 시작합니다...`, 'info');
+      showToast(`${readyFiles.length}개 이미지 업로드를 시작합니다...`, 'info');
 
       let successCountNum = 0;
 
@@ -1554,7 +1140,7 @@
       renderResults();
       
       if (successCountNum > 0) {
-        showToast(`총 ${successCountNum}개 지도 파일이 성공적으로 Cloudinary에 업로드되었습니다!`, 'success');
+        showToast(`총 ${successCountNum}개 이미지가 Cloudinary(zeioqxwq)에 성공적으로 업로드되었습니다!`, 'success');
       }
     }
 
@@ -1574,8 +1160,8 @@
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
-            <i class="fa-solid fa-map-location" style="color: var(--accent-emerald-bright);"></i>
+          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
+            <img src="${item.resultUrl}" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border-color);" alt="result">
             <div style="flex: 1; min-width: 0;">
               <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.2rem; color: var(--accent-emerald-bright);">
                 ${item.name}${item.ext}
@@ -1584,7 +1170,7 @@
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem;">
-            <button class="btn btn-secondary btn-icon-only" title="복사" onclick="copyToClipboard('${item.resultUrl}')">
+            <button class="btn btn-secondary btn-icon-only" title="URL 복사" onclick="copyToClipboard('${item.resultUrl}')">
               <i class="fa-solid fa-copy"></i>
             </button>
             <a href="${item.resultUrl}" target="_blank" class="btn btn-secondary btn-icon-only" title="새 탭에서 열기">
@@ -1599,7 +1185,7 @@
     // Clipboard helper
     window.copyToClipboard = function(text) {
       navigator.clipboard.writeText(text).then(() => {
-        showToast('URL이 클립보드에 복사되었습니다.', 'success');
+        showToast('이미지 URL이 클립보드에 복사되었습니다.', 'success');
       }).catch(err => {
         showToast('복사 실패: ' + err, 'error');
       });
@@ -1654,13 +1240,6 @@
         setTimeout(() => toast.remove(), 300);
       }, 4000);
     }
-
-    // Modal Control
-    window.toggleModal = function(show) {
-      const modal = document.getElementById('modalConfig');
-      if (show) modal.classList.add('active');
-      else modal.classList.remove('active');
-    };
   </script>
 </body>
 </html>
