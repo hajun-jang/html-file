@@ -21,12 +21,11 @@ A collection of various HTML/JS experiments and small applications.
     - [index.html](./tycoon/cafe/index.html): Premium Coffee Shop Tycoon with local storage saving, audio synthesis, and admin command panel.
   - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
     - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
-  - **[hacknet/](./tycoon/hacknet/)**: Real-Time Shared Cooperative Hacknet Tycoon.
-    - [index.html](./tycoon/hacknet/index.html): The main game board page (root path, automatically redirects to nested login if unauthenticated). Supports local offline mode by default, and upgrades to online multiplayer sync via the in-game settings gear.
-    - [login/index.html](./tycoon/hacknet/login/index.html): Parameterized secure gateway authentication terminal for general users and the admin.
-    - [signup/index.html](./tycoon/hacknet/signup/index.html): Registration interface supporting matching password validation and auto-login redirecting.
 - **[life/](./life/)**: Conway's Game of Life simulation.
   - [index.html](./life/index.html): Premium Conway's Game of Life simulation featuring high-performance Canvas rendering, cellular aging gradients, toroidal grid wrapping, famous pattern presets, and interactive Web Audio API synthesis.
+- **[uploader/](./uploader/)**: Minecraft Map Art Direct Cloudinary Uploader.
+  - [index.html](./uploader/index.html): A client-side static web application for dragging & dropping, batch/individual renaming with strict `[a-z0-9._/-]` sanitization, and direct Cloudinary uploading for Minecraft map art and `.dat` files using Web Crypto SHA-1 signatures or unsigned presets.
+
 
 
 ## How to Run
