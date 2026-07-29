@@ -646,7 +646,7 @@
           <i class="fa-solid fa-shield-cat rule-icon"></i>
           <div class="rule-text">
             <strong>마인크래프트 지도 전용 이미지 업로더</strong><br>
-            이미지 파일만 업로드되며, 파일명은 마인크래프트 호환 규칙 <code>[a-z0-9._-]</code> 로 실시간 제한됩니다.
+            이미지 파일만 업로드되며, 파일명은 마인크래프트 호환 규칙 <code>[a-z0-9._-]</code> (슬래시 '/' 사용 불가) 로 실시간 제한됩니다.
           </div>
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent-emerald-bright); background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.25);">
@@ -757,28 +757,29 @@
 
     // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._-] (NO Slash '/')
     function sanitizeMinecraftFilename(str) {
-      if (!str) return 'image';
+      if (!str) return '';
       let cleaned = str.toLowerCase();
       cleaned = cleaned.replace(/\s+/g, '_');
-      cleaned = cleaned.replace(/[^a-z0-9._\-]/g, '_');
-      cleaned = cleaned.replace(/_+/g, '_');
-      cleaned = cleaned.replace(/^_+|_+$/g, '');
-      return cleaned || 'image';
+      cleaned = cleaned.replace(/[^a-z0-9._\-]/g, '');
+      return cleaned;
     }
 
     // Real-time input validator for [a-z0-9._-]
     let toastCooldown = false;
     function handleRealtimeFilenameInput(inputElem, fileId) {
-      const originalValue = inputElem.value;
-      
-      // Check if invalid characters exist (outside a-z, 0-9, ., _, -)
-      if (/[^a-z0-9._\-]/g.test(originalValue)) {
+      const rawVal = inputElem.value;
+      const lowerVal = rawVal.toLowerCase();
+
+      // Test strictly for invalid characters AFTER lowercase conversion & space to _ conversion
+      const hasInvalidChars = /[^a-z0-9._\-\s]/g.test(rawVal.toLowerCase());
+
+      if (hasInvalidChars) {
         // Red flash highlight
         inputElem.style.borderColor = '#f87171';
         inputElem.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.35)';
 
         if (!toastCooldown) {
-          showToast("경고: [a-z0-9._-] 이외의 문자는 입력할 수 없습니다! (슬래시 '/', 대문자, 한글, 공백 등 제외됨)", "warning");
+          showToast("경고: [a-z0-9._-] 이외의 문자는 입력할 수 없습니다! (한글, 슬래시 '/', 특수문자 등 제외됨)", "warning");
           toastCooldown = true;
           setTimeout(() => { toastCooldown = false; }, 2000);
         }
@@ -786,17 +787,17 @@
         setTimeout(() => {
           inputElem.style.borderColor = '';
           inputElem.style.boxShadow = '';
-        }, 1200);
-
-        // Sanitize real-time
-        const sanitized = sanitizeMinecraftFilename(originalValue);
-        inputElem.value = sanitized;
+        }, 1000);
       }
+
+      // Preserve existing valid text without Backspace shrinking bug
+      const cleanVal = lowerVal.replace(/\s+/g, '_').replace(/[^a-z0-9._\-]/g, '');
+      inputElem.value = cleanVal;
 
       if (fileId) {
         const item = state.files.find(f => f.id === fileId);
         if (item) {
-          item.name = inputElem.value;
+          item.name = cleanVal;
         }
       }
     }
@@ -901,7 +902,7 @@
           ext = file.name.substring(lastDot).toLowerCase();
         }
 
-        const cleanName = sanitizeMinecraftFilename(rawName);
+        const cleanName = sanitizeMinecraftFilename(rawName) || 'image';
 
         const fileObj = {
           id: 'file_' + Math.random().toString(36).substr(2, 9),
@@ -1011,7 +1012,7 @@
 
       state.files.forEach(item => {
         const raw = `${prefix}${item.name}${suffix}`;
-        item.name = sanitizeMinecraftFilename(raw);
+        item.name = sanitizeMinecraftFilename(raw) || item.name;
       });
 
       renderFileList();
@@ -1025,7 +1026,7 @@
         if (lastDot !== -1) {
           rawName = item.originalName.substring(0, lastDot);
         }
-        item.name = sanitizeMinecraftFilename(rawName);
+        item.name = sanitizeMinecraftFilename(rawName) || 'image';
       });
       renderFileList();
       showToast('원본 파일명으로 복원되었습니다.', 'info');
@@ -1040,7 +1041,7 @@
       formData.append('upload_preset', TARGET.uploadPreset);
       formData.append('folder', TARGET.folder);
 
-      const targetPublicId = sanitizeMinecraftFilename(item.name);
+      const targetPublicId = sanitizeMinecraftFilename(item.name) || 'image';
       if (targetPublicId) {
         formData.append('public_id', targetPublicId);
       }
