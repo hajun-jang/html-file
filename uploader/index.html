@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Map Direct Uploader</title>
+  <meta name="description" content="마인크래프트 지도 이미지 및 .dat 파일 전용 Cloudinary 업로더 & 이름 정제 도구">
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-primary: #090e0c;
+      --bg-secondary: #101915;
+      --bg-card: rgba(18, 29, 24, 0.75);
+      --bg-card-hover: rgba(25, 41, 34, 0.85);
+      --border-color: rgba(52, 211, 153, 0.12);
+      --border-focus: rgba(52, 211, 153, 0.5);
+      
+      --accent-emerald: #10b981;
+      --accent-emerald-bright: #34d399;
+      --accent-diamond: #06b6d4;
+      --accent-gold: #fbbf24;
+      --accent-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%);
+      --accent-gradient-hover: linear-gradient(135deg, #047857 0%, #059669 50%, #0891b2 100%);
+      
+      --text-main: #f0fdf4;
+      --text-muted: #94a3b8;
+      --text-dim: #5eead4;
+      
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      --glow-emerald: 0 0 25px rgba(16, 185, 129, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.04) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    /* Pixel Art Grid Overlay Background */
+    .bg-ambient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      animation: floatBlob 22s infinite alternate ease-in-out;
+    }
+
+    .blob-1 {
+      width: 450px;
+      height: 450px;
+      background: #059669;
+      top: -120px;
+      left: -100px;
+    }
+
+    .blob-2 {
+      width: 500px;
+      height: 500px;
+      background: #0891b2;
+      bottom: -150px;
+      right: -100px;
+      animation-delay: -8s;
+    }
+
+    @keyframes floatBlob {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, 30px) scale(1.08); }
+      100% { transform: translate(-30px, 60px) scale(0.95); }
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(9, 14, 12, 0.85);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #fff;
+      box-shadow: var(--glow-emerald);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+    }
+
+    .brand-title {
+      font-family: 'VT323', monospace;
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+      color: #ecfdf5;
+      text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+    }
+
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.725rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald-bright);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .rule-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--accent-diamond);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-gradient-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(52, 211, 153, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon-only {
+      padding: 0.6rem;
+      border-radius: var(--radius-md);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Grid Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (min-width: 1024px) {
+      .app-layout {
+        grid-template-columns: 360px 1fr;
+      }
+    }
+
+    /* Sidebar Panel */
+    .panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      height: fit-content;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.85rem;
+    }
+
+    .panel-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: rgba(9, 14, 12, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .help-text {
+      font-size: 0.75rem;
+      color: rgba(148, 163, 184, 0.8);
+      line-height: 1.4;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .status-configured {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-missing {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    /* Notice Banner for Minecraft Rules */
+    .mc-rule-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      font-size: 0.8rem;
+      color: #a5f3fc;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+
+    /* Workspace */
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Drag and Drop Zone */
+    .drop-zone {
+      border: 2px dashed rgba(16, 185, 129, 0.4);
+      background: rgba(18, 29, 24, 0.4);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 3.2rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-emerald-bright);
+      background: rgba(16, 185, 129, 0.08);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-emerald);
+    }
+
+    .drop-zone-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .drop-zone:hover .drop-zone-icon {
+      transform: scale(1.1) translateY(-5px);
+    }
+
+    .drop-zone-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #f0fdf4;
+    }
+
+    .drop-zone-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .file-input-hidden {
+      display: none;
+    }
+
+    /* Batch Toolbar */
+    .batch-toolbar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .batch-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .batch-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .input-compact {
+      max-width: 140px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    /* File List Table / Cards */
+    .file-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .file-section-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(9, 14, 12, 0.4);
+    }
+
+    .file-count {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .file-item {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      align-items: center;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .file-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: rgba(9, 14, 12, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .file-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .file-preview-icon {
+      font-size: 1.4rem;
+      color: var(--accent-emerald);
+    }
+
+    .file-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      min-width: 0;
+    }
+
+    .file-name-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .file-name-input {
+      background: rgba(9, 14, 12, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--accent-emerald-bright);
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      width: 100%;
+      max-width: 380px;
+      transition: all 0.2s;
+    }
+
+    .file-name-input:focus {
+      outline: none;
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    }
+
+    .file-ext {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .file-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.775rem;
+      color: var(--text-muted);
+    }
+
+    .file-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .progress-bar-container {
+      width: 120px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 0%;
+      transition: width 0.15s ease-out;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .status-ready {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+    }
+
+    .status-uploading {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-diamond);
+    }
+
+    .status-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .status-error {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--danger);
+    }
+
+    /* Result Gallery Panel */
+    .results-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-card {
+      background: rgba(9, 14, 12, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .result-link-input {
+      background: transparent;
+      border: none;
+      color: var(--accent-emerald-bright);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-link-input:focus {
+      outline: none;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: rgba(16, 25, 21, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-emerald);
+      color: var(--text-main);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toast-success { border-left-color: var(--success); }
+    .toast-error { border-left-color: var(--danger); }
+    .toast-warning { border-left-color: var(--warning); }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 540px;
+      padding: 2rem;
+      box-shadow: var(--glass-shadow);
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.8em;
+      color: var(--accent-emerald-bright);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow & Minecraft Pixel Grid -->
+  <div class="bg-ambient">
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-map"></i>
+        </div>
+        <div>
+          <span class="brand-title">Minecraft Map Uploader</span>
+          <span class="brand-tag">Cloudinary Storage</span>
+        </div>
+      </a>
+
+      <div class="rule-pill">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>파일명 허용 규격: <code>[a-z0-9._/-]</code></span>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnQuickConfig" class="btn btn-secondary">
+          <i class="fa-solid fa-gear"></i> Cloudinary 설정
+        </button>
+        <button id="btnUploadAll" class="btn btn-primary" disabled>
+          <i class="fa-solid fa-upload"></i> 전체 업로드
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main>
+    <div class="app-layout">
+      
+      <!-- Left: Configuration Panel -->
+      <aside class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-sliders" style="color: var(--accent-emerald-bright)"></i>
+            업로드 서버 설정
+          </div>
+          <span id="configStatusBadge" class="badge-status status-configured">
+            <i class="fa-solid fa-circle-check"></i> 준비됨
+          </span>
+        </div>
+
+        <!-- Minecraft Rule Tip -->
+        <div class="mc-rule-banner">
+          <i class="fa-solid fa-circle-info" style="font-size: 1.1rem; margin-top: 0.1rem; color: var(--accent-diamond);"></i>
+          <div>
+            <strong>마인크래프트 파일 규격 자동 반영</strong><br>
+            업로드되는 파일명은 마인크래프트 허용 문자(소문자, 숫자, 점, 밑줄, 하이픈, 슬래시) 범위로 그대로 깔끔하게 치환됩니다.
+          </div>
+        </div>
+
+        <!-- Connection Mode Toggle -->
+        <div class="form-group">
+          <label class="form-label">인증 방식</label>
+          <select id="authMethod" class="form-select">
+            <option value="url">CLOUDINARY_URL 파싱 (자동)</option>
+            <option value="signed">API Key & API Secret (서명 업로드)</option>
+            <option value="unsigned">Unsigned Upload Preset (미서명 업로드)</option>
+          </select>
+        </div>
+
+        <!-- Cloudinary URL Input -->
+        <div id="groupCloudinaryUrl" class="form-group">
+          <label class="form-label">
+            CLOUDINARY_URL
+            <i class="fa-solid fa-circle-question" title="cloudinary://<key>:<secret>@<cloud_name> 형식"></i>
+          </label>
+          <input type="password" id="inputCloudinaryUrl" class="form-input" placeholder="cloudinary://api_key:api_secret@zeioqxwq" value="cloudinary://API_KEY:API_SECRET@zeioqxwq">
+          <span class="help-text">CLOUDINARY_URL을 입력하면 계정 키와 서명이 자동 계산됩니다.</span>
+        </div>
+
+        <!-- Cloud Name -->
+        <div class="form-group">
+          <label class="form-label">Cloud Name (클라우드 이름)</label>
+          <input type="text" id="inputCloudName" class="form-input" placeholder="zeioqxwq" value="zeioqxwq">
+        </div>
+
+        <!-- API Key & Secret (Visible when Signed) -->
+        <div id="groupSignedKeys" class="form-group" style="display: none;">
+          <div class="form-group" style="margin-bottom: 0.5rem;">
+            <label class="form-label">API Key</label>
+            <input type="text" id="inputApiKey" class="form-input" placeholder="API Key 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Secret</label>
+            <input type="password" id="inputApiSecret" class="form-input" placeholder="API Secret 입력">
+          </div>
+        </div>
+
+        <!-- Unsigned Upload Preset (Visible when Unsigned) -->
+        <div id="groupUnsignedPreset" class="form-group" style="display: none;">
+          <label class="form-label">Upload Preset Name</label>
+          <input type="text" id="inputUploadPreset" class="form-input" placeholder="예: ml_default">
+          <span class="help-text">Cloudinary 설정에서 Unsigned preset으로 생성한 이름을 입력하세요.</span>
+        </div>
+
+        <!-- Cloudinary Target Folder -->
+        <div class="form-group">
+          <label class="form-label">Cloudinary 저장 폴더</label>
+          <input type="text" id="inputFolder" class="form-input" placeholder="minecraft_maps" value="minecraft_maps">
+        </div>
+
+        <!-- Options -->
+        <div class="form-group">
+          <label class="form-label" style="cursor: pointer;">
+            <input type="checkbox" id="checkUseFilename" checked style="accent-color: var(--accent-emerald);">
+            수정한 파일명을 Public ID로 적용
+          </label>
+          <span class="help-text">체크 시 Cloudinary 저장 URL에 수정된 파일명이 반영됩니다.</span>
+        </div>
+
+        <button id="btnSaveSettings" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+          <i class="fa-solid fa-floppy-disk"></i> 설정 저장
+        </button>
+      </aside>
+
+      <!-- Right: Main Upload Workspace -->
+      <section class="workspace">
+
+        <!-- Drag & Drop Zone -->
+        <div id="dropZone" class="drop-zone">
+          <i class="fa-solid fa-map-location-dot drop-zone-icon"></i>
+          <h2 class="drop-zone-title">마인크래프트 지도 파일 / 이미지를 드래그 앤 드롭하세요</h2>
+          <p class="drop-zone-subtitle">지도 이미지 (.png, .jpg, .webp 등) 및 지도 데이터 파일 (.dat 등) 모두 업로드 가능합니다.</p>
+          <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+            <i class="fa-solid fa-folder-open"></i> 파일 선택하기
+          </button>
+          <input type="file" id="fileInput" class="file-input-hidden" multiple>
+        </div>
+
+        <!-- Batch Toolbar -->
+        <div id="batchToolbar" class="batch-toolbar" style="display: none;">
+          <div class="batch-title">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-gold);"></i> 파일명 일괄 변경
+          </div>
+          <div class="batch-controls">
+            <input type="text" id="batchPrefix" class="form-input input-compact" placeholder="접두사 (Prefix)">
+            <input type="text" id="batchSuffix" class="form-input input-compact" placeholder="접미사 (Suffix)">
+            <button id="btnApplyBatchRules" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
+              <i class="fa-solid fa-check"></i> 적용
+            </button>
+            <button id="btnResetNames" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">
+              <i class="fa-solid fa-rotate-left"></i> 원본 이름으로
+            </button>
+          </div>
+        </div>
+
+        <!-- File List Section -->
+        <div id="fileSection" class="file-section" style="display: none;">
+          <div class="file-section-header">
+            <div class="file-count">
+              <i class="fa-solid fa-boxes-stacked" style="color: var(--accent-emerald-bright); margin-right: 0.4rem;"></i>
+              업로드 대기 목록 (<span id="totalFileCount">0</span>개)
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btnClearAll" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+                <i class="fa-solid fa-trash-can"></i> 전체 비우기
+              </button>
+            </div>
+          </div>
+
+          <div id="fileList" class="file-list">
+            <!-- Dynamic File Items -->
+          </div>
+        </div>
+
+        <!-- Uploaded Results Gallery -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+          <div class="results-header">
+            <h3 class="panel-title">
+              <i class="fa-solid fa-circle-check" style="color: var(--success);"></i>
+              Cloudinary 업로드 완료 목록 (<span id="successCount">0</span>)
+            </h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btnCopyAllLinks" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+                <i class="fa-solid fa-copy"></i> 전체 URL 복사
+              </button>
+              <button id="btnExportMarkdown" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+                <i class="fa-brands fa-markdown"></i> Markdown 복사
+              </button>
+            </div>
+          </div>
+
+          <div id="resultsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Uploaded Link Cards -->
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Settings Modal -->
+  <div id="modalConfig" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-cloud" style="color: var(--accent-emerald-bright)"></i> Cloudinary 연결 가이드
+        </h3>
+        <button class="btn btn-secondary btn-icon-only" onclick="toggleModal(false)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+          마인크래프트 지도 파일 전용 업로더입니다.
+        </p>
+        <div style="background: rgba(9, 14, 12, 0.7); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <strong style="color: var(--accent-emerald-bright); display: block; margin-bottom: 0.5rem;">사용 가능 안내:</strong>
+          <ol style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
+            <li><strong>CLOUDINARY_URL 자동 입력:</strong><br>
+                <code>cloudinary://API_KEY:API_SECRET@zeioqxwq</code> 형태의 접속 URL을 붙여넣으면 즉시 활성화됩니다.
+            </li>
+            <li><strong>파일명 자동 정제 규칙:</strong><br>
+                입력되는 파일명은 원래 이름을 유지한 상태에서 마인크래프트 허용 문자 범위 <code>[a-z0-9._/-]</code> 로 자동 치환(대문자 &rarr; 소문자, 공백 &rarr; 밑줄)됩니다.
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="toggleModal(false)">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    const state = {
+      files: [], // Array of { id, file, originalName, name, ext, size, status, progress, resultUrl, errorMsg }
+      config: {
+        authMethod: 'url',
+        cloudinaryUrl: 'cloudinary://API_KEY:API_SECRET@zeioqxwq',
+        cloudName: 'zeioqxwq',
+        apiKey: '',
+        apiSecret: '',
+        uploadPreset: '',
+        folder: 'minecraft_maps',
+        useFilename: true
+      }
+    };
+
+    // Strict Minecraft Filename Sanitizer: ALLOW ONLY [a-z0-9._/-]
+    function sanitizeMinecraftFilename(str) {
+      if (!str) return '';
+      let cleaned = str.toLowerCase();
+      // Replace spaces with underscores
+      cleaned = cleaned.replace(/\s+/g, '_');
+      // Replace any character outside [a-z0-9._/-] with an underscore
+      cleaned = cleaned.replace(/[^a-z0-9._\-\/]/g, '_');
+      // Collapse multiple consecutive underscores
+      cleaned = cleaned.replace(/_+/g, '_');
+      // Remove leading/trailing underscores
+      cleaned = cleaned.replace(/^_+|_+$/g, '');
+      return cleaned;
+    }
+
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileSection = document.getElementById('fileSection');
+    const fileList = document.getElementById('fileList');
+    const totalFileCount = document.getElementById('totalFileCount');
+    const batchToolbar = document.getElementById('batchToolbar');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsList = document.getElementById('resultsList');
+    const successCount = document.getElementById('successCount');
+    const btnUploadAll = document.getElementById('btnUploadAll');
+    
+    // Config Elements
+    const authMethodSelect = document.getElementById('authMethod');
+    const groupCloudinaryUrl = document.getElementById('groupCloudinaryUrl');
+    const groupSignedKeys = document.getElementById('groupSignedKeys');
+    const groupUnsignedPreset = document.getElementById('groupUnsignedPreset');
+    const inputCloudinaryUrl = document.getElementById('inputCloudinaryUrl');
+    const inputCloudName = document.getElementById('inputCloudName');
+    const inputApiKey = document.getElementById('inputApiKey');
+    const inputApiSecret = document.getElementById('inputApiSecret');
+    const inputUploadPreset = document.getElementById('inputUploadPreset');
+    const inputFolder = document.getElementById('inputFolder');
+    const checkUseFilename = document.getElementById('checkUseFilename');
+    const btnSaveSettings = document.getElementById('btnSaveSettings');
+    const configStatusBadge = document.getElementById('configStatusBadge');
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      setupEventListeners();
+      updateConfigUI();
+    });
+
+    // SHA-1 calculation for Signed Cloudinary Upload
+    async function sha1(str) {
+      const buffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Load Settings
+    function loadSettings() {
+      const saved = localStorage.getItem('mc_map_uploader_config');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state.config = { ...state.config, ...parsed };
+        } catch (e) {
+          console.error("설정 로드 오류:", e);
+        }
+      }
+
+      authMethodSelect.value = state.config.authMethod || 'url';
+      inputCloudinaryUrl.value = state.config.cloudinaryUrl || '';
+      inputCloudName.value = state.config.cloudName || 'zeioqxwq';
+      inputApiKey.value = state.config.apiKey || '';
+      inputApiSecret.value = state.config.apiSecret || '';
+      inputUploadPreset.value = state.config.uploadPreset || '';
+      inputFolder.value = state.config.folder || 'minecraft_maps';
+      checkUseFilename.checked = state.config.useFilename !== false;
+
+      parseCloudinaryUrlIfNeeded();
+    }
+
+    // Save Settings
+    function saveSettings() {
+      state.config.authMethod = authMethodSelect.value;
+      state.config.cloudinaryUrl = inputCloudinaryUrl.value.trim();
+      state.config.cloudName = inputCloudName.value.trim();
+      state.config.apiKey = inputApiKey.value.trim();
+      state.config.apiSecret = inputApiSecret.value.trim();
+      state.config.uploadPreset = inputUploadPreset.value.trim();
+      state.config.folder = sanitizeMinecraftFilename(inputFolder.value.trim()) || 'minecraft_maps';
+      state.config.useFilename = checkUseFilename.checked;
+
+      parseCloudinaryUrlIfNeeded();
+
+      localStorage.setItem('mc_map_uploader_config', JSON.stringify(state.config));
+      showToast('Cloudinary 설정이 저장되었습니다.', 'success');
+      updateConfigUI();
+    }
+
+    // Parse CLOUDINARY_URL
+    function parseCloudinaryUrlIfNeeded() {
+      const url = inputCloudinaryUrl.value.trim();
+      if (url.startsWith('cloudinary://')) {
+        try {
+          const clean = url.replace('cloudinary://', '');
+          const [creds, cName] = clean.split('@');
+          if (creds && cName) {
+            const [key, secret] = creds.split(':');
+            if (key && secret) {
+              state.config.apiKey = key;
+              state.config.apiSecret = secret;
+              state.config.cloudName = cName;
+              inputApiKey.value = key;
+              inputApiSecret.value = secret;
+              inputCloudName.value = cName;
+            }
+          }
+        } catch (err) {
+          console.warn("Cloudinary URL 파싱 실패:", err);
+        }
+      }
+    }
+
+    // Update Form UI
+    function updateConfigUI() {
+      const method = authMethodSelect.value;
+      groupCloudinaryUrl.style.display = (method === 'url') ? 'flex' : 'none';
+      groupSignedKeys.style.display = (method === 'signed') ? 'flex' : 'none';
+      groupUnsignedPreset.style.display = (method === 'unsigned') ? 'flex' : 'none';
+
+      let isReady = false;
+      if (method === 'url' || method === 'signed') {
+        isReady = !!(state.config.cloudName && state.config.apiKey && state.config.apiSecret);
+      } else {
+        isReady = !!(state.config.cloudName && state.config.uploadPreset);
+      }
+
+      if (isReady) {
+        configStatusBadge.className = 'badge-status status-configured';
+        configStatusBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> 준비됨';
+      } else {
+        configStatusBadge.className = 'badge-status status-missing';
+        configStatusBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 설정 필요';
+      }
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+      authMethodSelect.addEventListener('change', () => {
+        state.config.authMethod = authMethodSelect.value;
+        updateConfigUI();
+      });
+
+      inputCloudinaryUrl.addEventListener('input', () => {
+        parseCloudinaryUrlIfNeeded();
+        updateConfigUI();
+      });
+
+      btnSaveSettings.addEventListener('click', saveSettings);
+      document.getElementById('btnQuickConfig').addEventListener('click', () => toggleModal(true));
+
+      // Drag & Drop
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('dragover');
+        });
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+          addFiles(files);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          addFiles(files);
+        }
+        fileInput.value = '';
+      });
+
+      // Batch Controls
+      document.getElementById('btnApplyBatchRules').addEventListener('click', applyBatchRename);
+      document.getElementById('btnResetNames').addEventListener('click', resetAllNames);
+      document.getElementById('btnClearAll').addEventListener('click', clearAllFiles);
+      btnUploadAll.addEventListener('click', uploadAllFiles);
+
+      // Results Actions
+      document.getElementById('btnCopyAllLinks').addEventListener('click', copyAllResultLinks);
+      document.getElementById('btnExportMarkdown').addEventListener('click', copyMarkdownLinks);
+    }
+
+    // Add Files to List
+    function addFiles(fileListToAdd) {
+      fileListToAdd.forEach(file => {
+        const lastDot = file.name.lastIndexOf('.');
+        let rawName = file.name;
+        let ext = '';
+        if (lastDot !== -1) {
+          rawName = file.name.substring(0, lastDot);
+          ext = file.name.substring(lastDot).toLowerCase();
+        }
+
+        // Apply strict Minecraft filename rules: [a-z0-9._/-] keeping the original base name
+        const cleanName = sanitizeMinecraftFilename(rawName) || 'file';
+
+        const fileObj = {
+          id: 'file_' + Math.random().toString(36).substr(2, 9),
+          file: file,
+          originalName: file.name,
+          name: cleanName,
+          ext: ext,
+          size: formatBytes(file.size),
+          status: 'ready',
+          progress: 0,
+          resultUrl: null,
+          errorMsg: null
+        };
+
+        state.files.push(fileObj);
+      });
+
+      renderFileList();
+      showToast(`${fileListToAdd.length}개 지도 파일이 추가되었습니다.`, 'info');
+    }
+
+    // Render File List
+    function renderFileList() {
+      if (state.files.length === 0) {
+        fileSection.style.display = 'none';
+        batchToolbar.style.display = 'none';
+        btnUploadAll.disabled = true;
+        return;
+      }
+
+      fileSection.style.display = 'block';
+      batchToolbar.style.display = 'flex';
+      btnUploadAll.disabled = false;
+      totalFileCount.textContent = state.files.length;
+
+      fileList.innerHTML = '';
+
+      state.files.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'file-item';
+        row.id = `item_${item.id}`;
+
+        // Preview icon/image
+        let previewHtml = '';
+        if (item.file.type.startsWith('image/')) {
+          const imgUrl = URL.createObjectURL(item.file);
+          previewHtml = `<img src="${imgUrl}" alt="map preview">`;
+        } else if (item.ext === '.dat') {
+          previewHtml = `<i class="fa-solid fa-box file-preview-icon" style="color: var(--accent-gold);"></i>`;
+        } else {
+          previewHtml = `<i class="fa-solid fa-map file-preview-icon"></i>`;
+        }
+
+        // Status Badge
+        let statusBadge = '';
+        if (item.status === 'ready') {
+          statusBadge = `<span class="status-badge status-ready"><i class="fa-regular fa-clock"></i> 대기</span>`;
+        } else if (item.status === 'uploading') {
+          statusBadge = `<span class="status-badge status-uploading"><i class="fa-solid fa-spinner fa-spin"></i> ${item.progress}%</span>`;
+        } else if (item.status === 'success') {
+          statusBadge = `<span class="status-badge status-success"><i class="fa-solid fa-check"></i> 성공</span>`;
+        } else if (item.status === 'error') {
+          statusBadge = `<span class="status-badge status-error" title="${item.errorMsg || '업로드 실패'}"><i class="fa-solid fa-triangle-exclamation"></i> 실패</span>`;
+        }
+
+        row.innerHTML = `
+          <div class="file-preview">
+            ${previewHtml}
+          </div>
+          <div class="file-info">
+            <div class="file-name-container">
+              <input type="text" class="file-name-input" value="${item.name}" 
+                     oninput="updateFileName('${item.id}', this.value)" 
+                     placeholder="[a-z0-9._/-] 만 허용"
+                     ${item.status === 'uploading' ? 'disabled' : ''}>
+              <span class="file-ext">${item.ext}</span>
+            </div>
+            <div class="file-meta">
+              <span><i class="fa-regular fa-file"></i> ${item.size}</span>
+              <span><i class="fa-solid fa-tag"></i> 원본: ${item.originalName}</span>
+            </div>
+          </div>
+          <div class="file-actions">
+            <div class="progress-bar-container" id="progContainer_${item.id}" style="display: ${item.status === 'uploading' ? 'block' : 'none'}">
+              <div class="progress-bar-fill" id="progFill_${item.id}" style="width: ${item.progress}%"></div>
+            </div>
+            ${statusBadge}
+            <button class="btn btn-secondary btn-icon-only" onclick="removeFile('${item.id}')" ${item.status === 'uploading' ? 'disabled' : ''}>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+
+        fileList.appendChild(row);
+      });
+    }
+
+    // Update single filename with strict sanitization
+    window.updateFileName = function(id, inputVal) {
+      const item = state.files.find(f => f.id === id);
+      if (item) {
+        item.name = sanitizeMinecraftFilename(inputVal);
+      }
+    };
+
+    // Remove single file
+    window.removeFile = function(id) {
+      state.files = state.files.filter(f => f.id !== id);
+      renderFileList();
+    };
+
+    // Clear all files
+    function clearAllFiles() {
+      state.files = [];
+      renderFileList();
+      showToast('목록이 비워졌습니다.', 'info');
+    }
+
+    // Batch Apply Prefix / Suffix
+    function applyBatchRename() {
+      const prefix = document.getElementById('batchPrefix').value.trim();
+      const suffix = document.getElementById('batchSuffix').value.trim();
+
+      if (!prefix && !suffix) {
+        showToast('접두사 또는 접미사를 입력하세요.', 'warning');
+        return;
+      }
+
+      state.files.forEach(item => {
+        const raw = `${prefix}${item.name}${suffix}`;
+        item.name = sanitizeMinecraftFilename(raw);
+      });
+
+      renderFileList();
+      showToast('일괄 접두사/접미사가 적용되었습니다.', 'success');
+    }
+
+    // Reset names to original (sanitized)
+    function resetAllNames() {
+      state.files.forEach(item => {
+        const lastDot = item.originalName.lastIndexOf('.');
+        let rawName = item.originalName;
+        if (lastDot !== -1) {
+          rawName = item.originalName.substring(0, lastDot);
+        }
+        item.name = sanitizeMinecraftFilename(rawName) || 'file';
+      });
+      renderFileList();
+      showToast('원본 파일명으로 복원되었습니다.', 'info');
+    }
+
+    // Upload Single File to Cloudinary via XHR
+    async function uploadSingleFile(item) {
+      const method = state.config.authMethod;
+      const cloudName = state.config.cloudName;
+
+      if (!cloudName) {
+        throw new Error("Cloud Name이 설정되지 않았습니다.");
+      }
+
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+      const formData = new FormData();
+      formData.append('file', item.file);
+
+      const folder = state.config.folder;
+      if (folder) {
+        formData.append('folder', folder);
+      }
+
+      // Target Public ID with strict sanitization
+      const targetPublicId = state.config.useFilename ? (sanitizeMinecraftFilename(item.name) || 'file') : null;
+      if (targetPublicId) {
+        formData.append('public_id', targetPublicId);
+      }
+
+      const timestamp = Math.floor(Date.now() / 1000);
+
+      if (method === 'unsigned') {
+        const preset = state.config.uploadPreset;
+        if (!preset) {
+          throw new Error("Unsigned Upload Preset 이름을 입력하세요.");
+        }
+        formData.append('upload_preset', preset);
+      } else {
+        const apiKey = state.config.apiKey;
+        const apiSecret = state.config.apiSecret;
+
+        if (!apiKey || !apiSecret) {
+          throw new Error("API Key & Secret이 필요합니다.");
+        }
+
+        formData.append('api_key', apiKey);
+        formData.append('timestamp', timestamp);
+
+        const paramsToSign = [];
+        if (folder) paramsToSign.push(`folder=${folder}`);
+        if (targetPublicId) paramsToSign.push(`public_id=${targetPublicId}`);
+        paramsToSign.push(`timestamp=${timestamp}`);
+
+        paramsToSign.sort();
+        const signatureString = paramsToSign.join('&') + apiSecret;
+        const signature = await sha1(signatureString);
+
+        formData.append('signature', signature);
+      }
+
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            item.progress = percent;
+            item.status = 'uploading';
+            
+            const fill = document.getElementById(`progFill_${item.id}`);
+            if (fill) fill.style.width = `${percent}%`;
+            renderFileList();
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const resp = JSON.parse(xhr.responseText);
+              item.status = 'success';
+              item.resultUrl = resp.secure_url || resp.url;
+              resolve(resp);
+            } catch (err) {
+              item.status = 'error';
+              item.errorMsg = "파싱 오류";
+              reject(err);
+            }
+          } else {
+            item.status = 'error';
+            let msg = `에러 (${xhr.status})`;
+            try {
+              const errResp = JSON.parse(xhr.responseText);
+              if (errResp.error && errResp.error.message) {
+                msg = errResp.error.message;
+              }
+            } catch(e) {}
+            item.errorMsg = msg;
+            reject(new Error(msg));
+          }
+          renderFileList();
+        };
+
+        xhr.onerror = () => {
+          item.status = 'error';
+          item.errorMsg = '네트워크 오류';
+          renderFileList();
+          reject(new Error('네트워크 오류가 발생했습니다.'));
+        };
+
+        xhr.send(formData);
+      });
+    }
+
+    // Upload All Files
+    async function uploadAllFiles() {
+      const readyFiles = state.files.filter(f => f.status === 'ready' || f.status === 'error');
+      if (readyFiles.length === 0) {
+        showToast('업로드할 대상 파일이 없습니다.', 'warning');
+        return;
+      }
+
+      btnUploadAll.disabled = true;
+      showToast(`${readyFiles.length}개 지도 파일 업로드를 시작합니다...`, 'info');
+
+      let successCountNum = 0;
+
+      for (const item of readyFiles) {
+        try {
+          await uploadSingleFile(item);
+          successCountNum++;
+        } catch (err) {
+          console.error(`[${item.name}] 업로드 실패:`, err);
+          showToast(`[${item.name}] 업로드 실패: ${err.message}`, 'error');
+        }
+      }
+
+      btnUploadAll.disabled = false;
+      renderResults();
+      
+      if (successCountNum > 0) {
+        showToast(`총 ${successCountNum}개 지도 파일이 성공적으로 Cloudinary에 업로드되었습니다!`, 'success');
+      }
+    }
+
+    // Render Uploaded Results Gallery
+    function renderResults() {
+      const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
+      if (successFiles.length === 0) {
+        resultsSection.style.display = 'none';
+        return;
+      }
+
+      resultsSection.style.display = 'flex';
+      successCount.textContent = successFiles.length;
+      resultsList.innerHTML = '';
+
+      successFiles.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
+            <i class="fa-solid fa-map-location" style="color: var(--accent-emerald-bright);"></i>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.2rem; color: var(--accent-emerald-bright);">
+                ${item.name}${item.ext}
+              </div>
+              <input type="text" class="result-link-input" value="${item.resultUrl}" readonly onclick="this.select()">
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-icon-only" title="복사" onclick="copyToClipboard('${item.resultUrl}')">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <a href="${item.resultUrl}" target="_blank" class="btn btn-secondary btn-icon-only" title="새 탭에서 열기">
+              <i class="fa-solid fa-up-right-from-square"></i>
+            </a>
+          </div>
+        `;
+        resultsList.appendChild(card);
+      });
+    }
+
+    // Clipboard helper
+    window.copyToClipboard = function(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('URL이 클립보드에 복사되었습니다.', 'success');
+      }).catch(err => {
+        showToast('복사 실패: ' + err, 'error');
+      });
+    };
+
+    // Copy all result links
+    function copyAllResultLinks() {
+      const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
+      const links = successFiles.map(f => f.resultUrl).join('\n');
+      copyToClipboard(links);
+    }
+
+    // Copy Markdown format
+    function copyMarkdownLinks() {
+      const successFiles = state.files.filter(f => f.status === 'success' && f.resultUrl);
+      const md = successFiles.map(f => `![${f.name}](${f.resultUrl})`).join('\n');
+      copyToClipboard(md);
+    }
+
+    // Format Byte Size
+    function formatBytes(bytes, decimals = 2) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+
+      let icon = 'fa-info-circle';
+      if (type === 'success') icon = 'fa-check-circle';
+      if (type === 'error') icon = 'fa-circle-xmark';
+      if (type === 'warning') icon = 'fa-triangle-exclamation';
+
+      toast.innerHTML = `
+        <i class="fa-solid ${icon}"></i>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Modal Control
+    window.toggleModal = function(show) {
+      const modal = document.getElementById('modalConfig');
+      if (show) modal.classList.add('active');
+      else modal.classList.remove('active');
+    };
+  </script>
+</body>
+</html>
