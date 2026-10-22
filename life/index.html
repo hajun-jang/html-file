@@ -1823,21 +1823,22 @@
                 for (let r = 0; r < this.rows; r++) {
                     for (let c = 0; c < this.cols; c++) {
                         const cell = currentGrid[r][c];
-                        const liveNeighbors = this.countNeighborsFixed(currentGrid, r, c);
+                        const neighbors = this.countNeighborsFixed(currentGrid, r, c);
 
                         if (cell) {
                             if (cell.type === 'conway') {
-                                if (liveNeighbors === 2 || liveNeighbors === 3) {
+                                // Conway cell survival: influenced by ALL cell types
+                                if (neighbors.total === 2 || neighbors.total === 3) {
                                     nextGrid[r][c] = { type: 'conway', age: cell.age + 1 };
                                     curPopulation++;
                                 }
                             } else {
-                                // Cloner or static
+                                // Cloner or static persists
                                 curPopulation++;
                             }
                         } else {
-                            // Dead space: Conway cell birth if exactly 3 neighbors
-                            if (liveNeighbors === 3) {
+                            // Dead space: Conway cell birth ONLY occurs when 3 Conway cells reproduce
+                            if (neighbors.conway === 3 && neighbors.total === 3) {
                                 nextGrid[r][c] = { type: 'conway', age: 1 };
                                 curPopulation++;
                                 births.push({ x: c, y: r });
@@ -1862,18 +1863,23 @@
             }
 
             countNeighborsFixed(grid, r, c) {
-                let count = 0;
+                let total = 0;
+                let conway = 0;
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         if (i === 0 && j === 0) continue;
                         const nr = r + i;
                         const nc = c + j;
                         if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
-                            if (grid[nr][nc]) count++;
+                            const n = grid[nr][nc];
+                            if (n) {
+                                total++;
+                                if (n.type === 'conway') conway++;
+                            }
                         }
                     }
                 }
-                return count;
+                return { total, conway };
             }
 
             // Infinite Grid Simulation Step
@@ -1928,8 +1934,10 @@
                 }
 
                 // Phase 2: Conway Automata Neighbor Counting
-                const neighborCounts = new Map();
-                for (const [key] of currentCells.entries()) {
+                const totalNeighborCounts = new Map();
+                const conwayNeighborCounts = new Map();
+
+                for (const [key, cell] of currentCells.entries()) {
                     const comma = key.indexOf(',');
                     const x = parseInt(key.slice(0, comma), 10);
                     const y = parseInt(key.slice(comma + 1), 10);
@@ -1938,7 +1946,10 @@
                         for (let dy = -1; dy <= 1; dy++) {
                             if (dx === 0 && dy === 0) continue;
                             const nKey = `${x + dx},${y + dy}`;
-                            neighborCounts.set(nKey, (neighborCounts.get(nKey) || 0) + 1);
+                            totalNeighborCounts.set(nKey, (totalNeighborCounts.get(nKey) || 0) + 1);
+                            if (cell.type === 'conway') {
+                                conwayNeighborCounts.set(nKey, (conwayNeighborCounts.get(nKey) || 0) + 1);
+                            }
                         }
                     }
                 }
@@ -1955,18 +1966,20 @@
                 }
 
                 // Conway birth & survival
-                for (const [key, count] of neighborCounts.entries()) {
+                for (const [key, totalCount] of totalNeighborCounts.entries()) {
                     const currentCell = currentCells.get(key);
                     if (currentCell) {
                         if (currentCell.type === 'conway') {
-                            if (count === 2 || count === 3) {
+                            // Conway cell survival: influenced by ALL cell types
+                            if (totalCount === 2 || totalCount === 3) {
                                 nextCells.set(key, { type: 'conway', age: currentCell.age + 1 });
                                 curPopulation++;
                             }
                         }
                     } else {
-                        // Empty space: birth if 3 neighbors
-                        if (count === 3) {
+                        // Empty space: birth ONLY occurs when 3 Conway cells reproduced
+                        const conwayCount = conwayNeighborCounts.get(key) || 0;
+                        if (conwayCount === 3 && totalCount === 3) {
                             nextCells.set(key, { type: 'conway', age: 1 });
                             curPopulation++;
                             const comma = key.indexOf(',');
