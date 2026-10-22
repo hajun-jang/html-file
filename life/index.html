@@ -18,6 +18,8 @@
             --primary-glow: rgba(6, 182, 212, 0.4);
             --secondary: #a855f7; /* Neon Violet */
             --secondary-glow: rgba(168, 85, 247, 0.4);
+            --cloner-color: #f59e0b; /* Amber / Orange */
+            --cloner-glow: rgba(245, 158, 11, 0.45);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-green: #10b981;
@@ -97,16 +99,16 @@
 
         .main-container {
             display: grid;
-            grid-template-columns: 340px 1fr 300px;
+            grid-template-columns: 330px 1fr 340px;
             gap: 1.5rem;
             padding: 1.5rem;
             flex: 1;
-            max-width: 1800px;
+            max-width: 1840px;
             margin: 0 auto;
             width: 100%;
         }
 
-        @media (max-width: 1240px) {
+        @media (max-width: 1260px) {
             .main-container {
                 grid-template-columns: 1fr;
             }
@@ -430,12 +432,148 @@
             text-transform: uppercase;
         }
 
+        /* --- Cell Type Selector UI (NEW) --- */
+        .cell-type-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .cell-type-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cell-type-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .cell-type-card.active {
+            background: rgba(6, 182, 212, 0.07);
+            border-color: var(--primary);
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.15);
+        }
+
+        .cell-type-card.active.cloner-active {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: var(--cloner-color);
+            box-shadow: 0 0 16px var(--cloner-glow);
+        }
+
+        .cell-card-header {
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+        }
+
+        .cell-preview-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            position: relative;
+        }
+
+        .conway-icon {
+            background: linear-gradient(135deg, var(--primary), #0284c7);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .cloner-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 12px var(--cloner-glow);
+            color: #ffffff;
+            letter-spacing: -1px;
+        }
+
+        .static-icon {
+            background: linear-gradient(135deg, #64748b, #475569);
+            box-shadow: 0 0 10px rgba(100, 116, 139, 0.35);
+            color: #f8fafc;
+        }
+
+        .cell-card-title-group {
+            flex: 1;
+        }
+
+        .cell-name {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .cell-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            line-height: 1.35;
+        }
+
+        .cell-extra-options {
+            margin-top: 0.75rem;
+            background: rgba(0, 0, 0, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.55rem 0.7rem;
+        }
+
+        .extra-label {
+            display: block;
+            font-size: 0.68rem;
+            color: var(--cloner-color);
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+        }
+
+        .dir-button-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .btn-dir {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 5px 0;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-dir:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-dir.active {
+            background: var(--cloner-color);
+            color: #fff;
+            border-color: var(--cloner-color);
+            box-shadow: 0 0 8px var(--cloner-glow);
+        }
+
         /* Presets list */
         .preset-list {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            max-height: 320px;
+            max-height: 240px;
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -453,7 +591,7 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 0.65rem 0.75rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -468,19 +606,19 @@
         }
 
         .preset-info h4 {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--text-main);
         }
 
         .preset-info p {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: var(--text-muted);
             margin-top: 0.1rem;
         }
 
         .preset-badge {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             padding: 2px 6px;
             border-radius: 4px;
             background: rgba(168, 85, 247, 0.15);
@@ -490,7 +628,7 @@
 
         /* Instructions list */
         .instructions-list {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             line-height: 1.5;
             padding-left: 1.2rem;
@@ -518,7 +656,7 @@
         .vis-canvas-container {
             position: relative;
             width: 100%;
-            height: 90px;
+            height: 85px;
             background: rgba(4, 7, 14, 0.95);
             border: 1px solid var(--card-border);
             border-radius: 10px;
@@ -535,14 +673,14 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 4px;
-            margin-top: 0.6rem;
+            margin-top: 0.55rem;
         }
 
         .note-chip {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 6px;
-            padding: 4px 2px;
+            padding: 3px 2px;
             text-align: center;
             font-family: var(--font-mono);
             font-size: 0.68rem;
@@ -638,11 +776,11 @@
     <header>
         <div class="logo-section">
             <h1>CONWAY'S GAME OF LIFE</h1>
-            <p>고성능 캔버스 및 웹 오디오 신디사이저 기반 프리미엄 시뮬레이션</p>
+            <p>다중 세포 타입 & 복제 세포 머신 지원 프리미엄 시뮬레이션</p>
         </div>
         <div>
             <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); border: 1px solid var(--card-border); padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2);">
-                WebGL Core / Web Audio API
+                Multi-Cell Automata / Audio Synth
             </span>
         </div>
     </header>
@@ -710,7 +848,7 @@
                 <div class="vis-canvas-container">
                     <canvas id="vis-canvas"></canvas>
                 </div>
-                <div class="control-label" style="margin-top: 0.75rem;">
+                <div class="control-label" style="margin-top: 0.65rem;">
                     <span>C 펜타토닉 15 음계 활성도</span>
                     <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono);">C3 ~ A5</span>
                 </div>
@@ -755,7 +893,7 @@
                         <option value="small">그리드 촘촘히 (80×60)</option>
                         <option value="medium" selected>중간 그리드 (60×45)</option>
                         <option value="large">큼직한 그리드 (40×30)</option>
-                        <option value="infinite" style="color: #38bdf8; font-weight: bold;">무한 그리드 (Zoom & Pan)</option>
+                        <option value="infinite" style="color: #38bdf8; font-weight: bold;">⭐ 특수: 무한 그리드 (Zoom & Pan)</option>
                     </select>
                 </div>
             </div>
@@ -778,15 +916,72 @@
 
                 <!-- Floating Guide for Infinite Grid Mode -->
                 <div id="infinite-guide-bar">
-                <span style="color: var(--primary); font-weight: 600;">우클릭 드래그</span>: 화면 이동 &nbsp;|&nbsp; <span style="color: var(--primary); font-weight: 600;">휠</span>: 무한 줌 &nbsp;|&nbsp; <span style="color: var(--primary); font-weight: 600;">좌클릭</span>: 세포 배치
+                    🖱️ <span style="color: var(--primary); font-weight: 600;">우클릭 드래그</span>: 화면 이동 &nbsp;|&nbsp; 🔍 <span style="color: var(--primary); font-weight: 600;">휠</span>: 무한 줌 &nbsp;|&nbsp; ✏️ <span style="color: var(--primary); font-weight: 600;">좌클릭</span>: 세포 배치
                 </div>
 
                 <canvas id="life-canvas"></canvas>
             </div>
         </div>
 
-        <!-- Sidebar Right: Presets & Info -->
+        <!-- Sidebar Right: Cell Type Selector & Presets & Info -->
         <div class="sidebar">
+            <!-- Cell Type Selection Panel (NEW) -->
+            <div class="glass-panel" id="cell-selector-panel">
+                <div class="panel-title">
+                    <span>세포 종류 선택</span>
+                    <span class="badge" id="current-cell-badge" style="color: var(--primary);">콘웨이의 세포</span>
+                </div>
+                
+                <div class="cell-type-list">
+                    <!-- 1. 콘웨이의 세포 -->
+                    <div class="cell-type-card active" data-cell-type="conway">
+                        <div class="cell-card-header">
+                            <div class="cell-preview-icon conway-icon"></div>
+                            <div class="cell-card-title-group">
+                                <h4 class="cell-name">콘웨이의 세포</h4>
+                                <p class="cell-desc">전통 생명 게임 규칙을 따르는 기본 세포. 텍스쳐가 없으며 모든 세포를 이웃으로 인식합니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 복제 세포 (Cloner) -->
+                    <div class="cell-type-card" data-cell-type="cloner">
+                        <div class="cell-card-header">
+                            <div class="cell-preview-icon cloner-icon" id="cloner-preview-icon">
+                                <span id="cloner-icon-symbol">|→</span>
+                            </div>
+                            <div class="cell-card-title-group">
+                                <h4 class="cell-name">복제 세포</h4>
+                                <p class="cell-desc">외형은 |-> 형태이며, 뒷부분(|)의 세포를 앞(->)으로 계속 밀어내며 복제합니다.</p>
+                            </div>
+                        </div>
+                        <!-- 추가 요소 선택: 복제 방향 -->
+                        <div class="cell-extra-options">
+                            <span class="extra-label">추가 요소 선택 (복제 방향)</span>
+                            <div class="dir-button-group">
+                                <button type="button" class="btn-dir active" data-dir="right">→ 우</button>
+                                <button type="button" class="btn-dir" data-dir="left">← 좌</button>
+                                <button type="button" class="btn-dir" data-dir="up">↑ 상</button>
+                                <button type="button" class="btn-dir" data-dir="down">↓ 하</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 고정 세포 ('무') -->
+                    <div class="cell-type-card" data-cell-type="static">
+                        <div class="cell-card-header">
+                            <div class="cell-preview-icon static-icon">
+                                <span>◈</span>
+                            </div>
+                            <div class="cell-card-title-group">
+                                <h4 class="cell-name">고정 세포 (무)</h4>
+                                <p class="cell-desc">가만히 제자리를 유지하는 세포. 복제 세포 실험 및 구조물 제작에 유용합니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Presets Panel -->
             <div class="glass-panel">
                 <div class="panel-title">
@@ -794,6 +989,13 @@
                     <span class="badge">Presets</span>
                 </div>
                 <div class="preset-list">
+                    <div class="preset-item" data-preset="cloner-demo">
+                        <div class="preset-info">
+                            <h4 style="color: var(--cloner-color);">복제기 시연 (무+복제)</h4>
+                            <p>복제 세포가 뒤의 세포를 앞으로 끝없이 증식</p>
+                        </div>
+                        <span class="preset-badge" style="background: rgba(245, 158, 11, 0.15); color: #fde047; border-color: rgba(245, 158, 11, 0.3);">특수</span>
+                    </div>
                     <div class="preset-item" data-preset="glider">
                         <div class="preset-info">
                             <h4>글라이더 (Glider)</h4>
@@ -839,21 +1041,15 @@
                     <span class="badge">Guide</span>
                 </div>
                 <ul class="instructions-list">
-                    <li><strong>일반 그리드 조작</strong>: 마우스 좌클릭 드래그로 세포를 그리거나 지울 수 있습니다.</li>
-                    <li><strong>특수: 무한 그리드</strong>:
+                    <li><strong>세포 종류 선택</strong>:
                         <ul>
-                            <li><strong>마우스 휠</strong>: 확대 및 무한 축소</li>
-                            <li><strong>마우스 우클릭 드래그</strong>: 아레나 시야 자유 이동 (Pan)</li>
-                            <li><strong>마우스 좌클릭</strong>: 무한 좌표계에 세포 배치</li>
-                            <li>경계선 제약 없이 글라이더와 세포가 끝없이 뻗어나갑니다.</li>
+                            <li><strong>콘웨이의 세포</strong>: 전통 생명 게임 세포 (텍스쳐 없음).</li>
+                            <li><strong>복제 세포 (|->)</strong>: 뒤의 세포를 앞 방향으로 계속 밀면서 복제합니다. 추가 요소 란에서 4방향을 설정할 수 있습니다.</li>
+                            <li><strong>고정 세포 (무)</strong>: 가만히 제자리를 유지하는 세포.</li>
                         </ul>
                     </li>
-                    <li><strong>오디오 신디사이저 & 비주얼라이저</strong>:
-                        <ul>
-                            <li>새로운 세포 탄생 시 15음계 C 펜타토닉 신디사이저 톤 발생.</li>
-                            <li>실시간 네온 오실로스코프 파형과 15개 음계 활성 래더 지원.</li>
-                        </ul>
-                    </li>
+                    <li><strong>이웃 상호작용</strong>: 콘웨이의 세포는 복제 세포와 고정 세포를 모두 살아있는 이웃으로 인식합니다.</li>
+                    <li><strong>무한 그리드 조작</strong>: 마우스 휠(확대/축소), 우클릭 드래그(화면 이동), 좌클릭(세포 배치).</li>
                     <li><strong>Spacebar</strong>: 시뮬레이션 재생 / 일시정지</li>
                 </ul>
             </div>
@@ -871,7 +1067,6 @@
                 this.ctx = null;
                 this.analyser = null;
                 this.output = null;
-                // Pentatonic Scale in C Major (Hz)
                 this.scale = [
                     130.81, 146.83, 164.81, 196.00, 220.00, // C3, D3, E3, G3, A3
                     261.63, 293.66, 329.63, 392.00, 440.00, // C4, D4, E4, G4, A4
@@ -895,41 +1090,33 @@
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AudioContextClass();
                 
-                // Analyser Node for intuitive visualizer
                 this.analyser = this.ctx.createAnalyser();
                 this.analyser.fftSize = 512;
                 this.analyser.smoothingTimeConstant = 0.82;
                 this.timeDomainBuffer = new Uint8Array(this.analyser.fftSize);
                 this.freqBuffer = new Uint8Array(this.analyser.frequencyBinCount);
 
-                // Low-pass filter for soft warm sound
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(900, this.ctx.currentTime);
 
-                // Delay effect
                 const delay = this.ctx.createDelay();
                 delay.delayTime.value = 0.32;
                 const feedback = this.ctx.createGain();
                 feedback.gain.value = 0.35;
 
-                // Connection for delay loop
                 delay.connect(feedback);
                 feedback.connect(delay);
 
-                // Main gain
                 this.output = this.ctx.createGain();
                 this.output.gain.setValueAtTime(0.09, this.ctx.currentTime);
 
-                // Route through analyser
                 filter.connect(this.output);
                 delay.connect(this.output);
                 this.output.connect(this.analyser);
                 this.analyser.connect(this.ctx.destination);
 
                 filter.connect(delay);
-
-                // Build note ladder chips
                 this.createNoteLadderUI();
             }
 
@@ -964,7 +1151,6 @@
                     const clampedIdx = Math.max(0, Math.min(this.scale.length - 1, noteIndex));
                     const freq = this.scale[clampedIdx];
 
-                    // Mark note activity for the visualizer
                     this.noteActivities[clampedIdx] = 1.0;
 
                     const osc = this.ctx.createOscillator();
@@ -990,7 +1176,6 @@
                 if (!this.visCanvas) return;
                 this.visCtx = this.visCanvas.getContext('2d');
                 
-                // Adjust canvas resolution
                 const rect = this.visCanvas.parentElement.getBoundingClientRect();
                 this.visCanvas.width = rect.width;
                 this.visCanvas.height = rect.height;
@@ -1020,11 +1205,9 @@
                 this.analyser.getByteTimeDomainData(this.timeDomainBuffer);
                 this.analyser.getByteFrequencyData(this.freqBuffer);
 
-                // Clear background with soft fading
                 ctx.fillStyle = 'rgba(5, 8, 16, 0.4)';
                 ctx.fillRect(0, 0, w, h);
 
-                // Subtle grid guide lines
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -1032,12 +1215,10 @@
                 ctx.lineTo(w, h / 2);
                 ctx.stroke();
 
-                // 1. Draw Multi-Layer Oscilloscope Waveform with Neon Glow
                 ctx.lineWidth = 2.5;
                 const sliceWidth = w / this.timeDomainBuffer.length;
                 let x = 0;
 
-                // Wave gradient
                 const gradient = ctx.createLinearGradient(0, 0, w, 0);
                 gradient.addColorStop(0, '#06b6d4');
                 gradient.addColorStop(0.5, '#38bdf8');
@@ -1060,12 +1241,10 @@
                     x += sliceWidth;
                 }
                 ctx.stroke();
-                ctx.shadowBlur = 0; // reset shadow
+                ctx.shadowBlur = 0;
 
-                // 2. Update Note Chips in Ladder UI & Count
                 let activeCount = 0;
                 for (let i = 0; i < this.scale.length; i++) {
-                    // Decay active level
                     this.noteActivities[i] *= 0.91;
                     const val = this.noteActivities[i];
                     const chip = document.getElementById(`note-chip-${i}`);
@@ -1094,13 +1273,12 @@
 
         const synth = new AmbientSynth();
 
-        // --- Conway's Game of Life Engine with Infinite Grid Support ---
+        // --- Conway's Game of Life Engine with Multiple Cell Types ---
         class GameOfLife {
             constructor() {
                 this.canvas = document.getElementById('life-canvas');
                 this.ctx = this.canvas.getContext('2d');
                 
-                // Grid density settings
                 this.densities = {
                     small: { cols: 80, rows: 60, infinite: false },
                     medium: { cols: 60, rows: 45, infinite: false },
@@ -1112,22 +1290,27 @@
                 this.cols = this.densities[this.currentDensity].cols;
                 this.rows = this.densities[this.currentDensity].rows;
                 
-                // Grid state for fixed modes: 2D array [row][col]
+                // Currently selected cell type for placement: 'conway' | 'cloner' | 'static'
+                this.selectedCellType = 'conway';
+                this.selectedClonerDir = 'right'; // 'right' | 'left' | 'up' | 'down'
+                
+                // Grid data:
+                // Fixed mode: 2D array [row][col] -> cell object or null
                 this.grid = [];
-                // Grid state for infinite mode: Map of "x,y" => age
+                // Infinite mode: Map of "col,row" -> cell object
                 this.infiniteCells = new Map();
                 
-                // Camera & Viewport for Infinite Grid
+                // Camera for Infinite Grid
                 this.panX = 0;
                 this.panY = 0;
-                this.zoom = 18; // pixels per cell in infinite mode
+                this.zoom = 18;
                 this.isPanning = false;
                 this.lastMouseX = 0;
                 this.lastMouseY = 0;
 
                 // Drawing interaction
                 this.isDrawing = false;
-                this.drawMode = 1; // 1 = alive, 0 = erase
+                this.drawMode = 1; // 1 = place, 0 = erase
                 
                 // Simulation Loop Control
                 this.isPlaying = false;
@@ -1151,8 +1334,8 @@
                 this.setupEventListeners();
                 this.draw();
                 
-                // Load default preset (Glider)
-                this.loadPreset('glider');
+                // Load default preset (Cloner Demo)
+                this.loadPreset('cloner-demo');
             }
 
             isInfiniteMode() {
@@ -1171,12 +1354,11 @@
             resetGrid() {
                 if (this.isInfiniteMode()) {
                     this.infiniteCells.clear();
-                    // Reset pan to center
                     this.panX = this.canvas.width / 2;
                     this.panY = this.canvas.height / 2;
                     this.zoom = 18;
                 } else {
-                    this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                    this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(null));
                 }
                 this.generation = 0;
                 this.population = 0;
@@ -1184,9 +1366,25 @@
                 this.updateStats();
             }
 
+            createCell(type, dir) {
+                return {
+                    type: type || 'conway',
+                    age: 1,
+                    dir: dir || 'right'
+                };
+            }
+
+            cloneCell(cell) {
+                if (!cell) return null;
+                return {
+                    type: cell.type,
+                    age: 1,
+                    dir: cell.dir || 'right'
+                };
+            }
+
             randomizeGrid() {
                 if (this.isInfiniteMode()) {
-                    // Populate around the current center of view
                     this.infiniteCells.clear();
                     const centerCol = Math.round((-this.panX + this.canvas.width / 2) / this.zoom);
                     const centerRow = Math.round((-this.panY + this.canvas.height / 2) / this.zoom);
@@ -1194,13 +1392,13 @@
                     for (let r = centerRow - radius; r <= centerRow + radius; r++) {
                         for (let c = centerCol - radius; c <= centerCol + radius; c++) {
                             if (Math.random() < 0.25) {
-                                this.infiniteCells.set(`${c},${r}`, 1);
+                                this.infiniteCells.set(`${c},${r}`, this.createCell('conway'));
                             }
                         }
                     }
                 } else {
                     this.grid = Array(this.rows).fill(null).map(() => 
-                        Array(this.cols).fill(null).map(() => Math.random() < 0.25 ? 1 : 0)
+                        Array(this.cols).fill(null).map(() => Math.random() < 0.25 ? this.createCell('conway') : null)
                     );
                 }
                 this.generation = 0;
@@ -1213,7 +1411,6 @@
                 this.currentDensity = densityName;
                 const isNowInfinite = this.isInfiniteMode();
 
-                // Toggle HUD & Guide elements
                 const hud = document.getElementById('infinite-hud');
                 const guide = document.getElementById('infinite-guide-bar');
                 if (hud && guide) {
@@ -1222,14 +1419,13 @@
                 }
 
                 if (isNowInfinite) {
-                    // Switching to Infinite Mode: Transfer existing cells into infinite space centered at (0, 0)
                     this.infiniteCells.clear();
                     if (this.grid && this.grid.length > 0) {
                         const midR = Math.floor(this.rows / 2);
                         const midC = Math.floor(this.cols / 2);
                         for (let r = 0; r < this.rows; r++) {
                             for (let c = 0; c < this.cols; c++) {
-                                if (this.grid[r][c] > 0) {
+                                if (this.grid[r][c]) {
                                     this.infiniteCells.set(`${c - midC},${r - midR}`, this.grid[r][c]);
                                 }
                             }
@@ -1239,22 +1435,21 @@
                     this.panY = this.canvas.height / 2;
                     this.zoom = 18;
                 } else {
-                    // Switching to a Fixed Grid: Transfer infinite cells falling into range
                     this.cols = this.densities[densityName].cols;
                     this.rows = this.densities[densityName].rows;
                     this.resizeCanvas();
                     
-                    const newGrid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                    const newGrid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(null));
                     const midR = Math.floor(this.rows / 2);
                     const midC = Math.floor(this.cols / 2);
 
                     if (wasInfinite && this.infiniteCells.size > 0) {
-                        for (const [key, age] of this.infiniteCells.entries()) {
+                        for (const [key, cell] of this.infiniteCells.entries()) {
                             const [c, r] = key.split(',').map(Number);
                             const targetR = r + midR;
                             const targetC = c + midC;
                             if (targetR >= 0 && targetR < this.rows && targetC >= 0 && targetC < this.cols) {
-                                newGrid[targetR][targetC] = age;
+                                newGrid[targetR][targetC] = cell;
                             }
                         }
                     }
@@ -1265,12 +1460,166 @@
                 this.draw();
             }
 
+            // Direction vector lookup
+            getDirDelta(dir) {
+                switch(dir) {
+                    case 'right': return { dx: 1, dy: 0 };
+                    case 'left': return { dx: -1, dy: 0 };
+                    case 'up': return { dx: 0, dy: -1 };
+                    case 'down': return { dx: 0, dy: 1 };
+                    default: return { dx: 1, dy: 0 };
+                }
+            }
+
             // Draw current frame to canvas
             draw() {
                 if (this.isInfiniteMode()) {
                     this.drawInfinite();
                 } else {
                     this.drawFixed();
+                }
+            }
+
+            // Render a single cell with custom texture
+            drawCellObject(ctx, x, y, size, cell) {
+                if (!cell) return;
+                const padding = Math.max(0.6, size * 0.05);
+                const w = size - padding * 2;
+                const h = size - padding * 2;
+                const rx = x + padding;
+                const ry = y + padding;
+
+                if (cell.type === 'conway') {
+                    // Conway's Cell: Textureless, neon aging gradient & glow
+                    const age = cell.age || 1;
+                    let fillStyle = '';
+                    if (age === 1) {
+                        fillStyle = 'rgba(6, 182, 212, 0.9)'; // Neon Cyan
+                    } else if (age === 2) {
+                        fillStyle = 'rgba(14, 165, 233, 0.85)';
+                    } else if (age < 5) {
+                        fillStyle = 'rgba(99, 102, 241, 0.8)';
+                    } else {
+                        fillStyle = 'rgba(168, 85, 247, 0.75)'; // Purple/Magenta
+                    }
+
+                    ctx.fillStyle = fillStyle;
+                    if (size >= 6) {
+                        ctx.beginPath();
+                        ctx.roundRect(rx, ry, w, h, Math.min(3, size * 0.2));
+                        ctx.fill();
+
+                        if (age <= 2) {
+                            ctx.shadowBlur = Math.min(8, size);
+                            ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+                            ctx.beginPath();
+                            ctx.roundRect(rx, ry, w, h, Math.min(3, size * 0.2));
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    } else {
+                        ctx.fillRect(x, y, size, size);
+                    }
+                } 
+                else if (cell.type === 'cloner') {
+                    // Cloner Cell: Amber block with crisp |-> direction texture
+                    ctx.fillStyle = 'rgba(245, 158, 11, 0.9)';
+                    if (size >= 6) {
+                        ctx.shadowBlur = Math.min(8, size);
+                        ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
+                        ctx.beginPath();
+                        ctx.roundRect(rx, ry, w, h, Math.min(3, size * 0.2));
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+
+                        // Draw vector |-> texture
+                        if (size >= 8) {
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.lineWidth = Math.max(1.3, size * 0.08);
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+
+                            const cx = rx + w / 2;
+                            const cy = ry + h / 2;
+                            const dir = cell.dir || 'right';
+
+                            ctx.beginPath();
+                            if (dir === 'right') {
+                                // Bar on left
+                                ctx.moveTo(rx + w * 0.24, ry + h * 0.22);
+                                ctx.lineTo(rx + w * 0.24, ry + h * 0.78);
+                                // Stem pointing right
+                                ctx.moveTo(rx + w * 0.24, cy);
+                                ctx.lineTo(rx + w * 0.78, cy);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.56, ry + h * 0.32);
+                                ctx.lineTo(rx + w * 0.78, cy);
+                                ctx.lineTo(rx + w * 0.56, ry + h * 0.68);
+                            } else if (dir === 'left') {
+                                // Bar on right
+                                ctx.moveTo(rx + w * 0.76, ry + h * 0.22);
+                                ctx.lineTo(rx + w * 0.76, ry + h * 0.78);
+                                // Stem pointing left
+                                ctx.moveTo(rx + w * 0.76, cy);
+                                ctx.lineTo(rx + w * 0.22, cy);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.44, ry + h * 0.32);
+                                ctx.lineTo(rx + w * 0.22, cy);
+                                ctx.lineTo(rx + w * 0.44, ry + h * 0.68);
+                            } else if (dir === 'up') {
+                                // Bar on bottom
+                                ctx.moveTo(rx + w * 0.22, ry + h * 0.76);
+                                ctx.lineTo(rx + w * 0.78, ry + h * 0.76);
+                                // Stem pointing up
+                                ctx.moveTo(cx, ry + h * 0.76);
+                                ctx.lineTo(cx, ry + h * 0.22);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.32, ry + h * 0.44);
+                                ctx.lineTo(cx, ry + h * 0.22);
+                                ctx.lineTo(rx + w * 0.68, ry + h * 0.44);
+                            } else if (dir === 'down') {
+                                // Bar on top
+                                ctx.moveTo(rx + w * 0.22, ry + h * 0.24);
+                                ctx.lineTo(rx + w * 0.78, ry + h * 0.24);
+                                // Stem pointing down
+                                ctx.moveTo(cx, ry + h * 0.24);
+                                ctx.lineTo(cx, ry + h * 0.78);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.32, ry + h * 0.56);
+                                ctx.lineTo(cx, ry + h * 0.78);
+                                ctx.lineTo(rx + w * 0.68, ry + h * 0.56);
+                            }
+                            ctx.stroke();
+                        }
+                    } else {
+                        ctx.fillRect(x, y, size, size);
+                    }
+                }
+                else if (cell.type === 'static') {
+                    // Static Cell ('무'): Slate block with diamond icon
+                    ctx.fillStyle = 'rgba(100, 116, 139, 0.9)';
+                    if (size >= 6) {
+                        ctx.beginPath();
+                        ctx.roundRect(rx, ry, w, h, Math.min(3, size * 0.2));
+                        ctx.fill();
+
+                        if (size >= 9) {
+                            ctx.strokeStyle = 'rgba(241, 245, 249, 0.8)';
+                            ctx.lineWidth = Math.max(1, size * 0.06);
+                            const cx = rx + w / 2;
+                            const cy = ry + h / 2;
+                            const r = w * 0.22;
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - r);
+                            ctx.lineTo(cx + r, cy);
+                            ctx.lineTo(cx, cy + r);
+                            ctx.lineTo(cx - r, cy);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    } else {
+                        ctx.fillRect(x, y, size, size);
+                    }
                 }
             }
 
@@ -1284,7 +1633,7 @@
                 ctx.fillStyle = '#050810';
                 ctx.fillRect(0, 0, cw, ch);
 
-                // Draw Grid Lines
+                // Grid lines
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
                 ctx.lineWidth = 1;
                 for (let i = 0; i <= this.cols; i++) {
@@ -1300,41 +1649,12 @@
                     ctx.stroke();
                 }
 
-                // Draw Cells with aging color gradient
+                // Draw cells
                 for (let r = 0; r < this.rows; r++) {
                     for (let c = 0; c < this.cols; c++) {
-                        const age = this.grid[r][c];
-                        if (age > 0) {
-                            let fillStyle = '';
-                            if (age === 1) {
-                                fillStyle = 'rgba(6, 182, 212, 0.9)'; // Neon Cyan
-                            } else if (age === 2) {
-                                fillStyle = 'rgba(14, 165, 233, 0.85)';
-                            } else if (age < 5) {
-                                fillStyle = 'rgba(99, 102, 241, 0.8)';
-                            } else {
-                                fillStyle = 'rgba(168, 85, 247, 0.75)'; // Purple/Magenta
-                            }
-
-                            ctx.fillStyle = fillStyle;
-                            const padding = 1;
-                            const x = c * cellW + padding;
-                            const y = r * cellH + padding;
-                            const w = cellW - padding * 2;
-                            const h = cellH - padding * 2;
-                            
-                            ctx.beginPath();
-                            ctx.roundRect(x, y, w, h, 3);
-                            ctx.fill();
-
-                            if (age <= 2) {
-                                ctx.shadowBlur = 8;
-                                ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-                                ctx.beginPath();
-                                ctx.roundRect(x, y, w, h, 3);
-                                ctx.fill();
-                                ctx.shadowBlur = 0;
-                            }
+                        const cell = this.grid[r][c];
+                        if (cell) {
+                            this.drawCellObject(ctx, c * cellW, r * cellH, Math.min(cellW, cellH), cell);
                         }
                     }
                 }
@@ -1351,13 +1671,11 @@
                 ctx.fillStyle = '#050810';
                 ctx.fillRect(0, 0, cw, ch);
 
-                // Viewport boundaries in cell coordinate space
                 const minCol = Math.floor(-panX / zoom) - 1;
                 const maxCol = Math.ceil((cw - panX) / zoom) + 1;
                 const minRow = Math.floor(-panY / zoom) - 1;
                 const maxRow = Math.ceil((ch - panY) / zoom) + 1;
 
-                // 1. Grid Lines (Faded smoothly when zoomed far out to prevent crowding)
                 if (zoom >= 4) {
                     const lineAlpha = Math.min(0.06, (zoom - 4) / 25 * 0.06);
                     ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
@@ -1377,7 +1695,7 @@
                     ctx.stroke();
                 }
 
-                // 2. Subtle Coordinate Origin Crosshair (x=0, y=0)
+                // Origin crosshairs
                 const originX = Math.round(panX);
                 const originY = Math.round(panY);
                 if (originX >= 0 && originX <= cw) {
@@ -1397,8 +1715,8 @@
                     ctx.stroke();
                 }
 
-                // 3. Draw live cells in infinite coordinate space
-                for (const [key, age] of this.infiniteCells.entries()) {
+                // Draw live cells
+                for (const [key, cell] of this.infiniteCells.entries()) {
                     const comma = key.indexOf(',');
                     const c = parseInt(key.slice(0, comma), 10);
                     const r = parseInt(key.slice(comma + 1), 10);
@@ -1406,41 +1724,10 @@
                     if (c >= minCol && c <= maxCol && r >= minRow && r <= maxRow) {
                         const x = panX + c * zoom;
                         const y = panY + r * zoom;
-                        const size = Math.max(1, zoom);
-
-                        let fillStyle = '';
-                        if (age === 1) {
-                            fillStyle = 'rgba(6, 182, 212, 0.9)';
-                        } else if (age === 2) {
-                            fillStyle = 'rgba(14, 165, 233, 0.85)';
-                        } else if (age < 5) {
-                            fillStyle = 'rgba(99, 102, 241, 0.8)';
-                        } else {
-                            fillStyle = 'rgba(168, 85, 247, 0.75)';
-                        }
-
-                        ctx.fillStyle = fillStyle;
-                        if (zoom >= 8) {
-                            const padding = Math.max(0.6, zoom * 0.05);
-                            ctx.beginPath();
-                            ctx.roundRect(x + padding, y + padding, size - padding * 2, size - padding * 2, Math.min(3, zoom * 0.2));
-                            ctx.fill();
-
-                            if (age <= 2) {
-                                ctx.shadowBlur = Math.min(10, zoom);
-                                ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-                                ctx.beginPath();
-                                ctx.roundRect(x + padding, y + padding, size - padding * 2, size - padding * 2, Math.min(3, zoom * 0.2));
-                                ctx.fill();
-                                ctx.shadowBlur = 0;
-                            }
-                        } else {
-                            ctx.fillRect(x, y, size, size);
-                        }
+                        this.drawCellObject(ctx, x, y, zoom, cell);
                     }
                 }
 
-                // Update HUD Text
                 const zoomPercent = Math.round((this.zoom / 18) * 100);
                 const centerWorldX = Math.round((-panX + cw / 2) / zoom);
                 const centerWorldY = Math.round((-panY + ch / 2) / zoom);
@@ -1459,30 +1746,101 @@
                 }
             }
 
+            // Fixed Grid Simulation Step
             stepFixed() {
-                const nextGrid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
-                let curPopulation = 0;
+                // Phase 1: Deep copy current grid to handle Cloner pushes
+                const currentGrid = Array(this.rows).fill(null).map((_, r) => 
+                    Array(this.cols).fill(null).map((_, c) => this.cloneCell(this.grid[r][c]))
+                );
+
                 const births = [];
+
+                // 1. Identify Cloner actions and push/replicate
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const cell = this.grid[r][c];
+                        if (cell && cell.type === 'cloner') {
+                            const delta = this.getDirDelta(cell.dir);
+                            const behindC = c - delta.dx;
+                            const behindR = r - delta.dy;
+
+                            // Check cell behind
+                            if (behindC >= 0 && behindC < this.cols && behindR >= 0 && behindR < this.rows) {
+                                const sourceCell = this.grid[behindR][behindC];
+                                if (sourceCell) {
+                                    // There is a cell behind: push forward in direction delta and duplicate!
+                                    // Find contiguous occupied cells in front
+                                    let length = 0;
+                                    while (true) {
+                                        const checkC = c + (length + 1) * delta.dx;
+                                        const checkR = r + (length + 1) * delta.dy;
+                                        if (checkC >= 0 && checkC < this.cols && checkR >= 0 && checkR < this.rows && this.grid[checkR][checkC]) {
+                                            length++;
+                                        } else {
+                                            break;
+                                        }
+                                    }
+
+                                    // Push from back to front
+                                    for (let i = length; i >= 1; i--) {
+                                        const fromC = c + i * delta.dx;
+                                        const fromR = r + i * delta.dy;
+                                        const toC = fromC + delta.dx;
+                                        const toR = fromR + delta.dy;
+                                        if (toC >= 0 && toC < this.cols && toR >= 0 && toR < this.rows) {
+                                            currentGrid[toR][toC] = currentGrid[fromR][fromC];
+                                        }
+                                    }
+
+                                    // Place duplicated cell in front
+                                    const frontC = c + delta.dx;
+                                    const frontR = r + delta.dy;
+                                    if (frontC >= 0 && frontC < this.cols && frontR >= 0 && frontR < this.rows) {
+                                        currentGrid[frontR][frontC] = this.cloneCell(sourceCell);
+                                        births.push({ x: frontC, y: frontR });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Phase 2: Conway Rules Evaluation on Conway cells
+                // (Conway cells count ALL living cells as neighbors)
+                const nextGrid = Array(this.rows).fill(null).map((_, r) => 
+                    Array(this.cols).fill(null).map((_, c) => {
+                        const cell = currentGrid[r][c];
+                        // Cloners and Static cells persist
+                        if (cell && (cell.type === 'cloner' || cell.type === 'static')) {
+                            return cell;
+                        }
+                        return null;
+                    })
+                );
+
+                let curPopulation = 0;
 
                 for (let r = 0; r < this.rows; r++) {
                     for (let c = 0; c < this.cols; c++) {
-                        const liveNeighbors = this.countNeighborsFixed(r, c);
-                        const isAlive = this.grid[r][c] > 0;
+                        const cell = currentGrid[r][c];
+                        const liveNeighbors = this.countNeighborsFixed(currentGrid, r, c);
 
-                        if (isAlive) {
-                            if (liveNeighbors === 2 || liveNeighbors === 3) {
-                                nextGrid[r][c] = this.grid[r][c] + 1;
-                                curPopulation++;
+                        if (cell) {
+                            if (cell.type === 'conway') {
+                                if (liveNeighbors === 2 || liveNeighbors === 3) {
+                                    nextGrid[r][c] = { type: 'conway', age: cell.age + 1 };
+                                    curPopulation++;
+                                }
                             } else {
-                                nextGrid[r][c] = 0;
+                                // Cloner or static
+                                curPopulation++;
                             }
                         } else {
+                            // Dead space: Conway cell birth if exactly 3 neighbors
                             if (liveNeighbors === 3) {
-                                nextGrid[r][c] = 1;
+                                nextGrid[r][c] = { type: 'conway', age: 1 };
                                 curPopulation++;
                                 births.push({ x: c, y: r });
-                            } else {
-                                nextGrid[r][c] = 0;
                             }
                         }
                     }
@@ -1503,10 +1861,75 @@
                 this.draw();
             }
 
+            countNeighborsFixed(grid, r, c) {
+                let count = 0;
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if (i === 0 && j === 0) continue;
+                        const nr = r + i;
+                        const nc = c + j;
+                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                            if (grid[nr][nc]) count++;
+                        }
+                    }
+                }
+                return count;
+            }
+
+            // Infinite Grid Simulation Step
             stepInfinite() {
-                // Sparse Conway's Game of Life Algorithm
+                // Phase 1: Clone current state to execute Cloner push & replication
+                const currentCells = new Map();
+                for (const [k, v] of this.infiniteCells.entries()) {
+                    currentCells.set(k, this.cloneCell(v));
+                }
+
+                const births = [];
+
+                // 1. Process Cloners
+                for (const [key, cell] of this.infiniteCells.entries()) {
+                    if (cell && cell.type === 'cloner') {
+                        const comma = key.indexOf(',');
+                        const c = parseInt(key.slice(0, comma), 10);
+                        const r = parseInt(key.slice(comma + 1), 10);
+                        const delta = this.getDirDelta(cell.dir);
+
+                        const behindKey = `${c - delta.dx},${r - delta.dy}`;
+                        const sourceCell = this.infiniteCells.get(behindKey);
+
+                        if (sourceCell) {
+                            // Found cell behind cloner: determine push length in front
+                            let length = 0;
+                            while (true) {
+                                const checkKey = `${c + (length + 1) * delta.dx},${r + (length + 1) * delta.dy}`;
+                                if (this.infiniteCells.has(checkKey)) {
+                                    length++;
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            // Push contiguous line in front
+                            for (let i = length; i >= 1; i--) {
+                                const fromKey = `${c + i * delta.dx},${r + i * delta.dy}`;
+                                const toKey = `${c + (i + 1) * delta.dx},${r + (i + 1) * delta.dy}`;
+                                const movedCell = currentCells.get(fromKey);
+                                if (movedCell) {
+                                    currentCells.set(toKey, movedCell);
+                                }
+                            }
+
+                            // Insert duplicate at front
+                            const frontKey = `${c + delta.dx},${r + delta.dy}`;
+                            currentCells.set(frontKey, this.cloneCell(sourceCell));
+                            births.push({ x: c + delta.dx, y: r + delta.dy });
+                        }
+                    }
+                }
+
+                // Phase 2: Conway Automata Neighbor Counting
                 const neighborCounts = new Map();
-                for (const [key] of this.infiniteCells.entries()) {
+                for (const [key] of currentCells.entries()) {
                     const comma = key.indexOf(',');
                     const x = parseInt(key.slice(0, comma), 10);
                     const y = parseInt(key.slice(comma + 1), 10);
@@ -1522,18 +1945,29 @@
 
                 const nextCells = new Map();
                 let curPopulation = 0;
-                const births = [];
 
+                // Keep cloner and static cells
+                for (const [key, cell] of currentCells.entries()) {
+                    if (cell && (cell.type === 'cloner' || cell.type === 'static')) {
+                        nextCells.set(key, cell);
+                        curPopulation++;
+                    }
+                }
+
+                // Conway birth & survival
                 for (const [key, count] of neighborCounts.entries()) {
-                    const currentAge = this.infiniteCells.get(key) || 0;
-                    if (currentAge > 0) {
-                        if (count === 2 || count === 3) {
-                            nextCells.set(key, currentAge + 1);
-                            curPopulation++;
+                    const currentCell = currentCells.get(key);
+                    if (currentCell) {
+                        if (currentCell.type === 'conway') {
+                            if (count === 2 || count === 3) {
+                                nextCells.set(key, { type: 'conway', age: currentCell.age + 1 });
+                                curPopulation++;
+                            }
                         }
                     } else {
+                        // Empty space: birth if 3 neighbors
                         if (count === 3) {
-                            nextCells.set(key, 1);
+                            nextCells.set(key, { type: 'conway', age: 1 });
                             curPopulation++;
                             const comma = key.indexOf(',');
                             const x = parseInt(key.slice(0, comma), 10);
@@ -1558,21 +1992,6 @@
                 this.draw();
             }
 
-            countNeighborsFixed(r, c) {
-                let count = 0;
-                for (let i = -1; i <= 1; i++) {
-                    for (let j = -1; j <= 1; j++) {
-                        if (i === 0 && j === 0) continue;
-                        const nr = r + i;
-                        const nc = c + j;
-                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
-                            if (this.grid[nr][nc] > 0) count++;
-                        }
-                    }
-                }
-                return count;
-            }
-
             updateStats() {
                 if (this.generation === 0) {
                     if (this.isInfiniteMode()) {
@@ -1581,7 +2000,7 @@
                         let pop = 0;
                         for (let r = 0; r < this.rows; r++) {
                             for (let c = 0; c < this.cols; c++) {
-                                if (this.grid[r][c] > 0) pop++;
+                                if (this.grid[r][c]) pop++;
                             }
                         }
                         this.population = pop;
@@ -1617,7 +2036,7 @@
                     const key = `${col},${row}`;
 
                     if (this.drawMode === 1) {
-                        this.infiniteCells.set(key, 1);
+                        this.infiniteCells.set(key, this.createCell(this.selectedCellType, this.selectedClonerDir));
                     } else {
                         this.infiniteCells.delete(key);
                     }
@@ -1630,7 +2049,11 @@
                     const row = Math.floor(((clientY - rect.top) * scaleY) / (this.canvas.height / this.rows));
 
                     if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
-                        this.grid[row][col] = this.drawMode;
+                        if (this.drawMode === 1) {
+                            this.grid[row][col] = this.createCell(this.selectedCellType, this.selectedClonerDir);
+                        } else {
+                            this.grid[row][col] = null;
+                        }
                         this.updateStats();
                         this.draw();
                     }
@@ -1640,15 +2063,12 @@
             setupEventListeners() {
                 const canvas = this.canvas;
 
-                // Context menu prevention (to enable right-click panning)
                 canvas.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                 });
 
-                // Mouse Down
                 canvas.addEventListener('mousedown', (e) => {
                     if (e.button === 2) {
-                        // Right-click: Pan arena in infinite mode
                         if (this.isInfiniteMode()) {
                             this.isPanning = true;
                             this.lastMouseX = e.clientX;
@@ -1658,24 +2078,35 @@
                         return;
                     }
 
-                    if (e.button !== 0) return; // Left-click only for drawing
+                    if (e.button !== 0) return;
 
                     this.isDrawing = true;
-                    const rect = canvas.getBoundingClientRect();
                     
                     if (this.isInfiniteMode()) {
-                        const canvasX = e.clientX - rect.left;
-                        const canvasY = e.clientY - rect.top;
-                        const col = Math.floor((canvasX - this.panX) / this.zoom);
-                        const row = Math.floor((canvasY - this.panY) / this.zoom);
-                        this.drawMode = this.infiniteCells.has(`${col},${row}`) ? 0 : 1;
+                        const rect = canvas.getBoundingClientRect();
+                        const col = Math.floor((e.clientX - rect.left - this.panX) / this.zoom);
+                        const row = Math.floor((e.clientY - rect.top - this.panY) / this.zoom);
+                        const key = `${col},${row}`;
+                        const existing = this.infiniteCells.get(key);
+                        // If same cell type & dir already exists, erase it; otherwise place new
+                        if (existing && existing.type === this.selectedCellType && (this.selectedCellType !== 'cloner' || existing.dir === this.selectedClonerDir)) {
+                            this.drawMode = 0;
+                        } else {
+                            this.drawMode = 1;
+                        }
                     } else {
+                        const rect = canvas.getBoundingClientRect();
                         const scaleX = canvas.width / rect.width;
                         const scaleY = canvas.height / rect.height;
                         const col = Math.floor(((e.clientX - rect.left) * scaleX) / this.cellSize);
-                        const row = Math.floor(((e.clientY - rect.top) * scaleY) / (canvas.height / this.rows));
+                        const row = Math.floor(((e.clientY - rect.top) * scaleY) / (this.canvas.height / this.rows));
                         if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
-                            this.drawMode = this.grid[row][col] > 0 ? 0 : 1;
+                            const existing = this.grid[row][col];
+                            if (existing && existing.type === this.selectedCellType && (this.selectedCellType !== 'cloner' || existing.dir === this.selectedClonerDir)) {
+                                this.drawMode = 0;
+                            } else {
+                                this.drawMode = 1;
+                            }
                         } else {
                             this.drawMode = 1;
                         }
@@ -1683,7 +2114,6 @@
                     this.handleInteraction(e);
                 });
 
-                // Mouse Move
                 canvas.addEventListener('mousemove', (e) => {
                     if (this.isPanning && this.isInfiniteMode()) {
                         const dx = e.clientX - this.lastMouseX;
@@ -1700,7 +2130,6 @@
                     this.handleInteraction(e);
                 });
 
-                // Mouse Up
                 window.addEventListener('mouseup', (e) => {
                     if (e.button === 2) {
                         this.isPanning = false;
@@ -1711,7 +2140,7 @@
                     }
                 });
 
-                // Mouse Wheel: Zoom in / out infinitely centered on cursor
+                // Mouse Wheel Zoom
                 canvas.addEventListener('wheel', (e) => {
                     if (!this.isInfiniteMode()) return;
                     e.preventDefault();
@@ -1720,15 +2149,12 @@
                     const mouseX = e.clientX - rect.left;
                     const mouseY = e.clientY - rect.top;
 
-                    // World coordinate at mouse pointer before zoom
                     const worldX = (mouseX - this.panX) / this.zoom;
                     const worldY = (mouseY - this.panY) / this.zoom;
 
-                    // Exponential smooth zoom factor
                     const zoomFactor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
                     const newZoom = Math.min(Math.max(this.zoom * zoomFactor, 0.4), 160);
 
-                    // Adjust pan so the world point remains fixed under mouse
                     this.panX = mouseX - worldX * newZoom;
                     this.panY = mouseY - worldY * newZoom;
                     this.zoom = newZoom;
@@ -1763,7 +2189,6 @@
                     }, 200);
                 });
 
-                // Reset view button for infinite grid
                 const btnResetView = document.getElementById('btn-reset-view');
                 if (btnResetView) {
                     btnResetView.addEventListener('click', () => {
@@ -1779,8 +2204,17 @@
             loadPreset(presetName) {
                 this.resetGrid();
                 let coords = [];
+                let presetCellType = 'conway';
 
                 switch(presetName) {
+                    case 'cloner-demo':
+                        // Demonstration: Static Cell behind Cloner Cell ('무' '복')
+                        presetCellType = 'custom';
+                        coords = [
+                            { r: 0, c: -1, type: 'static' },
+                            { r: 0, c: 0, type: 'cloner', dir: 'right' }
+                        ];
+                        break;
                     case 'glider':
                         coords = [
                             {r: -1, c: 0},
@@ -1827,11 +2261,11 @@
                 }
 
                 if (this.isInfiniteMode()) {
-                    // Place at current center of viewport
                     const midC = Math.round((-this.panX + this.canvas.width / 2) / this.zoom);
                     const midR = Math.round((-this.panY + this.canvas.height / 2) / this.zoom);
                     coords.forEach(offset => {
-                        this.infiniteCells.set(`${midC + offset.c},${midR + offset.r}`, 1);
+                        const cellType = offset.type || presetCellType;
+                        this.infiniteCells.set(`${midC + offset.c},${midR + offset.r}`, this.createCell(cellType, offset.dir));
                     });
                 } else {
                     const midC = Math.floor(this.cols / 2);
@@ -1840,7 +2274,8 @@
                         const r = midR + offset.r;
                         const c = midC + offset.c;
                         if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
-                            this.grid[r][c] = 1;
+                            const cellType = offset.type || presetCellType;
+                            this.grid[r][c] = this.createCell(cellType, offset.dir);
                         }
                     });
                 }
@@ -1892,37 +2327,102 @@
             const selectDensity = document.getElementById('select-grid-density');
             const audioVisPanel = document.getElementById('audio-vis-panel');
 
-            // Play/Pause Action
+            // --- Cell Selection UI Handlers ---
+            const cellCards = document.querySelectorAll('.cell-type-card');
+            const cellBadge = document.getElementById('current-cell-badge');
+            const dirButtons = document.querySelectorAll('.btn-dir');
+            const clonerIconSymbol = document.getElementById('cloner-icon-symbol');
+
+            const dirSymbols = {
+                right: '|→',
+                left: '←|',
+                up: '↑',
+                down: '↓'
+            };
+
+            const cellNames = {
+                conway: '콘웨이의 세포',
+                cloner: '복제 세포',
+                static: '고정 세포 (무)'
+            };
+
+            function selectCellType(type) {
+                gol.selectedCellType = type;
+                cellCards.forEach(c => {
+                    if (c.getAttribute('data-cell-type') === type) {
+                        c.classList.add('active');
+                        if (type === 'cloner') c.classList.add('cloner-active');
+                    } else {
+                        c.classList.remove('active', 'cloner-active');
+                    }
+                });
+
+                if (cellBadge) {
+                    cellBadge.innerText = cellNames[type];
+                    if (type === 'conway') {
+                        cellBadge.style.color = 'var(--primary)';
+                    } else if (type === 'cloner') {
+                        cellBadge.style.color = 'var(--cloner-color)';
+                    } else {
+                        cellBadge.style.color = '#cbd5e1';
+                    }
+                }
+            }
+
+            cellCards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Ignore clicks on direction buttons directly inside
+                    if (e.target.closest('.dir-button-group')) return;
+                    const type = card.getAttribute('data-cell-type');
+                    selectCellType(type);
+                });
+            });
+
+            // Direction Buttons for Cloner Cell
+            dirButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dir = btn.getAttribute('data-dir');
+                    gol.selectedClonerDir = dir;
+
+                    dirButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    if (clonerIconSymbol) {
+                        clonerIconSymbol.innerText = dirSymbols[dir];
+                    }
+
+                    // Automatically activate cloner cell mode
+                    selectCellType('cloner');
+                });
+            });
+
+            // --- Standard Control Handlers ---
             btnPlay.addEventListener('click', () => {
                 gol.togglePlay();
             });
 
-            // Single Step Action
             btnStep.addEventListener('click', () => {
                 if (gol.isPlaying) gol.togglePlay();
                 gol.step();
             });
 
-            // Clear Action
             btnClear.addEventListener('click', () => {
                 if (gol.isPlaying) gol.togglePlay();
                 gol.resetGrid();
                 gol.draw();
             });
 
-            // Randomize Action
             btnRandom.addEventListener('click', () => {
                 gol.randomizeGrid();
             });
 
-            // FPS Speed Slider Control
             inputSpeed.addEventListener('input', (e) => {
                 const fps = parseInt(e.target.value);
                 gol.fps = fps;
                 valSpeed.innerText = `${fps} FPS`;
             });
 
-            // Sound & Visualizer Toggle
             switchSound.addEventListener('change', (e) => {
                 gol.soundEnabled = e.target.checked;
                 if (gol.soundEnabled) {
@@ -1935,13 +2435,12 @@
                 }
             });
 
-            // Grid density settings (including Infinite Grid)
             selectDensity.addEventListener('change', (e) => {
                 if (gol.isPlaying) gol.togglePlay();
                 gol.changeDensity(e.target.value);
             });
 
-            // Setup Presets buttons click
+            // Presets click
             document.querySelectorAll('.preset-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const preset = item.getAttribute('data-preset');
