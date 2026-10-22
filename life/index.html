@@ -97,7 +97,7 @@
 
         .main-container {
             display: grid;
-            grid-template-columns: 320px 1fr 300px;
+            grid-template-columns: 340px 1fr 300px;
             gap: 1.5rem;
             padding: 1.5rem;
             flex: 1;
@@ -106,7 +106,7 @@
             width: 100%;
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1240px) {
             .main-container {
                 grid-template-columns: 1fr;
             }
@@ -294,14 +294,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 500px;
+            min-height: 520px;
             position: relative;
         }
 
         .canvas-wrapper {
             position: relative;
             width: 100%;
-            max-width: 800px;
+            max-width: 860px;
             aspect-ratio: 4/3;
             background: rgba(5, 8, 16, 0.95);
             border: 1px solid var(--card-border);
@@ -321,6 +321,10 @@
             width: 100%;
             height: 100%;
             cursor: crosshair;
+        }
+
+        canvas.panning {
+            cursor: grabbing !important;
         }
 
         /* Action Buttons */
@@ -414,7 +418,7 @@
 
         .stat-val {
             font-family: var(--font-mono);
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--primary);
             margin-top: 0.25rem;
@@ -500,6 +504,116 @@
             color: var(--text-main);
         }
 
+        /* Audio Visualizer Panel */
+        #audio-vis-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vis-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 90px;
+            background: rgba(4, 7, 14, 0.95);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
+        }
+
+        .vis-canvas-container canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .note-ladder-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-top: 0.6rem;
+        }
+
+        .note-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            padding: 4px 2px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-chip.active {
+            color: #fff;
+            border-color: var(--primary);
+            background: rgba(6, 182, 212, 0.25);
+            box-shadow: 0 0 10px var(--primary-glow);
+            transform: scale(1.06);
+        }
+
+        .note-chip.active-high {
+            border-color: var(--secondary);
+            background: rgba(168, 85, 247, 0.25);
+            box-shadow: 0 0 10px var(--secondary-glow);
+            transform: scale(1.06);
+        }
+
+        /* Infinite Grid HUD & Floating Guide */
+        #infinite-hud {
+            display: none;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            pointer-events: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 6;
+        }
+
+        .infinite-badge-pill {
+            background: rgba(11, 15, 25, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--primary);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        #infinite-guide-bar {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(11, 15, 25, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
         footer {
             padding: 1.5rem;
             text-align: center;
@@ -534,7 +648,7 @@
     </header>
 
     <div class="main-container">
-        <!-- Sidebar Left: Simulation Setup & Stats -->
+        <!-- Sidebar Left: Simulation Setup & Audio & Stats -->
         <div class="sidebar">
             <!-- Controls Panel -->
             <div class="glass-panel">
@@ -574,22 +688,34 @@
 
                 <div class="control-group">
                     <div class="switch-container">
-                        <span class="switch-label">경계면 래핑 (무한 그리드)</span>
-                        <label class="switch">
-                            <input type="checkbox" id="switch-wrap" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="switch-container">
                         <span class="switch-label">오디오 신디사이저 (배경음)</span>
                         <label class="switch">
                             <input type="checkbox" id="switch-sound">
                             <span class="slider"></span>
                         </label>
                     </div>
+                </div>
+            </div>
+
+            <!-- Audio Visualizer Panel (Dynamic) -->
+            <div id="audio-vis-panel" class="glass-panel">
+                <div class="panel-title">
+                    <span>오디오 비주얼라이저</span>
+                    <span id="vis-status-badge" class="badge" style="color: var(--primary);">LIVE WAVE</span>
+                </div>
+                <div class="control-label">
+                    <span>실시간 음파 파형 (Oscilloscope)</span>
+                    <span id="vis-active-count" class="value">0 음역 재생 중</span>
+                </div>
+                <div class="vis-canvas-container">
+                    <canvas id="vis-canvas"></canvas>
+                </div>
+                <div class="control-label" style="margin-top: 0.75rem;">
+                    <span>C 펜타토닉 15 음계 활성도</span>
+                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono);">C3 ~ A5</span>
+                </div>
+                <div class="note-ladder-grid" id="note-ladder">
+                    <!-- Note Chips generated by JS -->
                 </div>
             </div>
 
@@ -613,7 +739,7 @@
                         <div id="stat-peak" class="stat-val">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">그리드 크기</div>
+                        <div class="stat-label">그리드 모드</div>
                         <div id="stat-grid-size" class="stat-val">60 × 45</div>
                     </div>
                 </div>
@@ -625,14 +751,36 @@
             <div class="panel-title" style="width: 100%;">
                 <span>세포 시뮬레이션 아레나</span>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <select id="select-grid-density" style="padding: 0.2rem 0.5rem; width: auto; font-size: 0.75rem;">
+                    <select id="select-grid-density" style="padding: 0.25rem 0.6rem; width: auto; font-size: 0.75rem; font-weight: 600;">
                         <option value="small">그리드 촘촘히 (80×60)</option>
                         <option value="medium" selected>중간 그리드 (60×45)</option>
                         <option value="large">큼직한 그리드 (40×30)</option>
+                        <option value="infinite" style="color: #38bdf8; font-weight: bold;">무한 그리드 (Zoom & Pan)</option>
                     </select>
                 </div>
             </div>
-            <div class="canvas-wrapper">
+            
+            <div class="canvas-wrapper" id="canvas-wrapper">
+                <!-- Floating HUD for Infinite Grid Mode -->
+                <div id="infinite-hud">
+                    <div class="infinite-badge-pill">
+                        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--secondary); box-shadow: 0 0 6px var(--secondary);"></span>
+                        <span id="hud-zoom-text">줌: 100%</span>
+                        <span style="color: var(--text-muted); opacity: 0.4;">|</span>
+                        <span id="hud-coords-text">중심: (0, 0)</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; pointer-events: auto;">
+                        <button id="btn-reset-view" class="btn" style="padding: 4px 10px; font-size: 0.72rem; background: rgba(15, 23, 42, 0.9);">
+                            ⌂ 원점 복귀
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Floating Guide for Infinite Grid Mode -->
+                <div id="infinite-guide-bar">
+                    🖱️ <span style="color: var(--primary); font-weight: 600;">우클릭 드래그</span>: 화면 이동 &nbsp;|&nbsp; 🔍 <span style="color: var(--primary); font-weight: 600;">휠</span>: 무한 줌 &nbsp;|&nbsp; ✏️ <span style="color: var(--primary); font-weight: 600;">좌클릭</span>: 세포 배치
+                </div>
+
                 <canvas id="life-canvas"></canvas>
             </div>
         </div>
@@ -687,20 +835,26 @@
             <!-- Instructions Panel -->
             <div class="glass-panel">
                 <div class="panel-title">
-                    <span>도움말 및 규칙</span>
+                    <span>도움말 및 기능</span>
                     <span class="badge">Guide</span>
                 </div>
                 <ul class="instructions-list">
-                    <li><strong>마우스 드래그</strong>로 세포를 그리거나 지울 수 있습니다.</li>
-                    <li><strong>Spacebar</strong>로 시뮬레이션 재생/일시정지가 가능합니다.</li>
-                    <li><strong>생존 규칙</strong>:
+                    <li><strong>일반 그리드 조작</strong>: 마우스 좌클릭 드래그로 세포를 그리거나 지울 수 있습니다.</li>
+                    <li><strong>특수: 무한 그리드</strong>:
                         <ul>
-                            <li>살아있는 세포의 이웃이 2~3개면 생존.</li>
-                            <li>죽은 세포의 이웃이 정확히 3개면 탄생.</li>
-                            <li>그 외의 모든 경우는 과소/과밀로 사멸.</li>
+                            <li><strong>마우스 휠</strong>: 확대 및 무한 축소</li>
+                            <li><strong>마우스 우클릭 드래그</strong>: 아레나 시야 자유 이동 (Pan)</li>
+                            <li><strong>마우스 좌클릭</strong>: 무한 좌표계에 세포 배치</li>
+                            <li>경계선 제약 없이 글라이더와 세포가 끝없이 뻗어나갑니다.</li>
                         </ul>
                     </li>
-                    <li><strong>에이징 컬러</strong>: 새로 태어난 세포는 <span style="color: var(--primary); font-weight: bold;">민트색</span>, 오래된 세포는 <span style="color: var(--secondary); font-weight: bold;">보라/자홍색</span>으로 빛납니다.</li>
+                    <li><strong>오디오 신디사이저 & 비주얼라이저</strong>:
+                        <ul>
+                            <li>새로운 세포 탄생 시 15음계 C 펜타토닉 신디사이저 톤 발생.</li>
+                            <li>실시간 네온 오실로스코프 파형과 15개 음계 활성 래더 지원.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Spacebar</strong>: 시뮬레이션 재생 / 일시정지</li>
                 </ul>
             </div>
         </div>
@@ -711,14 +865,29 @@
     </footer>
 
     <script>
-        // --- Web Audio Synth Core ---
+        // --- Web Audio Synth Core & Visualizer Engine ---
         class AmbientSynth {
             constructor() {
                 this.ctx = null;
+                this.analyser = null;
                 this.output = null;
-                this.activeOscillators = [];
                 // Pentatonic Scale in C Major (Hz)
-                this.scale = [130.81, 146.83, 164.81, 196.00, 220.00, 261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
+                this.scale = [
+                    130.81, 146.83, 164.81, 196.00, 220.00, // C3, D3, E3, G3, A3
+                    261.63, 293.66, 329.63, 392.00, 440.00, // C4, D4, E4, G4, A4
+                    523.25, 587.33, 659.25, 783.99, 880.00  // C5, D5, E5, G5, A5
+                ];
+                this.noteNames = [
+                    'C3', 'D3', 'E3', 'G3', 'A3',
+                    'C4', 'D4', 'E4', 'G4', 'A4',
+                    'C5', 'D5', 'E5', 'G5', 'A5'
+                ];
+                this.noteActivities = new Float32Array(this.scale.length);
+                this.visCanvas = null;
+                this.visCtx = null;
+                this.animFrameId = null;
+                this.timeDomainBuffer = null;
+                this.freqBuffer = null;
             }
 
             init() {
@@ -726,16 +895,23 @@
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AudioContextClass();
                 
+                // Analyser Node for intuitive visualizer
+                this.analyser = this.ctx.createAnalyser();
+                this.analyser.fftSize = 512;
+                this.analyser.smoothingTimeConstant = 0.82;
+                this.timeDomainBuffer = new Uint8Array(this.analyser.fftSize);
+                this.freqBuffer = new Uint8Array(this.analyser.frequencyBinCount);
+
                 // Low-pass filter for soft warm sound
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.frequency.setValueAtTime(900, this.ctx.currentTime);
 
                 // Delay effect
                 const delay = this.ctx.createDelay();
-                delay.delayTime.value = 0.3;
+                delay.delayTime.value = 0.32;
                 const feedback = this.ctx.createGain();
-                feedback.gain.value = 0.3;
+                feedback.gain.value = 0.35;
 
                 // Connection for delay loop
                 delay.connect(feedback);
@@ -743,15 +919,32 @@
 
                 // Main gain
                 this.output = this.ctx.createGain();
-                this.output.gain.setValueAtTime(0.08, this.ctx.currentTime); // Soft volume
+                this.output.gain.setValueAtTime(0.09, this.ctx.currentTime);
 
-                // Connect nodes
+                // Route through analyser
                 filter.connect(this.output);
                 delay.connect(this.output);
-                this.output.connect(this.ctx.destination);
+                this.output.connect(this.analyser);
+                this.analyser.connect(this.ctx.destination);
 
-                // Connect filter to delay too
                 filter.connect(delay);
+
+                // Build note ladder chips
+                this.createNoteLadderUI();
+            }
+
+            createNoteLadderUI() {
+                const ladder = document.getElementById('note-ladder');
+                if (!ladder || ladder.children.length > 0) return;
+                
+                ladder.innerHTML = '';
+                this.noteNames.forEach((name, idx) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'note-chip';
+                    chip.id = `note-chip-${idx}`;
+                    chip.innerText = name;
+                    ladder.appendChild(chip);
+                });
             }
 
             playBirthNotes(birthCoords, gridCols, gridRows) {
@@ -760,44 +953,148 @@
                     this.ctx.resume();
                 }
 
-                // Limit polyphony to 3 notes per generation to avoid noise overload
                 const maxNotes = Math.min(3, birthCoords.length);
                 const shuffled = [...birthCoords].sort(() => 0.5 - Math.random());
-
                 const now = this.ctx.currentTime;
                 
                 for (let i = 0; i < maxNotes; i++) {
                     const coord = shuffled[i];
-                    // Map Y coordinate to note pitch (higher index -> lower note, or vice versa)
-                    const noteIndex = Math.floor((1 - (coord.y / gridRows)) * this.scale.length);
-                    const freq = this.scale[Math.max(0, Math.min(this.scale.length - 1, noteIndex))];
+                    const normY = Math.max(0, Math.min(1, coord.y / gridRows));
+                    const noteIndex = Math.floor((1 - normY) * this.scale.length);
+                    const clampedIdx = Math.max(0, Math.min(this.scale.length - 1, noteIndex));
+                    const freq = this.scale[clampedIdx];
 
-                    // Gentle synth voice
+                    // Mark note activity for the visualizer
+                    this.noteActivities[clampedIdx] = 1.0;
+
                     const osc = this.ctx.createOscillator();
                     const gainNode = this.ctx.createGain();
 
-                    // Waveform: soft triangle
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(freq, now);
 
-                    // Amplitude envelope: fast attack, medium decay, soft release
                     gainNode.gain.setValueAtTime(0, now);
-                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.05); // attack
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.8); // release
+                    gainNode.gain.linearRampToValueAtTime(0.22, now + 0.04);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
 
                     osc.connect(gainNode);
-                    // Connect to filter (which connects to destination and delay)
-                    gainNode.connect(this.ctx.destination); // clean
+                    gainNode.connect(this.analyser);
                     
                     osc.start(now);
-                    osc.stop(now + 0.8);
+                    osc.stop(now + 0.85);
+                }
+            }
+
+            startVisualizer() {
+                this.visCanvas = document.getElementById('vis-canvas');
+                if (!this.visCanvas) return;
+                this.visCtx = this.visCanvas.getContext('2d');
+                
+                // Adjust canvas resolution
+                const rect = this.visCanvas.parentElement.getBoundingClientRect();
+                this.visCanvas.width = rect.width;
+                this.visCanvas.height = rect.height;
+
+                if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
+                
+                const render = () => {
+                    this.drawVisualizer();
+                    this.animFrameId = requestAnimationFrame(render);
+                };
+                render();
+            }
+
+            stopVisualizer() {
+                if (this.animFrameId) {
+                    cancelAnimationFrame(this.animFrameId);
+                    this.animFrameId = null;
+                }
+            }
+
+            drawVisualizer() {
+                if (!this.visCtx || !this.analyser) return;
+                const ctx = this.visCtx;
+                const w = this.visCanvas.width;
+                const h = this.visCanvas.height;
+
+                this.analyser.getByteTimeDomainData(this.timeDomainBuffer);
+                this.analyser.getByteFrequencyData(this.freqBuffer);
+
+                // Clear background with soft fading
+                ctx.fillStyle = 'rgba(5, 8, 16, 0.4)';
+                ctx.fillRect(0, 0, w, h);
+
+                // Subtle grid guide lines
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, h / 2);
+                ctx.lineTo(w, h / 2);
+                ctx.stroke();
+
+                // 1. Draw Multi-Layer Oscilloscope Waveform with Neon Glow
+                ctx.lineWidth = 2.5;
+                const sliceWidth = w / this.timeDomainBuffer.length;
+                let x = 0;
+
+                // Wave gradient
+                const gradient = ctx.createLinearGradient(0, 0, w, 0);
+                gradient.addColorStop(0, '#06b6d4');
+                gradient.addColorStop(0.5, '#38bdf8');
+                gradient.addColorStop(1, '#a855f7');
+
+                ctx.strokeStyle = gradient;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = 'rgba(6, 182, 212, 0.6)';
+
+                ctx.beginPath();
+                for (let i = 0; i < this.timeDomainBuffer.length; i++) {
+                    const v = this.timeDomainBuffer[i] / 128.0;
+                    const y = (v * h) / 2;
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    x += sliceWidth;
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0; // reset shadow
+
+                // 2. Update Note Chips in Ladder UI & Count
+                let activeCount = 0;
+                for (let i = 0; i < this.scale.length; i++) {
+                    // Decay active level
+                    this.noteActivities[i] *= 0.91;
+                    const val = this.noteActivities[i];
+                    const chip = document.getElementById(`note-chip-${i}`);
+                    if (chip) {
+                        if (val > 0.12) {
+                            activeCount++;
+                            if (i >= 10) {
+                                chip.className = 'note-chip active active-high';
+                            } else {
+                                chip.className = 'note-chip active';
+                            }
+                            chip.style.opacity = Math.min(1, 0.4 + val * 0.6);
+                        } else {
+                            chip.className = 'note-chip';
+                            chip.style.opacity = '0.5';
+                        }
+                    }
+                }
+
+                const countEl = document.getElementById('vis-active-count');
+                if (countEl) {
+                    countEl.innerText = activeCount > 0 ? `${activeCount}개 음계 진동 중` : '유휴 상태';
                 }
             }
         }
 
         const synth = new AmbientSynth();
 
-        // --- Conway's Game of Life Engine ---
+        // --- Conway's Game of Life Engine with Infinite Grid Support ---
         class GameOfLife {
             constructor() {
                 this.canvas = document.getElementById('life-canvas');
@@ -805,25 +1102,37 @@
                 
                 // Grid density settings
                 this.densities = {
-                    small: { cols: 80, rows: 60 },
-                    medium: { cols: 60, rows: 45 },
-                    large: { cols: 40, rows: 30 }
+                    small: { cols: 80, rows: 60, infinite: false },
+                    medium: { cols: 60, rows: 45, infinite: false },
+                    large: { cols: 40, rows: 30, infinite: false },
+                    infinite: { infinite: true }
                 };
                 
                 this.currentDensity = 'medium';
                 this.cols = this.densities[this.currentDensity].cols;
                 this.rows = this.densities[this.currentDensity].rows;
                 
-                // Grid state: 0 = dead, >0 = alive (represents age in generations)
+                // Grid state for fixed modes: 2D array [row][col]
                 this.grid = [];
+                // Grid state for infinite mode: Map of "x,y" => age
+                this.infiniteCells = new Map();
+                
+                // Camera & Viewport for Infinite Grid
+                this.panX = 0;
+                this.panY = 0;
+                this.zoom = 18; // pixels per cell in infinite mode
+                this.isPanning = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+
+                // Drawing interaction
                 this.isDrawing = false;
-                this.drawMode = 1; // 1 = draw alive, 0 = erase
+                this.drawMode = 1; // 1 = alive, 0 = erase
                 
                 // Simulation Loop Control
                 this.isPlaying = false;
                 this.fps = 10;
                 this.lastFrameTime = 0;
-                this.wrapEdges = true;
                 
                 // Stats
                 this.generation = 0;
@@ -846,16 +1155,29 @@
                 this.loadPreset('glider');
             }
 
+            isInfiniteMode() {
+                return this.currentDensity === 'infinite';
+            }
+
             resizeCanvas() {
-                // Ensure canvas resolution matches its display size
                 const rect = this.canvas.parentElement.getBoundingClientRect();
                 this.canvas.width = rect.width;
                 this.canvas.height = rect.height;
-                this.cellSize = this.canvas.width / this.cols;
+                if (!this.isInfiniteMode()) {
+                    this.cellSize = this.canvas.width / this.cols;
+                }
             }
 
             resetGrid() {
-                this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                if (this.isInfiniteMode()) {
+                    this.infiniteCells.clear();
+                    // Reset pan to center
+                    this.panX = this.canvas.width / 2;
+                    this.panY = this.canvas.height / 2;
+                    this.zoom = 18;
+                } else {
+                    this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                }
                 this.generation = 0;
                 this.population = 0;
                 this.peakPopulation = 0;
@@ -863,25 +1185,96 @@
             }
 
             randomizeGrid() {
-                this.grid = Array(this.rows).fill(null).map(() => 
-                    Array(this.cols).fill(null).map(() => Math.random() < 0.25 ? 1 : 0)
-                );
+                if (this.isInfiniteMode()) {
+                    // Populate around the current center of view
+                    this.infiniteCells.clear();
+                    const centerCol = Math.round((-this.panX + this.canvas.width / 2) / this.zoom);
+                    const centerRow = Math.round((-this.panY + this.canvas.height / 2) / this.zoom);
+                    const radius = 18;
+                    for (let r = centerRow - radius; r <= centerRow + radius; r++) {
+                        for (let c = centerCol - radius; c <= centerCol + radius; c++) {
+                            if (Math.random() < 0.25) {
+                                this.infiniteCells.set(`${c},${r}`, 1);
+                            }
+                        }
+                    }
+                } else {
+                    this.grid = Array(this.rows).fill(null).map(() => 
+                        Array(this.cols).fill(null).map(() => Math.random() < 0.25 ? 1 : 0)
+                    );
+                }
                 this.generation = 0;
                 this.updateStats();
                 this.draw();
             }
 
             changeDensity(densityName) {
+                const wasInfinite = this.isInfiniteMode();
                 this.currentDensity = densityName;
-                this.cols = this.densities[densityName].cols;
-                this.rows = this.densities[densityName].rows;
-                this.resizeCanvas();
-                this.resetGrid();
+                const isNowInfinite = this.isInfiniteMode();
+
+                // Toggle HUD & Guide elements
+                const hud = document.getElementById('infinite-hud');
+                const guide = document.getElementById('infinite-guide-bar');
+                if (hud && guide) {
+                    hud.style.display = isNowInfinite ? 'flex' : 'none';
+                    guide.style.display = isNowInfinite ? 'block' : 'none';
+                }
+
+                if (isNowInfinite) {
+                    // Switching to Infinite Mode: Transfer existing cells into infinite space centered at (0, 0)
+                    this.infiniteCells.clear();
+                    if (this.grid && this.grid.length > 0) {
+                        const midR = Math.floor(this.rows / 2);
+                        const midC = Math.floor(this.cols / 2);
+                        for (let r = 0; r < this.rows; r++) {
+                            for (let c = 0; c < this.cols; c++) {
+                                if (this.grid[r][c] > 0) {
+                                    this.infiniteCells.set(`${c - midC},${r - midR}`, this.grid[r][c]);
+                                }
+                            }
+                        }
+                    }
+                    this.panX = this.canvas.width / 2;
+                    this.panY = this.canvas.height / 2;
+                    this.zoom = 18;
+                } else {
+                    // Switching to a Fixed Grid: Transfer infinite cells falling into range
+                    this.cols = this.densities[densityName].cols;
+                    this.rows = this.densities[densityName].rows;
+                    this.resizeCanvas();
+                    
+                    const newGrid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
+                    const midR = Math.floor(this.rows / 2);
+                    const midC = Math.floor(this.cols / 2);
+
+                    if (wasInfinite && this.infiniteCells.size > 0) {
+                        for (const [key, age] of this.infiniteCells.entries()) {
+                            const [c, r] = key.split(',').map(Number);
+                            const targetR = r + midR;
+                            const targetC = c + midC;
+                            if (targetR >= 0 && targetR < this.rows && targetC >= 0 && targetC < this.cols) {
+                                newGrid[targetR][targetC] = age;
+                            }
+                        }
+                    }
+                    this.grid = newGrid;
+                }
+
+                this.updateStats();
                 this.draw();
             }
 
             // Draw current frame to canvas
             draw() {
+                if (this.isInfiniteMode()) {
+                    this.drawInfinite();
+                } else {
+                    this.drawFixed();
+                }
+            }
+
+            drawFixed() {
                 const ctx = this.ctx;
                 const cw = this.canvas.width;
                 const ch = this.canvas.height;
@@ -912,67 +1305,180 @@
                     for (let c = 0; c < this.cols; c++) {
                         const age = this.grid[r][c];
                         if (age > 0) {
-                            // Map age to color: newly born is bright cyan; old is purple/magenta
                             let fillStyle = '';
                             if (age === 1) {
                                 fillStyle = 'rgba(6, 182, 212, 0.9)'; // Neon Cyan
                             } else if (age === 2) {
-                                fillStyle = 'rgba(14, 165, 233, 0.85)'; // Light blue
+                                fillStyle = 'rgba(14, 165, 233, 0.85)';
                             } else if (age < 5) {
-                                fillStyle = 'rgba(99, 102, 241, 0.8)'; // Indigo
+                                fillStyle = 'rgba(99, 102, 241, 0.8)';
                             } else {
                                 fillStyle = 'rgba(168, 85, 247, 0.75)'; // Purple/Magenta
                             }
 
                             ctx.fillStyle = fillStyle;
-                            
-                            // Beautiful rounded grid cell drawing
                             const padding = 1;
                             const x = c * cellW + padding;
                             const y = r * cellH + padding;
                             const w = cellW - padding * 2;
                             const h = cellH - padding * 2;
                             
-                            // Simple rounded rect
                             ctx.beginPath();
                             ctx.roundRect(x, y, w, h, 3);
                             ctx.fill();
 
-                            // Neon glow effect for younger active cells
                             if (age <= 2) {
                                 ctx.shadowBlur = 8;
                                 ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
                                 ctx.beginPath();
                                 ctx.roundRect(x, y, w, h, 3);
                                 ctx.fill();
-                                ctx.shadowBlur = 0; // Reset shadow
+                                ctx.shadowBlur = 0;
                             }
                         }
                     }
                 }
             }
 
-            // Calculate next generation state
+            drawInfinite() {
+                const ctx = this.ctx;
+                const cw = this.canvas.width;
+                const ch = this.canvas.height;
+                const zoom = this.zoom;
+                const panX = this.panX;
+                const panY = this.panY;
+
+                ctx.fillStyle = '#050810';
+                ctx.fillRect(0, 0, cw, ch);
+
+                // Viewport boundaries in cell coordinate space
+                const minCol = Math.floor(-panX / zoom) - 1;
+                const maxCol = Math.ceil((cw - panX) / zoom) + 1;
+                const minRow = Math.floor(-panY / zoom) - 1;
+                const maxRow = Math.ceil((ch - panY) / zoom) + 1;
+
+                // 1. Grid Lines (Faded smoothly when zoomed far out to prevent crowding)
+                if (zoom >= 4) {
+                    const lineAlpha = Math.min(0.06, (zoom - 4) / 25 * 0.06);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
+                    ctx.lineWidth = 1;
+
+                    ctx.beginPath();
+                    for (let c = minCol; c <= maxCol; c++) {
+                        const x = Math.round(panX + c * zoom);
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, ch);
+                    }
+                    for (let r = minRow; r <= maxRow; r++) {
+                        const y = Math.round(panY + r * zoom);
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(cw, y);
+                    }
+                    ctx.stroke();
+                }
+
+                // 2. Subtle Coordinate Origin Crosshair (x=0, y=0)
+                const originX = Math.round(panX);
+                const originY = Math.round(panY);
+                if (originX >= 0 && originX <= cw) {
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(originX, 0);
+                    ctx.lineTo(originX, ch);
+                    ctx.stroke();
+                }
+                if (originY >= 0 && originY <= ch) {
+                    ctx.strokeStyle = 'rgba(168, 85, 247, 0.25)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(0, originY);
+                    ctx.lineTo(cw, originY);
+                    ctx.stroke();
+                }
+
+                // 3. Draw live cells in infinite coordinate space
+                for (const [key, age] of this.infiniteCells.entries()) {
+                    const comma = key.indexOf(',');
+                    const c = parseInt(key.slice(0, comma), 10);
+                    const r = parseInt(key.slice(comma + 1), 10);
+
+                    if (c >= minCol && c <= maxCol && r >= minRow && r <= maxRow) {
+                        const x = panX + c * zoom;
+                        const y = panY + r * zoom;
+                        const size = Math.max(1, zoom);
+
+                        let fillStyle = '';
+                        if (age === 1) {
+                            fillStyle = 'rgba(6, 182, 212, 0.9)';
+                        } else if (age === 2) {
+                            fillStyle = 'rgba(14, 165, 233, 0.85)';
+                        } else if (age < 5) {
+                            fillStyle = 'rgba(99, 102, 241, 0.8)';
+                        } else {
+                            fillStyle = 'rgba(168, 85, 247, 0.75)';
+                        }
+
+                        ctx.fillStyle = fillStyle;
+                        if (zoom >= 8) {
+                            const padding = Math.max(0.6, zoom * 0.05);
+                            ctx.beginPath();
+                            ctx.roundRect(x + padding, y + padding, size - padding * 2, size - padding * 2, Math.min(3, zoom * 0.2));
+                            ctx.fill();
+
+                            if (age <= 2) {
+                                ctx.shadowBlur = Math.min(10, zoom);
+                                ctx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+                                ctx.beginPath();
+                                ctx.roundRect(x + padding, y + padding, size - padding * 2, size - padding * 2, Math.min(3, zoom * 0.2));
+                                ctx.fill();
+                                ctx.shadowBlur = 0;
+                            }
+                        } else {
+                            ctx.fillRect(x, y, size, size);
+                        }
+                    }
+                }
+
+                // Update HUD Text
+                const zoomPercent = Math.round((this.zoom / 18) * 100);
+                const centerWorldX = Math.round((-panX + cw / 2) / zoom);
+                const centerWorldY = Math.round((-panY + ch / 2) / zoom);
+                const hudZoom = document.getElementById('hud-zoom-text');
+                const hudCoords = document.getElementById('hud-coords-text');
+                if (hudZoom) hudZoom.innerText = `줌: ${zoomPercent}%`;
+                if (hudCoords) hudCoords.innerText = `중심: (${centerWorldX}, ${centerWorldY})`;
+            }
+
+            // Next Generation Step
             step() {
+                if (this.isInfiniteMode()) {
+                    this.stepInfinite();
+                } else {
+                    this.stepFixed();
+                }
+            }
+
+            stepFixed() {
                 const nextGrid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
                 let curPopulation = 0;
                 const births = [];
 
                 for (let r = 0; r < this.rows; r++) {
                     for (let c = 0; c < this.cols; c++) {
-                        const liveNeighbors = this.countNeighbors(r, c);
+                        const liveNeighbors = this.countNeighborsFixed(r, c);
                         const isAlive = this.grid[r][c] > 0;
 
                         if (isAlive) {
                             if (liveNeighbors === 2 || liveNeighbors === 3) {
-                                nextGrid[r][c] = this.grid[r][c] + 1; // survives, gets older
+                                nextGrid[r][c] = this.grid[r][c] + 1;
                                 curPopulation++;
                             } else {
-                                nextGrid[r][c] = 0; // dies
+                                nextGrid[r][c] = 0;
                             }
                         } else {
                             if (liveNeighbors === 3) {
-                                nextGrid[r][c] = 1; // newly born
+                                nextGrid[r][c] = 1;
                                 curPopulation++;
                                 births.push({ x: c, y: r });
                             } else {
@@ -982,7 +1488,6 @@
                     }
                 }
 
-                // If sound enabled, trigger synth notes based on newly born cells
                 if (this.soundEnabled && births.length > 0 && this.isPlaying) {
                     synth.playBirthNotes(births, this.cols, this.rows);
                 }
@@ -998,26 +1503,70 @@
                 this.draw();
             }
 
-            // Helper: Count neighbors (supporting wrap-around toggle)
-            countNeighbors(r, c) {
+            stepInfinite() {
+                // Sparse Conway's Game of Life Algorithm
+                const neighborCounts = new Map();
+                for (const [key] of this.infiniteCells.entries()) {
+                    const comma = key.indexOf(',');
+                    const x = parseInt(key.slice(0, comma), 10);
+                    const y = parseInt(key.slice(comma + 1), 10);
+
+                    for (let dx = -1; dx <= 1; dx++) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            if (dx === 0 && dy === 0) continue;
+                            const nKey = `${x + dx},${y + dy}`;
+                            neighborCounts.set(nKey, (neighborCounts.get(nKey) || 0) + 1);
+                        }
+                    }
+                }
+
+                const nextCells = new Map();
+                let curPopulation = 0;
+                const births = [];
+
+                for (const [key, count] of neighborCounts.entries()) {
+                    const currentAge = this.infiniteCells.get(key) || 0;
+                    if (currentAge > 0) {
+                        if (count === 2 || count === 3) {
+                            nextCells.set(key, currentAge + 1);
+                            curPopulation++;
+                        }
+                    } else {
+                        if (count === 3) {
+                            nextCells.set(key, 1);
+                            curPopulation++;
+                            const comma = key.indexOf(',');
+                            const x = parseInt(key.slice(0, comma), 10);
+                            const y = parseInt(key.slice(comma + 1), 10);
+                            births.push({ x, y });
+                        }
+                    }
+                }
+
+                if (this.soundEnabled && births.length > 0 && this.isPlaying) {
+                    synth.playBirthNotes(births, 60, 45);
+                }
+
+                this.infiniteCells = nextCells;
+                this.generation++;
+                this.population = curPopulation;
+                if (this.population > this.peakPopulation) {
+                    this.peakPopulation = this.population;
+                }
+
+                this.updateStats();
+                this.draw();
+            }
+
+            countNeighborsFixed(r, c) {
                 let count = 0;
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         if (i === 0 && j === 0) continue;
-
-                        let nr = r + i;
-                        let nc = c + j;
-
-                        if (this.wrapEdges) {
-                            // Toroidal wrap-around
-                            nr = (nr + this.rows) % this.rows;
-                            nc = (nc + this.cols) % this.cols;
+                        const nr = r + i;
+                        const nc = c + j;
+                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
                             if (this.grid[nr][nc] > 0) count++;
-                        } else {
-                            // Hard boundaries
-                            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
-                                if (this.grid[nr][nc] > 0) count++;
-                            }
                         }
                     }
                 }
@@ -1025,130 +1574,214 @@
             }
 
             updateStats() {
-                // Calculate current population if not done yet
                 if (this.generation === 0) {
-                    let pop = 0;
-                    for (let r = 0; r < this.rows; r++) {
-                        for (let c = 0; c < this.cols; c++) {
-                            if (this.grid[r][c] > 0) pop++;
+                    if (this.isInfiniteMode()) {
+                        this.population = this.infiniteCells.size;
+                    } else {
+                        let pop = 0;
+                        for (let r = 0; r < this.rows; r++) {
+                            for (let c = 0; c < this.cols; c++) {
+                                if (this.grid[r][c] > 0) pop++;
+                            }
                         }
+                        this.population = pop;
                     }
-                    this.population = pop;
-                    this.peakPopulation = Math.max(this.peakPopulation, pop);
+                    this.peakPopulation = Math.max(this.peakPopulation, this.population);
                 }
 
                 document.getElementById('stat-generation').innerText = this.generation;
                 document.getElementById('stat-population').innerText = this.population;
                 document.getElementById('stat-peak').innerText = this.peakPopulation;
-                document.getElementById('stat-grid-size').innerText = `${this.cols} × ${this.rows}`;
+                
+                const sizeEl = document.getElementById('stat-grid-size');
+                if (this.isInfiniteMode()) {
+                    sizeEl.innerText = '∞ (무한 공간)';
+                    sizeEl.style.fontSize = '1.05rem';
+                } else {
+                    sizeEl.innerText = `${this.cols} × ${this.rows}`;
+                    sizeEl.style.fontSize = '1.15rem';
+                }
             }
 
-            // Interaction Handlers (Mouse Dragging / Clicking on Canvas)
             handleInteraction(e) {
                 const rect = this.canvas.getBoundingClientRect();
-                
-                // Adjust for dynamic CSS scaled size
-                const scaleX = this.canvas.width / rect.width;
-                const scaleY = this.canvas.height / rect.height;
-                
                 const clientX = e.clientX || (e.touches && e.touches[0].clientX);
                 const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
                 if (clientX === undefined || clientY === undefined) return;
 
-                const col = Math.floor(((clientX - rect.left) * scaleX) / this.cellSize);
-                const row = Math.floor(((clientY - rect.top) * scaleY) / (this.canvas.height / this.rows));
+                if (this.isInfiniteMode()) {
+                    const canvasX = clientX - rect.left;
+                    const canvasY = clientY - rect.top;
+                    const col = Math.floor((canvasX - this.panX) / this.zoom);
+                    const row = Math.floor((canvasY - this.panY) / this.zoom);
+                    const key = `${col},${row}`;
 
-                if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
-                    // Update grid
-                    this.grid[row][col] = this.drawMode;
+                    if (this.drawMode === 1) {
+                        this.infiniteCells.set(key, 1);
+                    } else {
+                        this.infiniteCells.delete(key);
+                    }
                     this.updateStats();
                     this.draw();
+                } else {
+                    const scaleX = this.canvas.width / rect.width;
+                    const scaleY = this.canvas.height / rect.height;
+                    const col = Math.floor(((clientX - rect.left) * scaleX) / this.cellSize);
+                    const row = Math.floor(((clientY - rect.top) * scaleY) / (this.canvas.height / this.rows));
+
+                    if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
+                        this.grid[row][col] = this.drawMode;
+                        this.updateStats();
+                        this.draw();
+                    }
                 }
             }
 
             setupEventListeners() {
                 const canvas = this.canvas;
 
-                // Mouse down -> start draw/erase
+                // Context menu prevention (to enable right-click panning)
+                canvas.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                });
+
+                // Mouse Down
                 canvas.addEventListener('mousedown', (e) => {
-                    if (e.button !== 0) return; // Only left click
+                    if (e.button === 2) {
+                        // Right-click: Pan arena in infinite mode
+                        if (this.isInfiniteMode()) {
+                            this.isPanning = true;
+                            this.lastMouseX = e.clientX;
+                            this.lastMouseY = e.clientY;
+                            canvas.classList.add('panning');
+                        }
+                        return;
+                    }
+
+                    if (e.button !== 0) return; // Left-click only for drawing
+
                     this.isDrawing = true;
-                    
-                    // Determine if we are starting drawing or erasing
                     const rect = canvas.getBoundingClientRect();
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
-                    const col = Math.floor(((e.clientX - rect.left) * scaleX) / this.cellSize);
-                    const row = Math.floor(((e.clientY - rect.top) * scaleY) / (canvas.height / this.rows));
                     
-                    if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
-                        this.drawMode = this.grid[row][col] > 0 ? 0 : 1; // toggle: if alive, erase; if dead, draw
+                    if (this.isInfiniteMode()) {
+                        const canvasX = e.clientX - rect.left;
+                        const canvasY = e.clientY - rect.top;
+                        const col = Math.floor((canvasX - this.panX) / this.zoom);
+                        const row = Math.floor((canvasY - this.panY) / this.zoom);
+                        this.drawMode = this.infiniteCells.has(`${col},${row}`) ? 0 : 1;
                     } else {
-                        this.drawMode = 1;
+                        const scaleX = canvas.width / rect.width;
+                        const scaleY = canvas.height / rect.height;
+                        const col = Math.floor(((e.clientX - rect.left) * scaleX) / this.cellSize);
+                        const row = Math.floor(((e.clientY - rect.top) * scaleY) / (canvas.height / this.rows));
+                        if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
+                            this.drawMode = this.grid[row][col] > 0 ? 0 : 1;
+                        } else {
+                            this.drawMode = 1;
+                        }
                     }
                     this.handleInteraction(e);
                 });
 
+                // Mouse Move
                 canvas.addEventListener('mousemove', (e) => {
+                    if (this.isPanning && this.isInfiniteMode()) {
+                        const dx = e.clientX - this.lastMouseX;
+                        const dy = e.clientY - this.lastMouseY;
+                        this.panX += dx;
+                        this.panY += dy;
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                        this.draw();
+                        return;
+                    }
+
                     if (!this.isDrawing) return;
                     this.handleInteraction(e);
                 });
 
-                window.addEventListener('mouseup', () => {
-                    this.isDrawing = false;
+                // Mouse Up
+                window.addEventListener('mouseup', (e) => {
+                    if (e.button === 2) {
+                        this.isPanning = false;
+                        canvas.classList.remove('panning');
+                    }
+                    if (e.button === 0) {
+                        this.isDrawing = false;
+                    }
                 });
 
-                // Touch support
+                // Mouse Wheel: Zoom in / out infinitely centered on cursor
+                canvas.addEventListener('wheel', (e) => {
+                    if (!this.isInfiniteMode()) return;
+                    e.preventDefault();
+
+                    const rect = canvas.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+
+                    // World coordinate at mouse pointer before zoom
+                    const worldX = (mouseX - this.panX) / this.zoom;
+                    const worldY = (mouseY - this.panY) / this.zoom;
+
+                    // Exponential smooth zoom factor
+                    const zoomFactor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+                    const newZoom = Math.min(Math.max(this.zoom * zoomFactor, 0.4), 160);
+
+                    // Adjust pan so the world point remains fixed under mouse
+                    this.panX = mouseX - worldX * newZoom;
+                    this.panY = mouseY - worldY * newZoom;
+                    this.zoom = newZoom;
+
+                    this.draw();
+                }, { passive: false });
+
+                // Touch Support
                 canvas.addEventListener('touchstart', (e) => {
                     this.isDrawing = true;
-                    this.drawMode = 1; // Default touch draw to alive
+                    this.drawMode = 1;
                     this.handleInteraction(e);
                 });
 
                 canvas.addEventListener('touchmove', (e) => {
                     if (!this.isDrawing) return;
                     this.handleInteraction(e);
-                    e.preventDefault(); // Stop scrolling
+                    e.preventDefault();
                 }, { passive: false });
 
                 canvas.addEventListener('touchend', () => {
                     this.isDrawing = false;
                 });
 
-                // Window resize support
+                // Window Resize
                 let resizeTimeout;
                 window.addEventListener('resize', () => {
-                    // Debounce resize
                     clearTimeout(resizeTimeout);
                     resizeTimeout = setTimeout(() => {
-                        const oldGrid = JSON.parse(JSON.stringify(this.grid));
                         this.resizeCanvas();
-                        
-                        // Restore old grid values where possible
-                        this.resetGrid();
-                        for (let r = 0; r < Math.min(oldGrid.length, this.rows); r++) {
-                            for (let c = 0; c < Math.min(oldGrid[0].length, this.cols); c++) {
-                                this.grid[r][c] = oldGrid[r][c];
-                            }
-                        }
-                        this.updateStats();
                         this.draw();
                     }, 200);
                 });
+
+                // Reset view button for infinite grid
+                const btnResetView = document.getElementById('btn-reset-view');
+                if (btnResetView) {
+                    btnResetView.addEventListener('click', () => {
+                        this.panX = this.canvas.width / 2;
+                        this.panY = this.canvas.height / 2;
+                        this.zoom = 18;
+                        this.draw();
+                    });
+                }
             }
 
-            // Load pattern presets relative to current grid size
+            // Load pattern presets
             loadPreset(presetName) {
                 this.resetGrid();
-                const midC = Math.floor(this.cols / 2);
-                const midR = Math.floor(this.rows / 2);
-
                 let coords = [];
 
                 switch(presetName) {
                     case 'glider':
-                        // Classic Glider
                         coords = [
                             {r: -1, c: 0},
                             {r: 0, c: 1},
@@ -1156,41 +1789,27 @@
                         ];
                         break;
                     case 'pulsar':
-                        // Pulsar (period 3 oscillator)
                         const lines = [-6, -1, 1, 6];
                         lines.forEach(r => {
-                            // Horizontals
-                            for (let c of [-4, -3, -2, 2, 3, 4]) {
-                                coords.push({r, c});
-                            }
+                            for (let c of [-4, -3, -2, 2, 3, 4]) coords.push({r, c});
                         });
                         [-4, -3, -2, 2, 3, 4].forEach(r => {
-                            // Verticals
-                            for (let c of [-6, -1, 1, 6]) {
-                                coords.push({r, c});
-                            }
+                            for (let c of [-6, -1, 1, 6]) coords.push({r, c});
                         });
                         break;
                     case 'gosper':
-                        // Gosper Glider Gun
-                        const originR = midR - 5;
-                        const originC = midC - 18;
-                        // Coordinates offset from top-left of the gun
                         const gunOffsets = [
-                            {r: 5, c: 1}, {r: 5, c: 2}, {r: 6, c: 1}, {r: 6, c: 2}, // Left Block
+                            {r: 5, c: 1}, {r: 5, c: 2}, {r: 6, c: 1}, {r: 6, c: 2},
                             {r: 3, c: 13}, {r: 3, c: 14}, {r: 4, c: 12}, {r: 4, c: 16}, {r: 5, c: 11}, {r: 5, c: 17}, 
                             {r: 6, c: 11}, {r: 6, c: 15}, {r: 6, c: 17}, {r: 6, c: 18}, {r: 7, c: 11}, {r: 7, c: 17}, 
-                            {r: 8, c: 12}, {r: 8, c: 16}, {r: 9, c: 13}, {r: 9, c: 14}, // Left body
+                            {r: 8, c: 12}, {r: 8, c: 16}, {r: 9, c: 13}, {r: 9, c: 14},
                             {r: 1, c: 25}, {r: 2, c: 23}, {r: 2, c: 25}, {r: 3, c: 21}, {r: 3, c: 22}, 
-                            {r: 4, c: 21}, {r: 4, c: 22}, {r: 5, c: 21}, {r: 5, c: 22}, {r: 6, c: 23}, {r: 6, c: 25}, {r: 7, c: 25}, // Mid gun parts
-                            {r: 3, c: 35}, {r: 3, c: 36}, {r: 4, c: 35}, {r: 4, c: 36} // Right Block
+                            {r: 4, c: 21}, {r: 4, c: 22}, {r: 5, c: 21}, {r: 5, c: 22}, {r: 6, c: 23}, {r: 6, c: 25}, {r: 7, c: 25},
+                            {r: 3, c: 35}, {r: 3, c: 36}, {r: 4, c: 35}, {r: 4, c: 36}
                         ];
-                        gunOffsets.forEach(pt => {
-                            coords.push({ r: pt.r - 5, c: pt.c - 18 }); // Center offset adapt
-                        });
+                        gunOffsets.forEach(pt => coords.push({ r: pt.r - 5, c: pt.c - 18 }));
                         break;
                     case 'acorn':
-                        // Acorn Methuselah
                         coords = [
                             {r: -1, c: -2},
                             {r: 0, c: 0},
@@ -1198,7 +1817,6 @@
                         ];
                         break;
                     case 'beacon':
-                        // Beacon (period 2 oscillator)
                         coords = [
                             {r: -2, c: -2}, {r: -2, c: -1},
                             {r: -1, c: -2},
@@ -1208,13 +1826,24 @@
                         break;
                 }
 
-                coords.forEach(offset => {
-                    const r = midR + offset.r;
-                    const c = midC + offset.c;
-                    if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
-                        this.grid[r][c] = 1;
-                    }
-                });
+                if (this.isInfiniteMode()) {
+                    // Place at current center of viewport
+                    const midC = Math.round((-this.panX + this.canvas.width / 2) / this.zoom);
+                    const midR = Math.round((-this.panY + this.canvas.height / 2) / this.zoom);
+                    coords.forEach(offset => {
+                        this.infiniteCells.set(`${midC + offset.c},${midR + offset.r}`, 1);
+                    });
+                } else {
+                    const midC = Math.floor(this.cols / 2);
+                    const midR = Math.floor(this.rows / 2);
+                    coords.forEach(offset => {
+                        const r = midR + offset.r;
+                        const c = midC + offset.c;
+                        if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+                            this.grid[r][c] = 1;
+                        }
+                    });
+                }
 
                 this.updateStats();
                 this.draw();
@@ -1253,16 +1882,15 @@
         window.addEventListener('DOMContentLoaded', () => {
             const gol = new GameOfLife();
 
-            // Setup DOM event connections
             const btnPlay = document.getElementById('btn-play');
             const btnStep = document.getElementById('btn-step');
             const btnClear = document.getElementById('btn-clear');
             const btnRandom = document.getElementById('btn-randomize');
             const inputSpeed = document.getElementById('input-speed');
             const valSpeed = document.getElementById('val-speed');
-            const switchWrap = document.getElementById('switch-wrap');
             const switchSound = document.getElementById('switch-sound');
             const selectDensity = document.getElementById('select-grid-density');
+            const audioVisPanel = document.getElementById('audio-vis-panel');
 
             // Play/Pause Action
             btnPlay.addEventListener('click', () => {
@@ -1294,20 +1922,20 @@
                 valSpeed.innerText = `${fps} FPS`;
             });
 
-            // Wrap switch
-            switchWrap.addEventListener('change', (e) => {
-                gol.wrapEdges = e.target.checked;
-            });
-
-            // Sound Toggle
+            // Sound & Visualizer Toggle
             switchSound.addEventListener('change', (e) => {
                 gol.soundEnabled = e.target.checked;
                 if (gol.soundEnabled) {
                     synth.init();
+                    audioVisPanel.style.display = 'block';
+                    synth.startVisualizer();
+                } else {
+                    audioVisPanel.style.display = 'none';
+                    synth.stopVisualizer();
                 }
             });
 
-            // Grid density settings
+            // Grid density settings (including Infinite Grid)
             selectDensity.addEventListener('change', (e) => {
                 if (gol.isPlaying) gol.togglePlay();
                 gol.changeDensity(e.target.value);
@@ -1325,7 +1953,7 @@
             // Spacebar shortcut
             window.addEventListener('keydown', (e) => {
                 if (e.code === 'Space') {
-                    e.preventDefault(); // Stop page scrolling
+                    e.preventDefault();
                     gol.togglePlay();
                 }
             });
