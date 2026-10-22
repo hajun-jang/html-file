@@ -22,7 +22,7 @@ A collection of various HTML/JS experiments and small applications.
   - **[factory/](./tycoon/factory/)**: 3D Automation Factory Tycoon.
     - [index.html](./tycoon/factory/index.html): 3D custom grid-placement automation simulation using WebGL (Three.js), fluid pipes, and wireless energy relay systems.
 - **[life/](./life/)**: Conway's Game of Life simulation.
-  - [index.html](./life/index.html): Premium Conway's Game of Life simulation featuring high-performance Canvas rendering, cellular aging gradients, infinite grid mode with mouse-wheel zoom & right-click pan, multi-cell type selector (Conway cell, directional Cloner cell with pushing mechanics, static cell), famous pattern presets, and interactive Web Audio API synthesis with a live waveform and 15-note pitch visualizer.
+  - [index.html](./life/index.html): Premium Conway's Game of Life simulation featuring high-performance Canvas rendering, cellular aging gradients, infinite grid mode with mouse-wheel zoom & right-click pan, multi-cell type selector (Conway cell, directional Cloner cell with pushing mechanics, directional Pusher cell, static cell), famous pattern presets, and interactive Web Audio API synthesis with a live waveform and 15-note pitch visualizer.
 - **[uploader/](./uploader/)**: Minecraft Map Image Cloudinary Direct Uploader.
   - [index.html](./uploader/index.html): A client-side static web application strictly for dragging & dropping image files (.png, .jpg, .gif, .webp, .bmp), batch/individual renaming with strict `[a-z0-9._-]` sanitization, and direct uploading to the fixed Cloudinary account (`zeioqxwq`) for Minecraft server integration.
 
@@ -34,5 +34,6 @@ A collection of various HTML/JS experiments and small applications.
 
 Simply open any of the `.html` files in a modern web browser, or host them statically on services like GitHub Pages.
 For the **Hacknet Tycoon**, the game runs in single-player offline mode by default. To connect with peers, click the gear icon in the top right to configure your Supabase endpoint.
+
 
 

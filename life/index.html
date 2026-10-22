@@ -20,6 +20,8 @@
             --secondary-glow: rgba(168, 85, 247, 0.4);
             --cloner-color: #f59e0b; /* Amber / Orange */
             --cloner-glow: rgba(245, 158, 11, 0.45);
+            --pusher-color: #10b981; /* Emerald / Green */
+            --pusher-glow: rgba(16, 185, 129, 0.45);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-green: #10b981;
@@ -465,6 +467,12 @@
             box-shadow: 0 0 16px var(--cloner-glow);
         }
 
+        .cell-type-card.active.pusher-active {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--pusher-color);
+            box-shadow: 0 0 16px var(--pusher-glow);
+        }
+
         .cell-card-header {
             display: flex;
             gap: 0.85rem;
@@ -501,6 +509,13 @@
             background: linear-gradient(135deg, #64748b, #475569);
             box-shadow: 0 0 10px rgba(100, 116, 139, 0.35);
             color: #f8fafc;
+        }
+
+        .pusher-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 12px var(--pusher-glow);
+            color: #ffffff;
+            letter-spacing: -1px;
         }
 
         .cell-card-title-group {
@@ -566,6 +581,13 @@
             color: #fff;
             border-color: var(--cloner-color);
             box-shadow: 0 0 8px var(--cloner-glow);
+        }
+
+        .btn-dir.btn-pusher-dir.active {
+            background: var(--pusher-color);
+            color: #fff;
+            border-color: var(--pusher-color);
+            box-shadow: 0 0 8px var(--pusher-glow);
         }
 
         /* Presets list */
@@ -967,7 +989,30 @@
                         </div>
                     </div>
 
-                    <!-- 3. 고정 세포 ('무') -->
+                    <!-- 3. 푸시 세포 (Pusher) -->
+                    <div class="cell-type-card" data-cell-type="pusher">
+                        <div class="cell-card-header">
+                            <div class="cell-preview-icon pusher-icon" id="pusher-preview-icon">
+                                <span id="pusher-icon-symbol">→|</span>
+                            </div>
+                            <div class="cell-card-title-group">
+                                <h4 class="cell-name">푸시 세포</h4>
+                                <p class="cell-desc">지정한 방향으로 전진하며 앞에 있는 세포들을 함께 밀어냅니다.</p>
+                            </div>
+                        </div>
+                        <!-- 추가 요소 선택: 푸시 방향 -->
+                        <div class="cell-extra-options">
+                            <span class="extra-label" style="color: var(--pusher-color);">추가 요소 선택 (푸시 방향)</span>
+                            <div class="dir-button-group">
+                                <button type="button" class="btn-dir btn-pusher-dir active" data-dir="right">→ 우</button>
+                                <button type="button" class="btn-dir btn-pusher-dir" data-dir="left">← 좌</button>
+                                <button type="button" class="btn-dir btn-pusher-dir" data-dir="up">↑ 상</button>
+                                <button type="button" class="btn-dir btn-pusher-dir" data-dir="down">↓ 하</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 고정 세포 ('무') -->
                     <div class="cell-type-card" data-cell-type="static">
                         <div class="cell-card-header">
                             <div class="cell-preview-icon static-icon">
@@ -975,7 +1020,7 @@
                             </div>
                             <div class="cell-card-title-group">
                                 <h4 class="cell-name">고정 세포 (무)</h4>
-                                <p class="cell-desc">가만히 제자리를 유지하는 세포. 복제 세포 실험 및 구조물 제작에 유용합니다.</p>
+                                <p class="cell-desc">가만히 제자리를 유지하는 세포. 복제 및 푸시 실험과 구조물 제작에 유용합니다.</p>
                             </div>
                         </div>
                     </div>
@@ -989,6 +1034,13 @@
                     <span class="badge">Presets</span>
                 </div>
                 <div class="preset-list">
+                    <div class="preset-item" data-preset="pusher-demo">
+                        <div class="preset-info">
+                            <h4 style="color: var(--pusher-color);">푸시 세포 시연 (푸+무)</h4>
+                            <p>푸시 세포가 앞의 세포를 밀며 함께 전진</p>
+                        </div>
+                        <span class="preset-badge" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">특수</span>
+                    </div>
                     <div class="preset-item" data-preset="cloner-demo">
                         <div class="preset-info">
                             <h4 style="color: var(--cloner-color);">복제기 시연 (무+복제)</h4>
@@ -1045,6 +1097,7 @@
                         <ul>
                             <li><strong>콘웨이의 세포</strong>: 전통 생명 게임 세포 (텍스쳐 없음).</li>
                             <li><strong>복제 세포 (|->)</strong>: 뒤의 세포를 앞 방향으로 계속 밀면서 복제합니다. 추가 요소 란에서 4방향을 설정할 수 있습니다.</li>
+                            <li><strong>푸시 세포 (->|)</strong>: 지정한 방향으로 전진하며 앞의 세포들을 함께 밀어냅니다. (푸무 ➔  푸무)</li>
                             <li><strong>고정 세포 (무)</strong>: 가만히 제자리를 유지하는 세포.</li>
                         </ul>
                     </li>
@@ -1290,9 +1343,10 @@
                 this.cols = this.densities[this.currentDensity].cols;
                 this.rows = this.densities[this.currentDensity].rows;
                 
-                // Currently selected cell type for placement: 'conway' | 'cloner' | 'static'
+                // Currently selected cell type for placement: 'conway' | 'cloner' | 'static' | 'pusher'
                 this.selectedCellType = 'conway';
                 this.selectedClonerDir = 'right'; // 'right' | 'left' | 'up' | 'down'
+                this.selectedPusherDir = 'right';
                 
                 // Grid data:
                 // Fixed mode: 2D array [row][col] -> cell object or null
@@ -1334,8 +1388,8 @@
                 this.setupEventListeners();
                 this.draw();
                 
-                // Load default preset (Cloner Demo)
-                this.loadPreset('cloner-demo');
+                // Load default preset (Pusher Demo)
+                this.loadPreset('pusher-demo');
             }
 
             isInfiniteMode() {
@@ -1621,6 +1675,79 @@
                         ctx.fillRect(x, y, size, size);
                     }
                 }
+                else if (cell.type === 'pusher') {
+                    // Pusher Cell: Emerald green block with ->| direction texture
+                    ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+                    if (size >= 6) {
+                        ctx.shadowBlur = Math.min(8, size);
+                        ctx.shadowColor = 'rgba(16, 185, 129, 0.5)';
+                        ctx.beginPath();
+                        ctx.roundRect(rx, ry, w, h, Math.min(3, size * 0.2));
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+
+                        if (size >= 8) {
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.lineWidth = Math.max(1.3, size * 0.08);
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+
+                            const cx = rx + w / 2;
+                            const cy = ry + h / 2;
+                            const dir = cell.dir || 'right';
+
+                            ctx.beginPath();
+                            if (dir === 'right') {
+                                // Stem pointing right
+                                ctx.moveTo(rx + w * 0.22, cy);
+                                ctx.lineTo(rx + w * 0.74, cy);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.52, ry + h * 0.32);
+                                ctx.lineTo(rx + w * 0.74, cy);
+                                ctx.lineTo(rx + w * 0.52, ry + h * 0.68);
+                                // Flat pushing plate on the right front
+                                ctx.moveTo(rx + w * 0.78, ry + h * 0.20);
+                                ctx.lineTo(rx + w * 0.78, ry + h * 0.80);
+                            } else if (dir === 'left') {
+                                // Stem pointing left
+                                ctx.moveTo(rx + w * 0.78, cy);
+                                ctx.lineTo(rx + w * 0.26, cy);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.48, ry + h * 0.32);
+                                ctx.lineTo(rx + w * 0.26, cy);
+                                ctx.lineTo(rx + w * 0.48, ry + h * 0.68);
+                                // Flat pushing plate on the left front
+                                ctx.moveTo(rx + w * 0.22, ry + h * 0.20);
+                                ctx.lineTo(rx + w * 0.22, ry + h * 0.80);
+                            } else if (dir === 'up') {
+                                // Stem pointing up
+                                ctx.moveTo(cx, ry + h * 0.78);
+                                ctx.lineTo(cx, ry + h * 0.26);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.32, ry + h * 0.48);
+                                ctx.lineTo(cx, ry + h * 0.26);
+                                ctx.lineTo(rx + w * 0.68, ry + h * 0.48);
+                                // Flat pushing plate on the top front
+                                ctx.moveTo(rx + w * 0.20, ry + h * 0.22);
+                                ctx.lineTo(rx + w * 0.80, ry + h * 0.22);
+                            } else if (dir === 'down') {
+                                // Stem pointing down
+                                ctx.moveTo(cx, ry + h * 0.22);
+                                ctx.lineTo(cx, ry + h * 0.74);
+                                // Arrowhead
+                                ctx.moveTo(rx + w * 0.32, ry + h * 0.52);
+                                ctx.lineTo(cx, ry + h * 0.74);
+                                ctx.lineTo(rx + w * 0.68, ry + h * 0.52);
+                                // Flat pushing plate on the bottom front
+                                ctx.moveTo(rx + w * 0.20, ry + h * 0.78);
+                                ctx.lineTo(rx + w * 0.80, ry + h * 0.78);
+                            }
+                            ctx.stroke();
+                        }
+                    } else {
+                        ctx.fillRect(x, y, size, size);
+                    }
+                }
             }
 
             drawFixed() {
@@ -1805,13 +1932,76 @@
                     }
                 }
 
+                // 2. Identify Pusher actions and push cells forward
+                const pushers = [];
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const cell = currentGrid[r][c];
+                        if (cell && cell.type === 'pusher') {
+                            pushers.push({ c, r, cell });
+                        }
+                    }
+                }
+
+                // Sort pushers so forward-most ones move first to avoid collisions in chains
+                pushers.sort((a, b) => {
+                    const da = this.getDirDelta(a.cell.dir);
+                    if (da.dx > 0) return b.c - a.c;
+                    if (da.dx < 0) return a.c - b.c;
+                    if (da.dy > 0) return b.r - a.r;
+                    if (da.dy < 0) return a.r - b.r;
+                    return 0;
+                });
+
+                for (const p of pushers) {
+                    const delta = this.getDirDelta(p.cell.dir);
+                    const c = p.c;
+                    const r = p.r;
+                    const currentPusher = currentGrid[r][c];
+                    if (!currentPusher || currentPusher.type !== 'pusher') continue;
+
+                    // Find contiguous line of cells in front
+                    let length = 0;
+                    while (true) {
+                        const checkC = c + (length + 1) * delta.dx;
+                        const checkR = r + (length + 1) * delta.dy;
+                        if (checkC >= 0 && checkC < this.cols && checkR >= 0 && checkR < this.rows && currentGrid[checkR][checkC]) {
+                            length++;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Push line of cells in front
+                    for (let i = length; i >= 1; i--) {
+                        const fromC = c + i * delta.dx;
+                        const fromR = r + i * delta.dy;
+                        const toC = fromC + delta.dx;
+                        const toR = fromR + delta.dy;
+                        if (toC >= 0 && toC < this.cols && toR >= 0 && toR < this.rows) {
+                            currentGrid[toR][toC] = currentGrid[fromR][fromC];
+                        }
+                    }
+
+                    // Move pusher itself forward
+                    const frontC = c + delta.dx;
+                    const frontR = r + delta.dy;
+                    if (frontC >= 0 && frontC < this.cols && frontR >= 0 && frontR < this.rows) {
+                        currentGrid[frontR][frontC] = currentPusher;
+                        currentGrid[r][c] = null;
+                    } else {
+                        // Reached boundary: removed
+                        currentGrid[r][c] = null;
+                    }
+                }
+
                 // Phase 2: Conway Rules Evaluation on Conway cells
                 // (Conway cells count ALL living cells as neighbors)
                 const nextGrid = Array(this.rows).fill(null).map((_, r) => 
                     Array(this.cols).fill(null).map((_, c) => {
                         const cell = currentGrid[r][c];
-                        // Cloners and Static cells persist
-                        if (cell && (cell.type === 'cloner' || cell.type === 'static')) {
+                        // Cloners, Static cells, and Pushers persist
+                        if (cell && (cell.type === 'cloner' || cell.type === 'static' || cell.type === 'pusher')) {
                             return cell;
                         }
                         return null;
@@ -1933,6 +2123,60 @@
                     }
                 }
 
+                // 2. Process Pushers
+                const pushers = [];
+                for (const [key, cell] of this.infiniteCells.entries()) {
+                    if (cell && cell.type === 'pusher') {
+                        const comma = key.indexOf(',');
+                        const c = parseInt(key.slice(0, comma), 10);
+                        const r = parseInt(key.slice(comma + 1), 10);
+                        pushers.push({ c, r, cell });
+                    }
+                }
+
+                pushers.sort((a, b) => {
+                    const da = this.getDirDelta(a.cell.dir);
+                    if (da.dx > 0) return b.c - a.c;
+                    if (da.dx < 0) return a.c - b.c;
+                    if (da.dy > 0) return b.r - a.r;
+                    if (da.dy < 0) return a.r - b.r;
+                    return 0;
+                });
+
+                for (const p of pushers) {
+                    const delta = this.getDirDelta(p.cell.dir);
+                    const c = p.c;
+                    const r = p.r;
+                    const currentPusher = currentCells.get(`${c},${r}`);
+                    if (!currentPusher || currentPusher.type !== 'pusher') continue;
+
+                    // Find contiguous line of cells in front
+                    let length = 0;
+                    while (true) {
+                        const checkKey = `${c + (length + 1) * delta.dx},${r + (length + 1) * delta.dy}`;
+                        if (currentCells.has(checkKey)) {
+                            length++;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Push line of cells in front
+                    for (let i = length; i >= 1; i--) {
+                        const fromKey = `${c + i * delta.dx},${r + i * delta.dy}`;
+                        const toKey = `${c + (i + 1) * delta.dx},${r + (i + 1) * delta.dy}`;
+                        const movedCell = currentCells.get(fromKey);
+                        if (movedCell) {
+                            currentCells.set(toKey, movedCell);
+                        }
+                    }
+
+                    // Move pusher itself forward
+                    const frontKey = `${c + delta.dx},${r + delta.dy}`;
+                    currentCells.set(frontKey, currentPusher);
+                    currentCells.delete(`${c},${r}`);
+                }
+
                 // Phase 2: Conway Automata Neighbor Counting
                 const totalNeighborCounts = new Map();
                 const conwayNeighborCounts = new Map();
@@ -1957,9 +2201,9 @@
                 const nextCells = new Map();
                 let curPopulation = 0;
 
-                // Keep cloner and static cells
+                // Keep cloner, static, and pusher cells
                 for (const [key, cell] of currentCells.entries()) {
-                    if (cell && (cell.type === 'cloner' || cell.type === 'static')) {
+                    if (cell && (cell.type === 'cloner' || cell.type === 'static' || cell.type === 'pusher')) {
                         nextCells.set(key, cell);
                         curPopulation++;
                     }
@@ -2041,6 +2285,8 @@
                 const clientY = e.clientY || (e.touches && e.touches[0].clientY);
                 if (clientX === undefined || clientY === undefined) return;
 
+                const activeDir = this.selectedCellType === 'pusher' ? this.selectedPusherDir : this.selectedClonerDir;
+
                 if (this.isInfiniteMode()) {
                     const canvasX = clientX - rect.left;
                     const canvasY = clientY - rect.top;
@@ -2049,7 +2295,7 @@
                     const key = `${col},${row}`;
 
                     if (this.drawMode === 1) {
-                        this.infiniteCells.set(key, this.createCell(this.selectedCellType, this.selectedClonerDir));
+                        this.infiniteCells.set(key, this.createCell(this.selectedCellType, activeDir));
                     } else {
                         this.infiniteCells.delete(key);
                     }
@@ -2063,7 +2309,7 @@
 
                     if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
                         if (this.drawMode === 1) {
-                            this.grid[row][col] = this.createCell(this.selectedCellType, this.selectedClonerDir);
+                            this.grid[row][col] = this.createCell(this.selectedCellType, activeDir);
                         } else {
                             this.grid[row][col] = null;
                         }
@@ -2094,6 +2340,7 @@
                     if (e.button !== 0) return;
 
                     this.isDrawing = true;
+                    const activeDir = this.selectedCellType === 'pusher' ? this.selectedPusherDir : this.selectedClonerDir;
                     
                     if (this.isInfiniteMode()) {
                         const rect = canvas.getBoundingClientRect();
@@ -2101,12 +2348,10 @@
                         const row = Math.floor((e.clientY - rect.top - this.panY) / this.zoom);
                         const key = `${col},${row}`;
                         const existing = this.infiniteCells.get(key);
-                        // If same cell type & dir already exists, erase it; otherwise place new
-                        if (existing && existing.type === this.selectedCellType && (this.selectedCellType !== 'cloner' || existing.dir === this.selectedClonerDir)) {
-                            this.drawMode = 0;
-                        } else {
-                            this.drawMode = 1;
-                        }
+                        const isSame = existing && existing.type === this.selectedCellType && (
+                            (this.selectedCellType !== 'cloner' && this.selectedCellType !== 'pusher') || existing.dir === activeDir
+                        );
+                        this.drawMode = isSame ? 0 : 1;
                     } else {
                         const rect = canvas.getBoundingClientRect();
                         const scaleX = canvas.width / rect.width;
@@ -2115,11 +2360,10 @@
                         const row = Math.floor(((e.clientY - rect.top) * scaleY) / (this.canvas.height / this.rows));
                         if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
                             const existing = this.grid[row][col];
-                            if (existing && existing.type === this.selectedCellType && (this.selectedCellType !== 'cloner' || existing.dir === this.selectedClonerDir)) {
-                                this.drawMode = 0;
-                            } else {
-                                this.drawMode = 1;
-                            }
+                            const isSame = existing && existing.type === this.selectedCellType && (
+                                (this.selectedCellType !== 'cloner' && this.selectedCellType !== 'pusher') || existing.dir === activeDir
+                            );
+                            this.drawMode = isSame ? 0 : 1;
                         } else {
                             this.drawMode = 1;
                         }
@@ -2220,6 +2464,14 @@
                 let presetCellType = 'conway';
 
                 switch(presetName) {
+                    case 'pusher-demo':
+                        // Demonstration: Pusher Cell pushing Static Cell ('푸' '무')
+                        presetCellType = 'custom';
+                        coords = [
+                            { r: 0, c: 0, type: 'pusher', dir: 'right' },
+                            { r: 0, c: 1, type: 'static' }
+                        ];
+                        break;
                     case 'cloner-demo':
                         // Demonstration: Static Cell behind Cloner Cell ('무' '복')
                         presetCellType = 'custom';
@@ -2353,11 +2605,21 @@
                 down: '↓'
             };
 
+            const pusherDirSymbols = {
+                right: '→|',
+                left: '|←',
+                up: '↑━',
+                down: '↓━'
+            };
+
             const cellNames = {
                 conway: '콘웨이의 세포',
                 cloner: '복제 세포',
+                pusher: '푸시 세포',
                 static: '고정 세포 (무)'
             };
+
+            const pusherIconSymbol = document.getElementById('pusher-icon-symbol');
 
             function selectCellType(type) {
                 gol.selectedCellType = type;
@@ -2365,17 +2627,20 @@
                     if (c.getAttribute('data-cell-type') === type) {
                         c.classList.add('active');
                         if (type === 'cloner') c.classList.add('cloner-active');
+                        if (type === 'pusher') c.classList.add('pusher-active');
                     } else {
-                        c.classList.remove('active', 'cloner-active');
+                        c.classList.remove('active', 'cloner-active', 'pusher-active');
                     }
                 });
 
                 if (cellBadge) {
-                    cellBadge.innerText = cellNames[type];
+                    cellBadge.innerText = cellNames[type] || type;
                     if (type === 'conway') {
                         cellBadge.style.color = 'var(--primary)';
                     } else if (type === 'cloner') {
                         cellBadge.style.color = 'var(--cloner-color)';
+                    } else if (type === 'pusher') {
+                        cellBadge.style.color = 'var(--pusher-color)';
                     } else {
                         cellBadge.style.color = '#cbd5e1';
                     }
@@ -2392,21 +2657,38 @@
             });
 
             // Direction Buttons for Cloner Cell
-            dirButtons.forEach(btn => {
+            document.querySelectorAll('.cell-type-card[data-cell-type="cloner"] .btn-dir').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const dir = btn.getAttribute('data-dir');
                     gol.selectedClonerDir = dir;
 
-                    dirButtons.forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.cell-type-card[data-cell-type="cloner"] .btn-dir').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
 
                     if (clonerIconSymbol) {
                         clonerIconSymbol.innerText = dirSymbols[dir];
                     }
 
-                    // Automatically activate cloner cell mode
                     selectCellType('cloner');
+                });
+            });
+
+            // Direction Buttons for Pusher Cell
+            document.querySelectorAll('.cell-type-card[data-cell-type="pusher"] .btn-dir').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dir = btn.getAttribute('data-dir');
+                    gol.selectedPusherDir = dir;
+
+                    document.querySelectorAll('.cell-type-card[data-cell-type="pusher"] .btn-dir').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    if (pusherIconSymbol) {
+                        pusherIconSymbol.innerText = pusherDirSymbols[dir];
+                    }
+
+                    selectCellType('pusher');
                 });
             });
 
